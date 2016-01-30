@@ -32,7 +32,7 @@ from tensorflow.models.image.cifar10 import cifar10
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '~/tensorflow/data/cifar10_train',
+tf.app.flags.DEFINE_string('train_dir', '/home/zijing/tensorflow/data/cifar10_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 1000000,
