@@ -26,7 +26,7 @@ import urllib
 import tensorflow.python.platform
 import tensorflow as tf
 
-from tensorflow.models.image.cifar10 import cifar10_input
+import cifar10_input
 from tensorflow.python.platform import gfile
 
 FLAGS = tf.app.flags.FLAGS
