@@ -10,6 +10,7 @@ import sys
 import urllib
 
 import tensorflow.python.platform
+from roimapper import image1tokrow
 
 import numpy
 import tensorflow as tf
@@ -161,9 +162,13 @@ def main(argv=None):  # pylint: disable=unused-argument
         # 2D convolution, with 'SAME' padding (i.e. the output feature map has
         # the same size as the input). Note that {strides} is a 4D array whose
         # shape matches the data layout: [image index, y, x, depth].
-        conv = tf.nn.conv2d(data,
+        datamapmatrix = image1tokrow.matrix_kby1()
+        datamapmatrix = numpy.array(datamapmatrix[None, :, :, None], dtype='f')
+        datamaptensor = tf.constant(datamapmatrix)
+        datamapper = tf.matmul(datamaptensor, data)
+        conv = tf.nn.conv2d(datamapper,
                             conv1_weights,
-                            strides=[1, 1, 1, 1],
+                            strides=[1, 5, 1, 1],   # the stride of the height should change to 5
                             padding='SAME')
         # Bias and rectified linear non-linearity.
         relu = tf.nn.relu(tf.nn.bias_add(conv, conv1_biases))
