@@ -23,8 +23,11 @@ SEED = 66478  # Set to None for random seed.
 # datamaptensor = tf.constant(datamapmatrix)
 # datamaptensor = tf.Variable(datamaptensor)
 
+conv1weights = np.random.randint(1, 5, size=(1, 1, 1, 1))
+conv1weights = np.array(conv1weights, dtype='f')
+conv1weightstensor = tf.Variable(tf.constant(conv1weights, shape=[1,1,1,1]))
 datamaptensor = tf.Variable(tf.random_normal([1,2,2,1]))
-conv1weightstensor = tf.Variable(tf.random_normal([1,1,1,1]))
+# conv1weightstensor = tf.Variable(tf.random_normal([1,1,1,1]))
 
 
 conv = tf.nn.conv2d(datamaptensor,
