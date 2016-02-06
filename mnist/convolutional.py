@@ -10,12 +10,18 @@ import sys
 import urllib
 
 import tensorflow.python.platform
+import roi_property
 
 import numpy
 import tensorflow as tf
 
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
-WORK_DIRECTORY = '/home/zijing/tensorflow/data/mnist'
+WORK_DIRECTORY = roi_property.WORK_DIR + 'data/mnist'
+
+if not os.path.exists(WORK_DIRECTORY):
+    print 'no directory found, creating...'
+    os.makedirs(WORK_DIRECTORY)
+
 IMAGE_SIZE = 28
 NUM_CHANNELS = 1
 PIXEL_DEPTH = 255
