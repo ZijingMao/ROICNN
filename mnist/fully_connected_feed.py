@@ -25,16 +25,18 @@ import numpy
 import tensorflow as tf
 import input_data
 import mnist
+from workproperty import roi_property
 # Basic model parameters as external flags.
 flags = tf.app.flags
 FLAGS = flags.FLAGS
+WORK_DIRECTORY = roi_property.WORK_DIR + 'data/mnist'
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 2000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('hidden1', 128, 'Number of units in hidden layer 1.')
 flags.DEFINE_integer('hidden2', 32, 'Number of units in hidden layer 2.')
 flags.DEFINE_integer('batch_size', 100, 'Batch size.  '
                      'Must divide evenly into the dataset sizes.')
-flags.DEFINE_string('train_dir', '/home/zijing/tensorflow/data/mnist', 'Directory to put the training data.')
+flags.DEFINE_string('train_dir', WORK_DIRECTORY, 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                      'for unit testing.')
 def placeholder_inputs(batch_size):

@@ -28,13 +28,16 @@ import tensorflow as tf
 
 import cifar10_input
 from tensorflow.python.platform import gfile
+import roi_property
 
 FLAGS = tf.app.flags.FLAGS
+
+WORK_DIRECTORY = roi_property.WORK_DIR + 'data/cifar10_data'
 
 # Basic model parameters.
 tf.app.flags.DEFINE_integer('batch_size', 128,
                             """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_string('data_dir', '/home/zijing/tensorflow/data/cifar10_data',
+tf.app.flags.DEFINE_string('data_dir', WORK_DIRECTORY,
                            """Path to the CIFAR-10 data directory.""")
 
 # Process images of this size. Note that this differs from the original CIFAR

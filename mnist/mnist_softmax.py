@@ -23,11 +23,13 @@ from __future__ import division
 from __future__ import print_function
 
 # Import data
-from tensorflow.examples.tutorials.mnist import input_data
+import input_data
+import roi_property
 
 import tensorflow as tf
 
-mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
+WORK_DIRECTORY = roi_property.WORK_DIR + 'data/mnist'
+mnist = input_data.read_data_sets(WORK_DIRECTORY, one_hot=True)
 
 sess = tf.InteractiveSession()
 

@@ -29,10 +29,13 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.models.image.cifar10 import cifar10
+import roi_property
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '/home/zijing/tensorflow/data/cifar10_train',
+TRAIN_DIRECTORY = roi_property.WORK_DIR + 'data/cifar10_train'
+
+tf.app.flags.DEFINE_string('train_dir', TRAIN_DIRECTORY,
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 1000000,

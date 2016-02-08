@@ -32,6 +32,7 @@ from __future__ import print_function
 import tensorflow.python.platform
 from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
+import roi_property
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -43,7 +44,8 @@ flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 
 def main(_):
   # Import data
-  mnist = input_data.read_data_sets('/tmp/data/', one_hot=True,
+  WORK_DIRECTORY = roi_property.WORK_DIR + 'data/mnist'
+  mnist = input_data.read_data_sets(WORK_DIRECTORY, one_hot=True,
                                     fake_data=FLAGS.fake_data)
 
   sess = tf.InteractiveSession()

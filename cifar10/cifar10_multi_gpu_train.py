@@ -24,6 +24,7 @@ from datetime import datetime
 import os.path
 import re
 import time
+import roi_property
 
 # pylint: disable=unused-import,g-bad-import-order
 import tensorflow.python.platform
@@ -35,7 +36,9 @@ from tensorflow.models.image.cifar10 import cifar10
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('train_dir', '/tmp/cifar10_train',
+TRAIN_DIRECTORY = roi_property.WORK_DIR + 'data/cifar10_train'
+
+tf.app.flags.DEFINE_string('train_dir', TRAIN_DIRECTORY,
                            """Directory where to write event logs """
                            """and checkpoint.""")
 tf.app.flags.DEFINE_integer('max_steps', 1000000,

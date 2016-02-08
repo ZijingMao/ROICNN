@@ -25,14 +25,18 @@ import numpy as np
 import tensorflow as tf
 
 from tensorflow.models.image.cifar10 import cifar10
+import roi_property
+
+WORK_DIRECTORY = roi_property.WORK_DIR + 'data/cifar10_eval'
+TRAIN_DIRECTORY = roi_property.WORK_DIR + 'data/cifar10_train'
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_string('eval_dir', '/home/zijing/tensorflow/data/cifar10_eval',
+tf.app.flags.DEFINE_string('eval_dir', WORK_DIRECTORY,
                            """Directory where to write event logs.""")
 tf.app.flags.DEFINE_string('eval_data', 'test',
                            """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_string('checkpoint_dir', '/tmp/cifar10_train',
+tf.app.flags.DEFINE_string('checkpoint_dir', TRAIN_DIRECTORY,
                            """Directory where to read model checkpoints.""")
 tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
                             """How often to run the eval.""")
