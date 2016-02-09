@@ -105,6 +105,7 @@ def do_eval(sess,
   precision = true_count / num_examples
   print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
         (num_examples, true_count, precision))
+
 def run_training():
   """Train MNIST for a number of steps."""
   # Get the sets of images and labels for training, validation, and

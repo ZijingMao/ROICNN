@@ -9,3 +9,5 @@ import numpy
 import tensorflow as tf
 
 WORK_DIR = '/opt/project/'
+
+DIGIT_IMAGE_SIZE = 28
