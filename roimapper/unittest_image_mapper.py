@@ -44,6 +44,23 @@ class TestImageMapper(unittest.TestCase):
         # check the size of the shape is equal to the concat size
         self.assertEqual(kernel_tensor.get_shape().as_list(), input_shape)
 
+    def test_concat_along(self):
+        fake_image_list = split_image.split_digit_image(FAKE_DIGIT_IMAGE)
+        kernel_tensor, input_shape = \
+            concat_image.concat_digit_image_along(fake_image_list, np.arange(0, 28), 5, 1)
+        # check the size of the shape is equal to the concat size
+        self.assertEqual(kernel_tensor.get_shape().as_list(), input_shape)
+
+    def test_concat_two_dim(self):
+        fake_image_list = split_image.split_digit_image_axes(FAKE_DIGIT_IMAGE, 1)
+        kernel_tensor, input_shape = \
+            concat_image.concat_digit_image_along(fake_image_list, np.arange(0, 28), 5, 1)
+        fake_image_list = split_image.split_digit_image_axes(kernel_tensor, 2)
+        kernel_tensor, input_shape = \
+            concat_image.concat_digit_image_along(fake_image_list, np.arange(0, 28), 5, 2)
+        # check the size of the shape is equal to the concat size
+        self.assertEqual(kernel_tensor.get_shape().as_list(), input_shape)
+
     sess.close()
 
 if __name__ == '__main__':

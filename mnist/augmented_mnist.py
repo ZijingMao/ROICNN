@@ -1,9 +1,5 @@
-"""Simple, end-to-end, LeNet-5-like convolutional MNIST model example.
+# Created by Zijing Mao at 2/9/2016
 
-This should achieve a test error of 0.8%. Please keep this model as simple and
-linear as possible, it is meant as a tutorial for simple convolutional models.
-Run with --self_test on the command line to exectute a short self-test.
-"""
 import gzip
 import os
 import sys
@@ -11,6 +7,8 @@ import urllib
 
 import tensorflow.python.platform
 import roi_property
+from roimapper import concat_image
+from roimapper import split_image
 
 import numpy
 import tensorflow as tf
@@ -128,9 +126,9 @@ def main(argv=None):  # pylint: disable=unused-argument
     # training step using the {feed_dict} argument to the Run() call below.
     train_data_node = tf.placeholder(
         tf.float32,
-        shape=(BATCH_SIZE, IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS))
+        shape=(BATCH_SIZE, IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS))   # [64, 28, 28, 1]
     train_labels_node = tf.placeholder(tf.float32,
-                                       shape=(BATCH_SIZE, NUM_LABELS))
+                                       shape=(BATCH_SIZE, NUM_LABELS))  # [64, 10]
     # For the validation and test data, we'll just hold the entire dataset in
     # one constant node.
     validation_data_node = tf.constant(validation_data)
@@ -167,9 +165,14 @@ def main(argv=None):  # pylint: disable=unused-argument
         # 2D convolution, with 'SAME' padding (i.e. the output feature map has
         # the same size as the input). Note that {strides} is a 4D array whose
         # shape matches the data layout: [image index, y, x, depth].
-        conv = tf.nn.conv2d(data,
+        input_image_list = split_image.split_digit_image_axes(data, 1)
+        augment, aug_shape = concat_image.concat_digit_image_along(input_image_list, numpy.arange(0, 28), 5, 1)
+        input_image_list = split_image.split_digit_image_axes(augment, 2)
+        augment, aug_shape = concat_image.concat_digit_image_along(input_image_list, numpy.arange(0, 28), 5, 2)
+
+        conv = tf.nn.conv2d(augment,
                             conv1_weights,
-                            strides=[1, 1, 1, 1],
+                            strides=[1, 5, 5, 1],
                             padding='SAME')
         # Bias and rectified linear non-linearity.
         relu = tf.nn.relu(tf.nn.bias_add(conv, conv1_biases))

@@ -3,23 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import warnings
-
-
-def deprecated(func):
-    '''
-    This is a decorator which can be used to mark functions
-    as deprecated. It will result in a warning being emitted
-    when the function is used.
-    '''
-    def new_func(*args, **kwargs):
-        warnings.warn("Call to deprecated function {}.".format(func.__name__),
-                      category=DeprecationWarning)
-        return func(*args, **kwargs)
-    new_func.__name__ = func.__name__
-    new_func.__doc__ = func.__doc__
-    new_func.__dict__.update(func.__dict__)
-    return new_func
+from workproperty import roi_property
 
 
 def image_1tok_kernel(vec1=np.arange(0, 28), kernelrow=5):
@@ -40,7 +24,7 @@ def image_1tok_kernel(vec1=np.arange(0, 28), kernelrow=5):
     return kernel_idx
 
 
-@deprecated
+@roi_property.deprecated
 def image_1tok_row(vec1=np.arange(0, 28), kernelrow=5):
 
     # get the size of the vec1
@@ -56,7 +40,7 @@ def image_1tok_row(vec1=np.arange(0, 28), kernelrow=5):
     return veck
 
 
-@deprecated
+@roi_property.deprecated
 def matrix_kby1(vec1=np.arange(0, 28), kernelrow=5):
     # get the size of the vec1
     vec1shape = np.shape(vec1)

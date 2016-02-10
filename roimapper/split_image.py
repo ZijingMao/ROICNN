@@ -22,3 +22,11 @@ def split_digit_image(input_digit_image=FAKE_DIGIT_IMAGE):
         split_list.append(split_com)
     return split_list
 
+
+def split_digit_image_axes(input_digit_image=FAKE_DIGIT_IMAGE, split_dim=1):
+    split_list = []
+    # split the dimension of the axis = 1
+    for split_com in tf.split(split_dim, DIGIT_IMAGE_SIZE, input_digit_image):
+        split_list.append(split_com)
+    return split_list
+
