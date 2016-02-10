@@ -10,8 +10,15 @@ import tensorflow as tf
 import warnings
 
 WORK_DIR = '/opt/project/'
+CSV_DIR = '/opt/project/data/chanlocs_csv/'
 
 DIGIT_IMAGE_SIZE = 28
+
+BIOSEMI_CONV = 5
+BIOSEMI_POOL_ALL = 4
+BIOSEMI_POOL = 2
+CONV_CHAN_INFO = [256, 128, 64, 32, 16]
+POOL_CHAN_INFO = [128, 64, 32, 16]
 
 
 def deprecated(func):
