@@ -14,6 +14,7 @@ CSV_DIR = '/opt/project/data/chanlocs_csv/'
 
 DIGIT_IMAGE_SIZE = 28
 
+EEG_SIGNAL_SIZE = 256
 BIOSEMI_CONV = 5
 BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2
