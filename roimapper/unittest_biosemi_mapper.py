@@ -6,13 +6,12 @@ from __future__ import print_function
 
 from workproperty import roi_property
 from numpy import random
-import tensorflow as tf
 import numpy as np
 import biosemi_chan_mapper
 import unittest
 import split_eeg
 import concat_eeg
-
+import tensorflow as tf
 
 EEG_SIGNAL_SIZE = roi_property.EEG_SIGNAL_SIZE
 FAKE_EEG_SIGNAL = random.randint(0, 10, size=(10, EEG_SIGNAL_SIZE, EEG_SIGNAL_SIZE, 1))

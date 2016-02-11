@@ -28,7 +28,7 @@ import numpy as np
 
 import tensorflow as tf
 
-from tensorflow.models.image.cifar10 import cifar10
+import cifar10
 import roi_property
 
 FLAGS = tf.app.flags.FLAGS
