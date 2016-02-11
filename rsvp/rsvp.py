@@ -35,8 +35,8 @@ IMAGE_SIZE = 24
 
 # Global constants describing the rsvp data set.
 NUM_CLASSES = 10
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 5000
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 1000
 
 # Constants describing the training process.
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
