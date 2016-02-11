@@ -771,6 +771,7 @@ POOL_16_IDX = np.array([   [ 1,  2],
 
 
 def roi_mapper_idx_select(chan_num, used_type='conv'):
+    # which type to choose
     if used_type.lower() == 'conv':
         if chan_num == 256:
             chan_idx = CONV_256_IDX
