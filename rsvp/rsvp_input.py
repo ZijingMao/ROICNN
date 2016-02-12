@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
+from workproperty import roi_property
 
 
 def read_rsvp(filename_queue):
@@ -35,33 +36,35 @@ def read_rsvp(filename_queue):
     # Dimensions of the images in the RSVP dataset.
     # See http://www.cs.toronto.edu/~kriz/cifar.html for a description of the
     # input format.
-    label_bytes = 1  # 2 for RSVP
-    result.height = 256
-    result.width = 256
+    result.height = roi_property.EEG_SIGNAL_SIZE
+    result.width = roi_property.EEG_SIGNAL_SIZE
     result.depth = 1
     image_bytes = result.height * result.width * result.depth
     # Every record consists of a label followed by the image, with a
     # fixed number of bytes for each.
-    record_bytes = label_bytes + image_bytes
 
     # Read a record, getting filenames from the filename_queue.  No
     # header or footer in the RSVP format, so we leave header_bytes
     # and footer_bytes at their default of 0.
-    reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
-    result.key, value = reader.read(filename_queue)
+    reader = tf.TFRecordReader()
+    result.key, serialized_example = reader.read(filename_queue)
 
-    # Convert from a string to a vector of uint8 that is record_bytes long.
-    record_bytes = tf.decode_raw(value, tf.uint8)
+    features = tf.parse_single_example(
+      serialized_example,
+      dense_keys=['image_raw', 'label'],
+      # Defaults are not specified since both keys are required.
+      dense_types=[tf.string, tf.int64])
 
-    # The first bytes represent the label, which we convert from uint8->int32.
-    result.label = tf.cast(
-        tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
+    # Convert from a scalar string tensor (whose single string has
+    # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
+    # [mnist.IMAGE_PIXELS].
+    image = tf.decode_raw(features['image_raw'], tf.float64)
+    image.set_shape([image_bytes])
+    image = tf.reshape(image, [result.height, result.width, result.depth])
 
-    # The remaining bytes after the label represent the image, which we reshape
-    # from [depth * height * width] to [depth, height, width].
-    depth_major = tf.reshape(tf.slice(record_bytes, [label_bytes], [image_bytes]),
-                             [result.depth, result.height, result.width])
-    # Convert from [depth, height, width] to [height, width, depth].
-    result.uint8image = tf.transpose(depth_major, [1, 2, 0])
+    label = tf.cast(features['label'], tf.int32)
+
+    result.image = image
+    result.label = label
 
     return result
