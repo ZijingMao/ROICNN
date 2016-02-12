@@ -26,7 +26,7 @@ def read_rsvp(filename_queue):
         key: a scalar string Tensor describing the filename & record number
           for this example.
         label: an int32 Tensor with the label in the range 0..64.
-        float64: a [height, width, depth] float64 Tensor with the image data
+        float32: a [height, width, depth] float32 Tensor with the image data
     """
 
     class RSVPRecord(object):
@@ -58,7 +58,7 @@ def read_rsvp(filename_queue):
     # Convert from a scalar string tensor (whose single string has
     # length mnist.IMAGE_PIXELS) to a uint8 tensor with shape
     # [mnist.IMAGE_PIXELS].
-    image = tf.decode_raw(features['image_raw'], tf.float64)
+    image = tf.decode_raw(features['image_raw'], tf.float32)
     image.set_shape([image_bytes])
     image = tf.reshape(image, [result.height, result.width, result.depth])
 
