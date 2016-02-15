@@ -13,7 +13,7 @@ import split_eeg
 import concat_eeg
 import tensorflow as tf
 
-EEG_SIGNAL_SIZE = roi_property.EEG_SIGNAL_SIZE
+EEG_SIGNAL_SIZE = 256
 FAKE_EEG_SIGNAL = random.randint(0, 10, size=(10, EEG_SIGNAL_SIZE, EEG_SIGNAL_SIZE, 1))
 FAKE_EEG_SIGNAL = tf.constant(FAKE_EEG_SIGNAL, dtype=np.float32)
 

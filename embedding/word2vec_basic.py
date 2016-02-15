@@ -36,7 +36,7 @@ def maybe_download(filename, expected_bytes):
   else:
     print(statinfo.st_size)
     raise Exception(
-        'Failed to verify ' + filename + '. Can you get to it with a browser?')
+      'Failed to verify ' + filename + '. Can you get to it with a browser?')
   return filename
 filename = maybe_download('text8.zip', 31344016)
 # Read the data into a string.
@@ -122,28 +122,28 @@ with graph.as_default():
   with tf.device('/cpu:0'):
     # Look up embeddings for inputs.
     embeddings = tf.Variable(
-        tf.random_uniform([vocabulary_size, embedding_size], -1.0, 1.0))
+      tf.random_uniform([vocabulary_size, embedding_size], -1.0, 1.0))
     embed = tf.nn.embedding_lookup(embeddings, train_inputs)
     # Construct the variables for the NCE loss
     nce_weights = tf.Variable(
-        tf.truncated_normal([vocabulary_size, embedding_size],
-                            stddev=1.0 / math.sqrt(embedding_size)))
+      tf.truncated_normal([vocabulary_size, embedding_size],
+                          stddev=1.0 / math.sqrt(embedding_size)))
     nce_biases = tf.Variable(tf.zeros([vocabulary_size]))
   # Compute the average NCE loss for the batch.
   # tf.nce_loss automatically draws a new sample of the negative labels each
   # time we evaluate the loss.
   loss = tf.reduce_mean(
-      tf.nn.nce_loss(nce_weights, nce_biases, embed, train_labels,
-                     num_sampled, vocabulary_size))
+    tf.nn.nce_loss(nce_weights, nce_biases, embed, train_labels,
+                   num_sampled, vocabulary_size))
   # Construct the SGD optimizer using a learning rate of 1.0.
   optimizer = tf.train.GradientDescentOptimizer(1.0).minimize(loss)
   # Compute the cosine similarity between minibatch examples and all embeddings.
   norm = tf.sqrt(tf.reduce_sum(tf.square(embeddings), 1, keep_dims=True))
   normalized_embeddings = embeddings / norm
   valid_embeddings = tf.nn.embedding_lookup(
-      normalized_embeddings, valid_dataset)
+    normalized_embeddings, valid_dataset)
   similarity = tf.matmul(
-      valid_embeddings, normalized_embeddings, transpose_b=True)
+    valid_embeddings, normalized_embeddings, transpose_b=True)
 # Step 5: Begin training.
 num_steps = 100001
 with tf.Session(graph=graph) as session:
@@ -153,7 +153,7 @@ with tf.Session(graph=graph) as session:
   average_loss = 0
   for step in xrange(num_steps):
     batch_inputs, batch_labels = generate_batch(
-        batch_size, num_skips, skip_window)
+      batch_size, num_skips, skip_window)
     feed_dict = {train_inputs : batch_inputs, train_labels : batch_labels}
     # We perform one update step by evaluating the optimizer op (including it
     # in the list of returned values for session.run()
