@@ -67,13 +67,12 @@ def inference(images, keep_prob):
     """
     # conv1
     with tf.variable_scope('conv1') as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[1, 1, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[1, 3, 1, 4],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv1 = tf.nn.relu(bias, name=scope.name)
-
 
 
 
