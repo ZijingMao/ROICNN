@@ -11,6 +11,8 @@ import math
 import tensorflow.python.platform
 import tensorflow as tf
 from workproperty import roi_property
+from roimapper import concat_eeg
+from roimapper import split_eeg
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL
@@ -68,6 +70,9 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
 # region define 1-layer models here
 
 def inference_local_st_filter(images, keep_prob):
+
+    # augment
+    input_image_list = split_eeg.split_digit_image_axes(images, 1)
 
     # conv1
     with tf.variable_scope('conv1') as scope:
