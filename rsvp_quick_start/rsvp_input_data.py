@@ -34,7 +34,7 @@ def dense_to_one_hot(labels_dense, num_classes=roi_property.BINARY_LABEL):
 class DataSet(object):
 
     def __init__(self, images, labels, fake_data=False, one_hot=False,
-                 dtype=tf.float32):
+                 dtype=tf.float32, reshape_tensor=True):
         """Construct a DataSet.
 
         one_hot arg is used only if fake_data is true.  `dtype` can be either
@@ -57,8 +57,9 @@ class DataSet(object):
             # Convert shape from [num examples, rows, columns, depth]
             # to [num examples, rows*columns] (assuming depth == 1)
             assert images.shape[3] == 1
-            images = images.reshape(images.shape[0],
-                                    images.shape[1] * images.shape[2])
+            if reshape_tensor:
+                images = images.reshape(images.shape[0],
+                                        images.shape[1] * images.shape[2])
 
         self._images = images
         self._labels = labels
@@ -109,7 +110,12 @@ class DataSet(object):
         return self._images[start:end], self._labels[start:end]
 
 
-def read_data_sets(train_data, fake_data=False, one_hot=False, dtype=tf.float32, scale_data=False):
+def read_data_sets(train_data,
+                   fake_data=False,
+                   one_hot=False,
+                   dtype=tf.float32,
+                   scale_data=False,
+                   reshape_t=True):
     class DataSets(object):
         pass
     data_sets = DataSets()
@@ -170,9 +176,17 @@ def read_data_sets(train_data, fake_data=False, one_hot=False, dtype=tf.float32,
     train_images = train_images[validation_size:]
     train_labels = train_labels[validation_size:]
 
-    data_sets.train = DataSet(train_images, train_labels, dtype=dtype)
-    data_sets.validation = DataSet(validation_images, validation_labels,
-                                   dtype=dtype)
-    data_sets.test = DataSet(test_images, test_labels, dtype=dtype)
+    data_sets.train = DataSet(train_images,
+                              train_labels,
+                              dtype=dtype,
+                              reshape_tensor=reshape_t)
+    data_sets.validation = DataSet(validation_images,
+                                   validation_labels,
+                                   dtype=dtype,
+                                   reshape_tensor=reshape_t)
+    data_sets.test = DataSet(test_images,
+                             test_labels,
+                             dtype=dtype,
+                             reshape_tensor=reshape_t)
 
     return data_sets

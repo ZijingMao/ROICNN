@@ -14,7 +14,7 @@ IMAGE_SIZE = roi_property.EEG_SIGNAL_SIZE
 IMAGE_PIXELS = IMAGE_SIZE * IMAGE_SIZE
 
 
-def inference(images, hidden1_units, hidden2_units):
+def inference(images, hidden1_units, hidden2_units, hidden3_units, hidden4_units, keep_prob):
     """Build the RSVP model up to where it may be used for inference.
     Args:
       images: Images placeholder, from inputs().
@@ -41,15 +41,36 @@ def inference(images, hidden1_units, hidden2_units):
         biases = tf.Variable(tf.zeros([hidden2_units]),
                              name='biases')
         hidden2 = tf.nn.relu(tf.matmul(hidden1, weights) + biases)
+    # Hidden 3
+    with tf.name_scope('hidden3'):
+        weights = tf.Variable(
+            tf.truncated_normal([hidden2_units, hidden3_units],
+                                stddev=1.0 / math.sqrt(float(hidden2_units))),
+            name='weights')
+        biases = tf.Variable(tf.zeros([hidden3_units]),
+                             name='biases')
+        hidden3 = tf.nn.relu(tf.matmul(hidden2, weights) + biases)
+    # Hidden 4
+    with tf.name_scope('hidden4'):
+        weights = tf.Variable(
+            tf.truncated_normal([hidden3_units, hidden4_units],
+                                stddev=1.0 / math.sqrt(float(hidden3_units))),
+            name='weights')
+        biases = tf.Variable(tf.zeros([hidden4_units]),
+                             name='biases')
+        hidden4 = tf.nn.relu(tf.matmul(hidden3, weights) + biases)
+    # Dropout 1
+    with tf.name_scope('dropout1'):
+        h_fc1_drop = tf.nn.dropout(hidden4, keep_prob)
     # Linear
     with tf.name_scope('softmax_linear'):
         weights = tf.Variable(
-            tf.truncated_normal([hidden2_units, NUM_CLASSES],
-                                stddev=1.0 / math.sqrt(float(hidden2_units))),
+            tf.truncated_normal([hidden4_units, NUM_CLASSES],
+                                stddev=1.0 / math.sqrt(float(hidden4_units))),
             name='weights')
         biases = tf.Variable(tf.zeros([NUM_CLASSES]),
                              name='biases')
-        logits = tf.matmul(hidden2, weights) + biases
+        logits = tf.matmul(h_fc1_drop, weights) + biases
     return logits
 
 
