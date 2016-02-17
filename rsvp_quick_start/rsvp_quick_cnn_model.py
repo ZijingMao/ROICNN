@@ -76,7 +76,6 @@ def inference(images, keep_prob):
 
 
 
-
     # local3
     with tf.variable_scope('local3') as scope:
         # Move everything into depth so we can perform a single matrix multiply.
