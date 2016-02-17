@@ -7,6 +7,7 @@ import math
 import tensorflow.python.platform
 import tensorflow as tf
 from workproperty import roi_property
+import rsvp_quick_inference
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL
@@ -65,48 +66,8 @@ def inference(images, keep_prob):
     Returns:
       softmax_linear: Output tensor with the computed logits.
     """
-    # conv1
-    with tf.variable_scope('conv1') as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[1, 3, 1, 4],
-                                             stddev=1e-4, wd=0.0)
-        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
-        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
-        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
-        conv1 = tf.nn.relu(bias, name=scope.name)
 
-
-
-    # local3
-    with tf.variable_scope('local3') as scope:
-        # Move everything into depth so we can perform a single matrix multiply.
-        dim = 1
-        for d in conv1.get_shape()[1:].as_list():
-            dim *= d
-        reshape = tf.reshape(conv1, [FLAGS.batch_size, dim])
-
-        weights = _variable_with_weight_decay('weights', shape=[dim, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
-
-    # dropout1
-    with tf.name_scope('dropout1'):
-        dropout1 = tf.nn.dropout(local3, keep_prob)
-
-    # local4
-    with tf.variable_scope('local4') as scope:
-        weights = _variable_with_weight_decay('weights', shape=[128, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
-
-    # softmax, i.e. softmax(WX + b)
-    with tf.variable_scope('softmax_linear') as scope:
-        weights = _variable_with_weight_decay('weights', [128, NUM_CLASSES],
-                                              stddev=1/128.0, wd=0.0)
-        biases = _variable_on_cpu('biases', [NUM_CLASSES],
-                                  tf.constant_initializer(0.0))
-        logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+    logits = rsvp_quick_inference.inference_spatialxtemporal_filter(images, keep_prob)
 
     # # Dropout 1
     # with tf.name_scope('dropout1'):
