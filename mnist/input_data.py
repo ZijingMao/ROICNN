@@ -49,7 +49,7 @@ def _read32(bytestream):
 
 
 def extract_images(filename):
-    """Extract the images into a 4D uint8 numpy array [index, y, x, depth]."""
+    """Extract the images into a 4D uint8 numpy array [index, y, depth]."""
     print('Extracting', filename)
     with gzip.open(filename) as bytestream:
         magic = _read32(bytestream)

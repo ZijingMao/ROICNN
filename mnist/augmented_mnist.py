@@ -47,7 +47,7 @@ def maybe_download(filename):
 
 
 def extract_data(filename, num_images):
-    """Extract the images into a 4D tensor [image index, y, x, channels].
+    """Extract the images into a 4D tensor [image index, y, channels].
 
     Values are rescaled from [0, 255] down to [-0.5, 0.5].
     """
