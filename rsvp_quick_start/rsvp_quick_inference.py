@@ -66,30 +66,20 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
     return var
 
 
+def _print_tensor_size(given_tensor):
+    # print the shape of tensor
+    print("="*78)
+    print("Tensor Name: " + given_tensor.name)
+    tensor_shape = given_tensor.get_shape()
+    print(tensor_shape.as_list())
+
+
 # endregion
 
 
-# region define 1-layer models here
+# region define the fully connected layer
 
-def inference_local_st_filter(images, keep_prob):
-
-    # augment
-    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
-    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
-    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)
-    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
-                                                 np.arange(0, IMAGE_SIZE),
-                                                 KERNEL_SIZE, 2)
-
-    # conv1
-    with tf.variable_scope('conv1') as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
-                                             stddev=1e-4, wd=0.0)
-        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
-        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
-        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
-        conv1 = tf.nn.relu(bias, name=scope.name)
-
+def inference_fully_connected_1layer(conv1, keep_prob):
 
     # local3
     with tf.variable_scope('local3') as scope:
@@ -103,10 +93,12 @@ def inference_local_st_filter(images, keep_prob):
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
         local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
+        _print_tensor_size(local3)
 
     # dropout1
     with tf.name_scope('dropout1'):
         dropout1 = tf.nn.dropout(local3, keep_prob)
+        # _print_tensor_size(dropout1) # does not exist tensor shape
 
     # local4
     with tf.variable_scope('local4') as scope:
@@ -114,6 +106,7 @@ def inference_local_st_filter(images, keep_prob):
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
         local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
+        _print_tensor_size(local4)
 
     # softmax, i.e. softmax(WX + b)
     with tf.variable_scope('softmax_linear') as scope:
@@ -122,6 +115,60 @@ def inference_local_st_filter(images, keep_prob):
         biases = _variable_on_cpu('biases', [NUM_CLASSES],
                                   tf.constant_initializer(0.0))
         logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+        _print_tensor_size(logits)
+
+    return logits
+
+# endregion
+
+
+# region define 1-layer models here
+
+def inference_local_st5_filter(images, keep_prob):
+
+    # augment
+    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
+    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
+    _print_tensor_size(augment)
+
+    # conv1
+    with tf.variable_scope('conv1') as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
+
+        logits = inference_fully_connected_1layer(conv1, keep_prob)
+
+    return logits
+
+
+def inference_local_st_filter(images, keep_prob):
+
+    # augment
+    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
+    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
+    _print_tensor_size(augment)
+    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)
+    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
+                                                 np.arange(0, IMAGE_SIZE),
+                                                 KERNEL_SIZE, 2)
+    _print_tensor_size(augment)
+
+    # conv1
+    with tf.variable_scope('conv1') as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
+
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
 
     return logits
 
@@ -136,39 +183,9 @@ def inference_temporal_filter(images, keep_prob):
         biases = _variable_on_cpu('biases', [8], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
 
-
-    # local3
-    with tf.variable_scope('local3') as scope:
-        # Move everything into depth so we can perform a single matrix multiply.
-        dim = 1
-        for d in conv1.get_shape()[1:].as_list():
-            dim *= d
-        reshape = tf.reshape(conv1, [FLAGS.batch_size, dim])
-
-        weights = _variable_with_weight_decay('weights', shape=[dim, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
-
-    # dropout1
-    with tf.name_scope('dropout1'):
-        dropout1 = tf.nn.dropout(local3, keep_prob)
-
-    # local4
-    with tf.variable_scope('local4') as scope:
-        weights = _variable_with_weight_decay('weights', shape=[128, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
-
-    # softmax, i.e. softmax(WX + b)
-    with tf.variable_scope('softmax_linear') as scope:
-        weights = _variable_with_weight_decay('weights', [128, NUM_CLASSES],
-                                              stddev=1/128.0, wd=0.0)
-        biases = _variable_on_cpu('biases', [NUM_CLASSES],
-                                  tf.constant_initializer(0.0))
-        logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
 
     return logits
 
@@ -183,39 +200,9 @@ def inference_global_st_filter(images, keep_prob):
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
 
-
-    # local3
-    with tf.variable_scope('local3') as scope:
-        # Move everything into depth so we can perform a single matrix multiply.
-        dim = 1
-        for d in conv1.get_shape()[1:].as_list():
-            dim *= d
-        reshape = tf.reshape(conv1, [FLAGS.batch_size, dim])
-
-        weights = _variable_with_weight_decay('weights', shape=[dim, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
-
-    # dropout1
-    with tf.name_scope('dropout1'):
-        dropout1 = tf.nn.dropout(local3, keep_prob)
-
-    # local4
-    with tf.variable_scope('local4') as scope:
-        weights = _variable_with_weight_decay('weights', shape=[128, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
-
-    # softmax, i.e. softmax(WX + b)
-    with tf.variable_scope('softmax_linear') as scope:
-        weights = _variable_with_weight_decay('weights', [128, NUM_CLASSES],
-                                              stddev=1/128.0, wd=0.0)
-        biases = _variable_on_cpu('biases', [NUM_CLASSES],
-                                  tf.constant_initializer(0.0))
-        logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
 
     return logits
 
@@ -230,39 +217,43 @@ def inference_spatial_filter(images, keep_prob):
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
+
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
+
+    return logits
 
 
-    # local3
-    with tf.variable_scope('local3') as scope:
-        # Move everything into depth so we can perform a single matrix multiply.
-        dim = 1
-        for d in conv1.get_shape()[1:].as_list():
-            dim *= d
-        reshape = tf.reshape(conv1, [FLAGS.batch_size, dim])
+def inference_1x1_filter(images, keep_prob):
 
-        weights = _variable_with_weight_decay('weights', shape=[dim, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
+    # conv1
+    with tf.variable_scope('conv1') as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[1, 1, 1, 4],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
 
-    # dropout1
-    with tf.name_scope('dropout1'):
-        dropout1 = tf.nn.dropout(local3, keep_prob)
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
 
-    # local4
-    with tf.variable_scope('local4') as scope:
-        weights = _variable_with_weight_decay('weights', shape=[128, 128],
-                                              stddev=0.04, wd=0.004)
-        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
+    return logits
 
-    # softmax, i.e. softmax(WX + b)
-    with tf.variable_scope('softmax_linear') as scope:
-        weights = _variable_with_weight_decay('weights', [128, NUM_CLASSES],
-                                              stddev=1/128.0, wd=0.0)
-        biases = _variable_on_cpu('biases', [NUM_CLASSES],
-                                  tf.constant_initializer(0.0))
-        logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+
+def inference_5x5_filter(images, keep_prob):
+
+    # conv1
+    with tf.variable_scope('conv1') as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv1 = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv1)
+
+    logits = inference_fully_connected_1layer(conv1, keep_prob)
 
     return logits
 

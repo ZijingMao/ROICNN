@@ -17,6 +17,13 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 
+def _print_tensor_size(given_tensor):
+    # print the shape of tensor
+    print("="*78)
+    print("Tensor Name: " + given_tensor.name)
+    print(given_tensor.get_shape().as_list())
+
+
 def _variable_on_cpu(name, shape, initializer):
     """Helper to create a Variable stored on CPU memory.
 
@@ -67,7 +74,9 @@ def inference(images, keep_prob):
       softmax_linear: Output tensor with the computed logits.
     """
 
-    logits = rsvp_quick_inference.inference_local_st_filter(images, keep_prob)
+    _print_tensor_size(images)
+
+    logits = rsvp_quick_inference.inference_local_st5_filter(images, keep_prob)
 
     # # Dropout 1
     # with tf.name_scope('dropout1'):
