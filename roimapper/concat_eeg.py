@@ -97,7 +97,7 @@ def conv_eeg_signal_time(
 
     image_kernel_idx = image1tokrow.image_1tok_kernel(vec_idx, kernelrow)
     curr_kernel_tensor = []
-    for kernel_idx in image_kernel_idx:  # go for every kernel => 28 kernels
+    for kernel_idx in image_kernel_idx:  # go for every kernel => 256 kernels
         # for each kernel => 5 index
         # concat on the first dimension => concat_dim1 = 1
         curr_kernel_tensor.append(tf.concat(concat_dim1, [input_eeg_list[idx] for idx in kernel_idx]))
@@ -154,5 +154,5 @@ def pool_eeg_signal_channel(
 
 
 def pool_eeg_signal_time():
-    # will be implemented in the future
+    # will be implemented on demands
     pass

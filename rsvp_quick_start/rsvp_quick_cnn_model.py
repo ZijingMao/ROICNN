@@ -67,7 +67,7 @@ def inference(images, keep_prob):
       softmax_linear: Output tensor with the computed logits.
     """
 
-    logits = rsvp_quick_inference.inference_global_st_filter(images, keep_prob)
+    logits = rsvp_quick_inference.inference_local_st_filter(images, keep_prob)
 
     # # Dropout 1
     # with tf.name_scope('dropout1'):

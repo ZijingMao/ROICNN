@@ -13,10 +13,12 @@ import tensorflow as tf
 from workproperty import roi_property
 from roimapper import concat_eeg
 from roimapper import split_eeg
+import numpy as np
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL
 IMAGE_SIZE = roi_property.EEG_SIGNAL_SIZE
+KERNEL_SIZE = roi_property.BIOSEMI_CONV
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -72,14 +74,19 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
 def inference_local_st_filter(images, keep_prob):
 
     # augment
-    input_image_list = split_eeg.split_digit_image_axes(images, 1)
+    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
+    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
+    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)
+    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
+                                                 np.arange(0, IMAGE_SIZE),
+                                                 KERNEL_SIZE, 2)
 
     # conv1
     with tf.variable_scope('conv1') as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[1, 64, 1, 8],
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
                                              stddev=1e-4, wd=0.0)
-        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
-        biases = _variable_on_cpu('biases', [8], tf.constant_initializer(0.0))
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv1 = tf.nn.relu(bias, name=scope.name)
 

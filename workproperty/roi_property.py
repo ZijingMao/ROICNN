@@ -9,8 +9,8 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN/'
-CSV_DIR = '/home/zijing/Github/ROICNN/data/chanlocs_csv/'
+WORK_DIR = '/opt/project/'
+CSV_DIR = '/opt/project/data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 
 DIGIT_IMAGE_SIZE = 28
