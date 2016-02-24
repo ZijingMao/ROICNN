@@ -67,21 +67,20 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
 def inference(images, keep_prob):
     """Build the RSVP model up to where it may be used for inference.
     Args:
-      images: Images placeholder, from inputs().
-      hidden1_units: Size of the first hidden layer.
-      hidden2_units: Size of the second hidden layer.
+      images (object): Images placeholder, from inputs().
+      keep_prob: Dropout placeholder
     Returns:
       softmax_linear: Output tensor with the computed logits.
     """
 
+    # TODO check the inference data structure, the size has to be a square
     _print_tensor_size(images)
+    assert isinstance(keep_prob, object)
 
-    logits = rsvp_quick_inference.inference_local_st5_filter(images, keep_prob)
+    conv1 = rsvp_quick_inference.inference_local_st5_filter(images, 'conv1')
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv1, keep_prob)
 
-    # # Dropout 1
-    # with tf.name_scope('dropout1'):
-    #     h_fc1_drop = tf.nn.dropout(hidden4, keep_prob)
-
+    assert isinstance(logits, object)
     return logits
 
 
