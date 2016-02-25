@@ -117,6 +117,7 @@ def inference_pooling_s_filter(images):
     # channel domain pooling mapper
     input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
     input_image_length = len(input_image_list)
+    # the pooling mapper should choose half size of the image size
     pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
     _print_tensor_size(pool_s)
 
