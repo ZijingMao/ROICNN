@@ -85,17 +85,22 @@ def _print_tensor_size(given_tensor):
 # endregion
 
 
-# define the eeg mappers for conv & pool
-
+# region define the eeg mappers for conv & pool
 
 def inference_augment_st_filter(images):
     # augment on spatial domain
     augment = inference_augment_s_filter(images)
 
+    # TODO try catch if the shape does not match, if the augment is not a tensor
     # augment on temporal domain
-    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)  # 2 represents temporal domain
+    eeg_signal_shape = augment.get_shape().as_list()
+    split_dim = 1   # split the spatial domain and rearrange them to repeat time domain
+    input_image_list = split_eeg.split_eeg_signal_axes(augment,
+                                                       input_eeg_size=eeg_signal_shape[split_dim],
+                                                       split_dim=split_dim)  # 2 represents temporal domain
+    input_image_length = len(input_image_list)
     augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
-                                                 np.arange(0, IMAGE_SIZE),
+                                                 np.arange(0, input_image_length),
                                                  KERNEL_SIZE, 2)
     _print_tensor_size(augment)
 
@@ -119,6 +124,18 @@ def inference_pooling_s_filter(images):
     input_image_length = len(input_image_list)
     # the pooling mapper should choose half size of the image size
     pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
+    _print_tensor_size(pool_s)
+
+    # apply the normal max pooling methods with stride = 2
+    pool_s = inference_pooling_n_filter(pool_s)
+
+    return pool_s
+
+
+def inference_pooling_n_filter(pool_s):
+
+    pool_s = tf.nn.max_pool(pool_s, ksize=[1, 2, 2, 1],
+                            strides=[1, 2, 2, 1], padding='SAME')
     _print_tensor_size(pool_s)
 
     return pool_s
@@ -174,13 +191,13 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
 
 # region define 1-layer modules here
 
-def inference_local_st5_filter(images, conv_layer_scope):
+def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     augment = inference_augment_s_filter(images)
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -191,13 +208,13 @@ def inference_local_st5_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_local_st_filter(images, conv_layer_scope):
+def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     augment = inference_augment_st_filter(images)
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -208,11 +225,11 @@ def inference_local_st_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_temporal_filter(images, conv_layer_scope):
+def inference_temporal_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[1, 64, 1, 8],
+        kernel = _variable_with_weight_decay('weights', shape=[1, 64, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [8], tf.constant_initializer(0.0))
@@ -223,11 +240,11 @@ def inference_temporal_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_global_st_filter(images, conv_layer_scope):
+def inference_global_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[64, 4, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[64, 4, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -238,11 +255,11 @@ def inference_global_st_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_spatial_filter(images, conv_layer_scope):
+def inference_spatial_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[64, 1, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[64, 1, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -253,11 +270,11 @@ def inference_spatial_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_1x1_filter(images, conv_layer_scope):
+def inference_1x1_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[1, 1, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[1, 1, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -268,11 +285,11 @@ def inference_1x1_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_5x5_filter(images, conv_layer_scope):
+def inference_5x5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
-        kernel = _variable_with_weight_decay('weights', shape=[5, 5, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
@@ -283,7 +300,22 @@ def inference_5x5_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_inception_filter(images, conv_layer_scope):
+def inference_depthwise_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.depthwise_conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
+def inference_inception_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     # will be implement in the future
@@ -295,14 +327,14 @@ def inference_inception_filter(images, conv_layer_scope):
 
 # region define 2-layer modules
 
-def inference_depthwise_filter(images, conv_layer_scope):
+def inference_separable_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output = 5x5/1x1
     with tf.variable_scope(conv_layer_scope) as scope:
         # perform better when kernel size is small
-        kernel = _variable_with_weight_decay('weights', shape=[1, 1, 1, 4],
+        kernel = _variable_with_weight_decay('weights', shape=[1, 1, in_feat, out_feat],
                                              stddev=1e-4, wd=0.0)
-        conv = tf.nn.depthwise_conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+        conv = tf.nn.separable_conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)
@@ -311,7 +343,7 @@ def inference_depthwise_filter(images, conv_layer_scope):
     return conv_output
 
 
-def inference_residual_filter(images, conv_layer_scope):
+def inference_residual_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     # will be implement in the future
@@ -319,7 +351,7 @@ def inference_residual_filter(images, conv_layer_scope):
     pass
 
 
-def inference_inception2_filter(images, conv_layer_scope):
+def inference_inception2_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     
     # conv_output
     # will be implement in the future

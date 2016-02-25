@@ -30,6 +30,7 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
 EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 
 # Basic model parameters as external flags.
+# TODO try to change learning rate in the rsvp folder
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
