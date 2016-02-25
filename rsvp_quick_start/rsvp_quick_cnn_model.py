@@ -38,6 +38,7 @@ def inference(images, keep_prob):
     assert isinstance(keep_prob, object)
 
     conv1 = rsvp_quick_inference.inference_local_st_filter(images, 'conv1')
+    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1, 'pool1')
     logits = rsvp_quick_inference.inference_fully_connected_1layer(conv1, keep_prob)
 
     assert isinstance(logits, object)
