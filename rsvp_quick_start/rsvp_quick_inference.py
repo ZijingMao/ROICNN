@@ -86,6 +86,47 @@ def _print_tensor_size(given_tensor):
 # endregion
 
 
+# define the eeg mappers for conv & pool
+
+
+def inference_augment_st_filter(images):
+    # augment on spatial domain
+    augment = inference_augment_s_filter(images)
+
+    # augment on temporal domain
+    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)  # 2 represents temporal domain
+    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
+                                                 np.arange(0, IMAGE_SIZE),
+                                                 KERNEL_SIZE, 2)
+    _print_tensor_size(augment)
+
+    return augment
+
+
+def inference_augment_s_filter(images):
+    # recommend to use
+    # augment
+    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
+    input_image_length = len(input_image_list)
+    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, input_image_length, 1)
+    _print_tensor_size(augment)
+
+    return augment
+
+
+def inference_pooling_s_filter(images):
+    # channel domain pooling mapper
+    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
+    input_image_length = len(input_image_list)
+    pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
+    _print_tensor_size(pool_s)
+
+    return pool_s
+
+
+# endregion
+
+
 # region define the fully connected layer
 
 def inference_fully_connected_1layer(conv_output, keep_prob):
@@ -135,10 +176,7 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
 
 def inference_local_st5_filter(images, conv_layer_scope):
 
-    # augment
-    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
-    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
-    _print_tensor_size(augment)
+    augment = inference_augment_s_filter(images)
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
@@ -155,15 +193,7 @@ def inference_local_st5_filter(images, conv_layer_scope):
 
 def inference_local_st_filter(images, conv_layer_scope):
 
-    # augment
-    input_image_list = split_eeg.split_eeg_signal_axes(images, 1)
-    augment, _ = concat_eeg.conv_eeg_signal_channel(input_image_list, IMAGE_SIZE, 1)
-    _print_tensor_size(augment)
-    input_image_list = split_eeg.split_eeg_signal_axes(augment, 2)
-    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
-                                                 np.arange(0, IMAGE_SIZE),
-                                                 KERNEL_SIZE, 2)
-    _print_tensor_size(augment)
+    augment = inference_augment_st_filter(images)
 
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
@@ -266,7 +296,19 @@ def inference_inception_filter(images, conv_layer_scope):
 # region define 2-layer modules
 
 def inference_depthwise_filter(images, conv_layer_scope):
-    pass
+
+    # conv_output = 5x5/1x1
+    with tf.variable_scope(conv_layer_scope) as scope:
+        # perform better when kernel size is small
+        kernel = _variable_with_weight_decay('weights', shape=[1, 1, 1, 4],
+                                             stddev=1e-4, wd=0.0)
+        conv = tf.nn.depthwise_conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
 
 
 def inference_residual_filter(images, conv_layer_scope):
