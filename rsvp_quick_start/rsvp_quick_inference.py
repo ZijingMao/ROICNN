@@ -7,7 +7,6 @@ Created on 2/17/16 3:29 PM
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import math
 import tensorflow.python.platform
 import tensorflow as tf
 from workproperty import roi_property
