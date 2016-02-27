@@ -60,7 +60,6 @@ class TestImageMapper(unittest.TestCase):
 
     def test_conv_channel(self):
         fake_image_list = split_eeg.split_eeg_signal_axes(FAKE_EEG_SIGNAL,
-                                                          input_eeg_size=EEG_SIGNAL_SIZE,
                                                           split_dim=1)
         kernel_tensor, input_shape = \
             concat_eeg.conv_eeg_signal_channel(fake_image_list, 256, 1)
@@ -69,7 +68,6 @@ class TestImageMapper(unittest.TestCase):
 
     def test_conv_time(self):
         fake_image_list = split_eeg.split_eeg_signal_axes(FAKE_EEG_SIGNAL,
-                                                          input_eeg_size=EEG_SIGNAL_SIZE,
                                                           split_dim=2)
         kernel_tensor, input_shape = \
             concat_eeg.conv_eeg_signal_time(fake_image_list, np.arange(0, 256))
@@ -80,7 +78,6 @@ class TestImageMapper(unittest.TestCase):
     def test_conv_channel_time(self):
         # first split the eeg signal of (10, 256, 256, 1) to 256 * (10, 1, 256, 1)
         fake_image_list = split_eeg.split_eeg_signal_axes(FAKE_EEG_SIGNAL,
-                                                          input_eeg_size=EEG_SIGNAL_SIZE,
                                                           split_dim=1)
         # then concat the eeg signal use 256 channel kernel index to (10, 256*5, 256, 1)
         kernel_tensor, input_shape = \
@@ -90,7 +87,6 @@ class TestImageMapper(unittest.TestCase):
 
         # then split the new eeg signal of (10, 1280, 256, 1) to 256 * (10, 1280, 1, 1)
         fake_image_list = split_eeg.split_eeg_signal_axes(kernel_tensor,
-                                                          input_eeg_size=EEG_SIGNAL_SIZE,
                                                           split_dim=2)
         # then concat the eeg signal use 256 channel kernel index to (10, 256*5, 256*5, 1)
         kernel_tensor, input_shape = \
@@ -103,7 +99,6 @@ class TestImageMapper(unittest.TestCase):
     def test_pool_channel_time(self):
         # first split the eeg signal of (10, 256, 256, 1) to 256 * (10, 1, 256, 1)
         fake_image_list = split_eeg.split_eeg_signal_axes(FAKE_EEG_SIGNAL,
-                                                          input_eeg_size=EEG_SIGNAL_SIZE,
                                                           split_dim=1)
         # then concat the eeg signal use 256 channel kernel index to (10, 128*2, 256, 1)
         kernel_tensor, input_shape = \
