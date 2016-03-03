@@ -132,10 +132,10 @@ def inference_pooling_s_filter(images):
     return pool_s
 
 
-def inference_pooling_n_filter(pool_s):
+def inference_pooling_n_filter(pool_s, kheight=2, kwidth=2):
 
-    pool_s = tf.nn.max_pool(pool_s, ksize=[1, 2, 2, 1],
-                            strides=[1, 2, 2, 1], padding='VALID')
+    pool_s = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
+                            strides=[1, kheight, kwidth, 1], padding='VALID')
     _print_tensor_size(pool_s)
 
     return pool_s
@@ -191,7 +191,7 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
 
 # region define 1-layer modules here
 
-def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     augment = inference_augment_s_filter(images)
 
@@ -208,7 +208,7 @@ def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     return conv_output
 
 
-def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     augment = inference_augment_st_filter(images)
 
