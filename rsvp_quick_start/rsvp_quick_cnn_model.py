@@ -37,15 +37,12 @@ def inference(images, keep_prob):
     _print_tensor_size(images)
     assert isinstance(keep_prob, object)
 
+
+
     conv1 = rsvp_quick_inference.inference_5x5_filter(images, 'conv1', out_feat=4)
     pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1)
-    conv2 = rsvp_quick_inference.inference_5x5_filter(pool1, 'conv2', in_feat=4, out_feat=16)
+    conv2 = rsvp_quick_inference.inference_5x5_filter(pool1, 'conv2', in_feat=4, out_feat=4)
     pool2 = rsvp_quick_inference.inference_pooling_n_filter(conv2)
-
-#    conv1 = rsvp_quick_inference.inference_separable_filter(images, 'conv1', mid_feat=4, out_feat=8)
-#    pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1)
-#    conv2 = rsvp_quick_inference.inference_local_st_filter(pool1, 'conv2', in_feat=4, out_feat=1)
-#    pool2 = rsvp_quick_inference.inference_pooling_s_filter(conv2)
     logits = rsvp_quick_inference.inference_fully_connected_1layer(pool2, keep_prob)
 
     assert isinstance(logits, object)
