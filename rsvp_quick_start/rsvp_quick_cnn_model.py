@@ -38,9 +38,9 @@ def inference(images, keep_prob):
     assert isinstance(keep_prob, object)
 
     # local st
-    conv1 = rsvp_quick_inference.inference_local_st5_filter(images, 'conv1', out_feat=4)
+    conv1 = rsvp_quick_inference.inference_local_st5_filter(images, 'conv1', out_feat=8)
     pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
-    conv1 = rsvp_quick_inference.inference_local_st5_filter(pool1, 'conv2', in_feat=4, out_feat=8)
+    conv1 = rsvp_quick_inference.inference_local_st5_filter(pool1, 'conv2', in_feat=8, out_feat=8)
     pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
 
     # global st
