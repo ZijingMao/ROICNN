@@ -199,7 +199,7 @@ def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     with tf.variable_scope(conv_layer_scope) as scope:
         kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
                                              stddev=1e-2, wd=0.0)
-        conv = tf.nn.conv2d(augment, kernel, [1, 5, 1, 1], padding='VALID')
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='VALID')
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)
@@ -329,7 +329,7 @@ def inference_inception_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
 # region define 2-layer modules
 
-def inference_separable_filter(images, conv_layer_scope, in_feat=1, mid_feat=4, out_feat=4):
+def inference_separable_filter(images, conv_layer_scope, in_feat=1, mid_feat=2, out_feat=4):
 
     # conv_output = 5x5/1x1
     with tf.variable_scope(conv_layer_scope) as scope:
@@ -337,10 +337,10 @@ def inference_separable_filter(images, conv_layer_scope, in_feat=1, mid_feat=4, 
         feat_multiplier = mid_feat
         kernel = _variable_with_weight_decay('weights',
                                              shape=[1, 1, in_feat, feat_multiplier],
-                                             stddev=1e-4, wd=0.0)
+                                             stddev=1e-2, wd=0.0)
         kernel_pointwise = _variable_with_weight_decay('weights_point',
                                                        shape=[1, 1, feat_multiplier * in_feat, out_feat],
-                                                       stddev=1e-4, wd=0.0)
+                                                       stddev=1e-2, wd=0.0)
         conv = tf.nn.separable_conv2d(images, kernel, kernel_pointwise, [1, 1, 1, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())

@@ -78,6 +78,7 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
                  testing it should just set to 1
       images_pl: The images placeholder, from placeholder_inputs().
       labels_pl: The labels placeholder, from placeholder_inputs().
+      keep_prob: the probability that will be used for dropout
     Returns:
       feed_dict: The feed dictionary mapping from placeholders to values.
     """

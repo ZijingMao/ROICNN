@@ -37,11 +37,27 @@ def inference(images, keep_prob):
     _print_tensor_size(images)
     assert isinstance(keep_prob, object)
 
-    conv1 = rsvp_quick_inference.inference_global_st_filter(images, 'conv1', out_feat=4)
-    pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=1)
-    conv2 = rsvp_quick_inference.inference_temporal_filter(pool1, 'conv2', in_feat=4, out_feat=4)
-    pool2 = rsvp_quick_inference.inference_pooling_n_filter(conv2, kheight=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool2, keep_prob)
+    # local st
+    conv1 = rsvp_quick_inference.inference_local_st5_filter(images, 'conv1', out_feat=4)
+    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
+    conv1 = rsvp_quick_inference.inference_local_st5_filter(pool1, 'conv2', in_feat=4, out_feat=8)
+    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
+
+    # global st
+    # conv1 = rsvp_quick_inference.inference_global_st_filter(images, 'conv1', out_feat=4)
+    # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=1)
+    # conv1 = rsvp_quick_inference.inference_temporal_filter(pool1, 'conv2', in_feat=4, out_feat=4)
+    # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=1)
+
+    # local cv
+    # conv1 = rsvp_quick_inference.inference_5x5_filter(images, 'conv1', out_feat=4)
+    # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=2)
+    # conv1 = rsvp_quick_inference.inference_5x5_filter(pool1, 'conv2', in_feat=4, out_feat=4)
+    # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=2)
+    # conv1 = rsvp_quick_inference.inference_1x1_filter(pool1, 'conv3', in_feat=4, out_feat=4)
+    # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=2)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool1, keep_prob)
 
     assert isinstance(logits, object)
     return logits
