@@ -4,7 +4,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import random
 import time
+
 import tensorflow as tf
 
 import autorun_infer
@@ -38,6 +40,10 @@ learning_rate = 0.1
 choose_cnn_type = 1
 batch_size = 64
 max_step = 10000    # to guarantee 64 epochs # should be training sample_size
+
+layer_list = roi_property.LAYER_LIST
+feat_list = roi_property.FEAT_LIST
+max_rand_search = roi_property.MAX_RAND_SEARCH
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -151,8 +157,15 @@ def do_eval(sess,
           (num_examples, true_count, precision, auc))
 
 
-def run_training():
-    """Train RSVP for a number of steps."""
+def run_training(hyper_param):
+    '''
+    Train RSVP for a number of steps.
+    Args:
+        hyper_param: three elements, layer & feat & model
+
+    Returns:
+
+    '''
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
     data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
@@ -164,7 +177,10 @@ def run_training():
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
             FLAGS.batch_size)
         # Build a Graph that computes predictions from the inference model.
-        logits = autorun_infer.inference_tscnn(images_placeholder, keep_prob, layer=3, feat=[32, 32, 32])
+        logits = autorun_infer.inference_tscnn(images_placeholder,
+                                               keep_prob,
+                                               layer=hyper_param['layer'],
+                                               feat=hyper_param['feat'])
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
@@ -240,7 +256,44 @@ def run_training():
                         data_sets.test)
 
 
+def check_same_dict(x, y):
+
+    if x['layer'] == y['layer']:
+        if x['feat'] == y['feat']:
+            return True
+    return False
+
+
+def def_hyper_param():
+
+    hyper_param_list = []
+    while len(hyper_param_list) < max_rand_search:
+        replicated = False
+        rnd_layer = random.choice(layer_list)
+        rnd_feat = []
+        # add the random features for each layer
+        for layer_idx in range(0, rnd_layer):
+            rnd_feat.append(random.choice(feat_list))
+        # put them into dictionary
+        hyper_param = {
+            'layer':    rnd_layer,
+            'feat':     rnd_feat
+        }
+        for hyper_param_element in hyper_param_list:
+            # check if the element is replicated, if not, add to list
+            if check_same_dict(hyper_param_element, hyper_param):
+                replicated = True
+
+        if not replicated:
+            hyper_param_list.append(hyper_param)
+
+    return hyper_param_list
+
+
 def main(_):
-    run_training()
+    hyper_param_list = def_hyper_param()
+    for hyper_param in hyper_param_list:
+        print("Currently running: " + hyper_param)
+        run_training(hyper_param)
 if __name__ == '__main__':
     tf.app.run()

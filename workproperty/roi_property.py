@@ -3,6 +3,7 @@ import os
 import sys
 import urllib
 
+import math
 import tensorflow.python.platform
 import numpy
 import tensorflow as tf
@@ -21,6 +22,10 @@ BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2
 CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
+
+LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
+FEAT_LIST = [2**j for j in range(1, 8)]
+MAX_RAND_SEARCH = 32
 
 BATCH_SIZE = 128
 SMALL_TRAIN_SIZE = 1000
