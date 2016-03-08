@@ -6,10 +6,10 @@ from __future__ import print_function
 
 import time
 import tensorflow as tf
+
+import autorun_infer
 import rsvp_input_data
 import rsvp_quick_cnn_model
-import rsvp_quick_inference
-from autorun_infer import inference_roicnn
 from workproperty import roi_property
 import sklearn.metrics as metrics
 import numpy as np
@@ -36,12 +36,14 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 
 learning_rate = 0.1
 choose_cnn_type = 1
+batch_size = 64
+max_step = 10000    # to guarantee 64 epochs # should be training sample_size
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 10000, 'Number of steps to run trainer.')
-flags.DEFINE_integer('batch_size', 64, 'Batch size. Must divide evenly into the dataset sizes.')
+flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
+flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', roi_property.WORK_DIR + 'data/rsvp_train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
@@ -162,7 +164,7 @@ def run_training():
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
             FLAGS.batch_size)
         # Build a Graph that computes predictions from the inference model.
-        logits = inference_roicnn(images_placeholder, keep_prob)
+        logits = autorun_infer.inference_tscnn(images_placeholder, keep_prob, layer=3, feat=[32, 32, 32])
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.

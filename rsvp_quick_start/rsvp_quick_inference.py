@@ -240,6 +240,38 @@ def inference_temporal_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     return conv_output
 
 
+def inference_channel_wise_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    input_shape = images.get_shape().as_list()
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[1, input_shape[2], in_feat, out_feat],
+                                             stddev=1e-2, wd=0.0)
+        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='VALID')
+        biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
+def inference_global_ts_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    input_shape = images.get_shape().as_list()
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, input_shape[2], in_feat, out_feat],
+                                             stddev=1e-2, wd=0.0)
+        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='VALID')
+        biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
 def inference_global_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     input_shape = images.get_shape().as_list()
@@ -257,6 +289,21 @@ def inference_global_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
 
 def inference_spatial_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 1, in_feat, out_feat],
+                                             stddev=1e-2, wd=0.0)
+        conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='VALID')
+        biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
+def inference_time_wise_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
 
     input_shape = images.get_shape().as_list()
     # conv_output
