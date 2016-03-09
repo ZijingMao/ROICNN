@@ -10,6 +10,47 @@ from __future__ import print_function
 
 import rsvp_quick_inference
 
+# region define inference name
+INFERENCE_ROICNN        = 0
+INFERENCE_CVCNN         = 1
+INFERENCE_LOCAL_T_CNN   = 2
+INFERENCE_LOCAL_S_CNN   = 3
+INFERENCE_GLOBAL_T_CNN  = 4
+INFERENCE_GLOBAL_S_CNN  = 5
+INFERENCE_DNN_CNN       = 6
+INFERENCE_STCNN         = 7
+INFERENCE_TSCNN         = 8
+# endregion
+
+
+def select_running_cnn(images,
+                       keep_prob,
+                       layer=2,
+                       feat=[2,4],
+                       cnn_id=1):
+    if cnn_id == INFERENCE_ROICNN:
+        logits = inference_roicnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_CVCNN:
+        logits = inference_cvcnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_LOCAL_T_CNN:
+        logits = inference_local_t_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_LOCAL_S_CNN:
+        logits = inference_local_s_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_GLOBAL_T_CNN:
+        logits = inference_global_t_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_GLOBAL_S_CNN:
+        logits = inference_global_s_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_DNN_CNN:
+        logits = inference_dnn_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_STCNN:
+        logits = inference_stcnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_TSCNN:
+        logits = inference_tscnn(images, keep_prob, layer, feat)
+    else:
+        logits = None
+        print("unrecognized cnn model, make sure you have the correct inference")
+    return logits
+
 
 def _print_tensor_size(given_tensor, inference_name=""):
     # print the shape of tensor

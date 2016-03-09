@@ -39,7 +39,8 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 learning_rate = 0.1
 choose_cnn_type = 1
 batch_size = 64
-max_step = 10000    # to guarantee 64 epochs # should be training sample_size
+max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -157,7 +158,7 @@ def do_eval(sess,
           (num_examples, true_count, precision, auc))
 
 
-def run_training(hyper_param):
+def run_training(hyper_param, model):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -177,10 +178,11 @@ def run_training(hyper_param):
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
             FLAGS.batch_size)
         # Build a Graph that computes predictions from the inference model.
-        logits = autorun_infer.inference_tscnn(images_placeholder,
-                                               keep_prob,
-                                               layer=hyper_param['layer'],
-                                               feat=hyper_param['feat'])
+        logits = autorun_infer.select_running_cnn(images_placeholder,
+                                                  keep_prob,
+                                                  layer=hyper_param['layer'],
+                                                  feat=hyper_param['feat'],
+                                                  cnn_id=model)
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
@@ -218,14 +220,14 @@ def run_training(hyper_param):
                                      feed_dict=feed_dict)
             duration = time.time() - start_time
             # Write the summaries and print an overview fairly often.
-            if step % 100 == 0:
+            if step % check_step == 0:
                 # Print status to stdout.
                 print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
                 # Update the events file.
                 summary_str = sess.run(summary_op, feed_dict=feed_dict)
                 summary_writer.add_summary(summary_str, step)
             # Save a checkpoint and evaluate the model periodically.
-            if (step + 1) % 200 == 0 or (step + 1) == FLAGS.max_steps:
+            if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
                 saver.save(sess, FLAGS.train_dir, global_step=step)
                 # Evaluate against the training set.
                 print('Training Data Eval:')
@@ -292,8 +294,13 @@ def def_hyper_param():
 
 def main(_):
     hyper_param_list = def_hyper_param()
+
+    model = autorun_infer.INFERENCE_CVCNN
     for hyper_param in hyper_param_list:
-        print("Currently running: " + hyper_param)
-        run_training(hyper_param)
+        print("Currently running: ")
+        print("FeatMap: ")
+        print(hyper_param['feat'])
+        run_training(hyper_param, model)
+
 if __name__ == '__main__':
     tf.app.run()
