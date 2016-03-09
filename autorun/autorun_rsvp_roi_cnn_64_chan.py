@@ -10,6 +10,7 @@ import time
 import tensorflow as tf
 
 import autorun_infer
+import autorun_util
 import rsvp_input_data
 import rsvp_quick_cnn_model
 from workproperty import roi_property
@@ -115,7 +116,9 @@ def do_eval(sess,
             images_placeholder,
             labels_placeholder,
             keep_prob,
-            data_set):
+            data_set,
+            csv_writer_acc=None,
+            csv_writer_auc=None):
     """Runs one evaluation against the full epoch of data.
     Args:
       sess: The session in which the model has been trained.
@@ -156,6 +159,13 @@ def do_eval(sess,
     # auc = metrics.auc(fpr, tpr)
     print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f  AUC @ 1: %0.04f' %
           (num_examples, true_count, precision, auc))
+    # write the csv file if exists
+    if csv_writer_acc is not None:
+        csv_writer_acc.write('%0.06f' % precision)
+        csv_writer_acc.write('\n')
+    if csv_writer_auc is not None:
+        csv_writer_auc.write('%0.06f' % auc)
+        csv_writer_auc.write('\n')
 
 
 def run_training(hyper_param, model):
@@ -163,10 +173,13 @@ def run_training(hyper_param, model):
     Train RSVP for a number of steps.
     Args:
         hyper_param: three elements, layer & feat & model
+        model:
 
     Returns:
 
     '''
+    # initialize the summary to write
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'])
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
     data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
@@ -237,7 +250,9 @@ def run_training(hyper_param, model):
                         images_placeholder,
                         labels_placeholder,
                         keep_prob,
-                        data_sets.train)
+                        data_sets.train,
+                        csv_writer_acc,
+                        csv_writer_auc)
                 # Evaluate against the validation set.
                 print('Validation Data Eval:')
                 do_eval(sess,
@@ -246,7 +261,9 @@ def run_training(hyper_param, model):
                         images_placeholder,
                         labels_placeholder,
                         keep_prob,
-                        data_sets.validation)
+                        data_sets.validation,
+                        csv_writer_acc,
+                        csv_writer_auc)
                 # Evaluate against the test set.
                 print('Test Data Eval:')
                 do_eval(sess,
@@ -255,7 +272,15 @@ def run_training(hyper_param, model):
                         images_placeholder,
                         labels_placeholder,
                         keep_prob,
-                        data_sets.test)
+                        data_sets.test,
+                        csv_writer_acc,
+                        csv_writer_auc)
+
+    # turn off writer after finish
+    if csv_writer_acc is not None:
+        csv_writer_acc.close()
+    if csv_writer_auc is not None:
+        csv_writer_auc.close()
 
 
 def check_same_dict(x, y):
@@ -295,12 +320,15 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    model = autorun_infer.INFERENCE_CVCNN
-    for hyper_param in hyper_param_list:
-        print("Currently running: ")
-        print("FeatMap: ")
-        print(hyper_param['feat'])
-        run_training(hyper_param, model)
+    for model in range(0, 9):
+        for hyper_param in hyper_param_list:
+            print("Currently running: ")
+            print("FeatMap: ")
+            print(hyper_param['feat'])
+            print("Model" + str(model))
+            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            run_training(hyper_param, model)
+            autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

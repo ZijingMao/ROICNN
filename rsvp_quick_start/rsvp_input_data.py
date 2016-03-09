@@ -155,6 +155,12 @@ def read_data_sets(train_data,
     print('max input value is: %s' % max_image_value)
     print('min input value is: %s' % min_image_value)
 
+    # TODO random permute once for training
+    rand_position = np.random.permutation(len(train_labels))
+    train_labels = train_labels[rand_position]
+    train_images = train_images[rand_position, :, :, :]
+    print('random permuted training data')
+
     if scale_data:
         scale_range = 1.0 / (max_image_value-min_image_value)
         sub_train_images = np.subtract(train_images, min_image_value)
