@@ -516,6 +516,17 @@ CONV_16_IDX = np.array([   [ 1,  0,  5,  6,  0],
                            [16, 11,  0,  0, 10]])
 #endregion
 
+#region CONV_8_IDX
+CONV_8_IDX =  np.array([   [ 1,  0,  3,  4,  2],
+                           [ 2,  0,  3,  1,  5],
+                           [ 3,  1,  5,  4,  2],
+                           [ 4,  1,  7,  0,  3],
+                           [ 5,  2,  8,  3,  0],
+                           [ 6,  3,  7,  4,  8],
+                           [ 7,  6,  0,  4,  8],
+                           [ 8,  6,  0,  7,  5]])
+#endregion
+
 #region POOL_128_IDX
 POOL_128_IDX = np.array([  [  1,  65],
                            [  2,   3],
@@ -769,6 +780,16 @@ POOL_16_IDX = np.array([   [ 1,  2],
                            [17, 16]])
 #endregion
 
+#region POOL_8_IDX
+POOL_8_IDX = np.array([   [ 1, 5],
+                           [2, 3],
+                           [4, 3],
+                           [6, 7],
+                           [10, 9],
+                           [12, 11],
+                           [14, 15],
+                           [16, 15]])
+#endregion
 
 def roi_mapper_idx_select(chan_num, used_type='conv'):
     # which type to choose
@@ -783,8 +804,10 @@ def roi_mapper_idx_select(chan_num, used_type='conv'):
             chan_idx = CONV_32_IDX
         elif chan_num == 16:
             chan_idx = CONV_16_IDX
+        elif chan_num == 8:
+            chan_idx = CONV_8_IDX
         else:
-            print('Channel location not match, please make sure you used biosemi 265/128/64/32/16.')
+            print('Channel location not match, please make sure you used biosemi 265/128/64/32/16/8.')
             return
     elif used_type.lower() == 'pool':
         if chan_num == 128:
@@ -795,8 +818,10 @@ def roi_mapper_idx_select(chan_num, used_type='conv'):
             chan_idx = POOL_32_IDX
         elif chan_num == 16:
             chan_idx = POOL_16_IDX
+        elif chan_num == 8:
+            chan_idx = POOL_8_IDX
         else:
-            print('Channel location not match, please make sure you used biosemi 128/64/32/16.')
+            print('Channel location not match, please make sure you used biosemi 128/64/32/16/8.')
             return
     else:
         print('Used type not recognized, please type either conv/pool.')
