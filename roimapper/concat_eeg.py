@@ -64,7 +64,7 @@ def conv_eeg_signal_time(
         input_eeg_list,
         vec_idx=np.arange(0, EEG_SIGNAL_SIZE),
         kernelrow=roi_property.BIOSEMI_CONV,
-        concat_dim1=2):
+        concat_dim1=2, is_rep=False):
     '''
     The function will use a bunch of image tensor and concat them with the multiplication of kernel size and from the
     time dimension as concat_dim1=2. The arrangement should be every eeg width (time) contains 5 kernel indexes.
@@ -73,6 +73,7 @@ def conv_eeg_signal_time(
         vec_idx: the length of the vector used for mapping
         kernelrow: the kernel size
         concat_dim1: concat dimension 2, the time dimension
+        is_rep: only used in testing local roi on spatial domain
 
     Returns: the concated kernel tensor and the tensor input shape for verification
 
@@ -94,8 +95,12 @@ def conv_eeg_signal_time(
     input_shape[concat_dim1] *= kernelrow
     input_shape[concat_dim1] *= vec1row
     # input_shape = [10, 5*256, 256, 1]
+    if is_rep:
+        vec_idx = np.reshape(vec_idx, (vec1row, 1))
+        image_kernel_idx = np.repeat(vec_idx, kernelrow, axis=1)
+    else:
+        image_kernel_idx = image1tokrow.image_1tok_kernel(vec_idx, kernelrow)
 
-    image_kernel_idx = image1tokrow.image_1tok_kernel(vec_idx, kernelrow)
     curr_kernel_tensor = []
     for kernel_idx in image_kernel_idx:  # go for every kernel => 256 kernels
         # for each kernel => 5 index

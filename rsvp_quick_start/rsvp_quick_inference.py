@@ -103,6 +103,23 @@ def inference_augment_st_filter(images):
     return augment
 
 
+def inference_augment_s_rep_t_filter(images):
+    # augment on spatial domain
+    augment = inference_augment_s_filter(images)
+
+    # augment on temporal domain
+    split_dim = 2   # split the temporal domain and rearrange them to repeat time domain
+    input_image_list = split_eeg.split_eeg_signal_axes(augment,
+                                                       split_dim=split_dim)  # 2 represents temporal domain
+    input_image_length = len(input_image_list)
+    augment, _ = concat_eeg.conv_eeg_signal_time(input_image_list,
+                                                 np.arange(0, input_image_length),
+                                                 KERNEL_SIZE, 2, is_rep=True)
+    _print_tensor_size(augment)
+
+    return augment
+
+
 def inference_augment_s_filter(images):
     # recommend to use
     # augment
@@ -116,7 +133,7 @@ def inference_augment_s_filter(images):
     return augment
 
 
-def inference_pooling_s_filter(images):
+def inference_pooling_s_filter(images, kheight=2, kwidth=2):
     # channel domain pooling mapper
     split_dim = 1   # 1 represents split on spatial domain
     input_image_list = split_eeg.split_eeg_signal_axes(images,
@@ -127,7 +144,7 @@ def inference_pooling_s_filter(images):
     _print_tensor_size(pool_s)
 
     # apply the normal max pooling methods with stride = 2
-    pool_s = inference_pooling_n_filter(pool_s)
+    pool_s = inference_pooling_n_filter(pool_s, kheight, kwidth)
 
     return pool_s
 
@@ -280,6 +297,41 @@ def inference_global_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
         kernel = _variable_with_weight_decay('weights', shape=[input_shape[1], 5, in_feat, out_feat],
                                              stddev=1e-2, wd=0.0)
         conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='VALID')
+        biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
+def inference_roi_global_ts_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    augment = inference_augment_s_filter(images)
+
+    input_shape = images.get_shape().as_list()
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, input_shape[2], in_feat, out_feat],
+                                             stddev=1e-2, wd=0.0)
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='VALID')
+        biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
+        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.nn.relu(bias, name=scope.name)
+        _print_tensor_size(conv_output)
+
+    return conv_output
+
+
+def inference_roi_s_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
+
+    augment = inference_augment_s_rep_t_filter(images)
+
+    # conv_output
+    with tf.variable_scope(conv_layer_scope) as scope:
+        kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
+                                             stddev=1e-2, wd=0.0)
+        conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='VALID')
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)

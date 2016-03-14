@@ -20,6 +20,8 @@ INFERENCE_GLOBAL_S_CNN  = 5
 INFERENCE_DNN_CNN       = 6
 INFERENCE_STCNN         = 7
 INFERENCE_TSCNN         = 8
+INFERENCE_ROI_S_CNN     = 9
+INFERENCE_ROI_TS_CNN    = 10
 # endregion
 
 
@@ -46,6 +48,10 @@ def select_running_cnn(images,
         logits = inference_stcnn(images, keep_prob, layer, feat)
     elif cnn_id == INFERENCE_TSCNN:
         logits = inference_tscnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_ROI_S_CNN:
+        logits = inference_roi_s_cnn(images, keep_prob, layer, feat)
+    elif cnn_id == INFERENCE_ROI_TS_CNN:
+        logits = inference_roi_ts_cnn(images, keep_prob, layer, feat)
     else:
         logits = None
         print("unrecognized cnn model, make sure you have the correct inference")
@@ -76,6 +82,52 @@ def inference_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
         conv_tensor = rsvp_quick_inference.inference_local_st5_filter\
             (pool_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
         pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    assert isinstance(logits, object)
+    return logits
+
+
+def inference_roi_s_cnn(images, keep_prob, layer=2, feat=[2, 4]):
+
+    _print_tensor_size(images, 'inference_roi_s_cnn')
+    assert isinstance(keep_prob, object)
+
+    if not layer == len(feat):
+        print('Make sure you have defined the feature map size for each layer.')
+        return
+
+    # local st
+    conv_tensor = rsvp_quick_inference.inference_roi_s_filter(images, 'conv0', out_feat=feat[0])
+    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
+    for l in range(1, layer):
+        conv_tensor = rsvp_quick_inference.inference_roi_s_filter\
+            (pool_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
+        pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    assert isinstance(logits, object)
+    return logits
+
+
+def inference_roi_ts_cnn(images, keep_prob, layer=2, feat=[2, 4]):
+
+    _print_tensor_size(images, 'inference_roi_ts_cnn')
+    assert isinstance(keep_prob, object)
+
+    if not layer == len(feat):
+        print('Make sure you have defined the feature map size for each layer.')
+        return
+
+    # local st
+    conv_tensor = rsvp_quick_inference.inference_roi_global_ts_filter(images, 'conv0', out_feat=feat[0])
+    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor, kwidth=1)
+    for l in range(1, layer):
+        conv_tensor = rsvp_quick_inference.inference_roi_s_filter\
+            (pool_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
+        pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor, kwidth=1)
 
     logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
 
