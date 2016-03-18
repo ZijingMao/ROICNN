@@ -8,6 +8,7 @@ import tensorflow.python.platform
 import tensorflow as tf
 from workproperty import roi_property
 import rsvp_quick_inference
+from autorun import autorun_infer
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL
@@ -38,12 +39,6 @@ def inference(images, keep_prob):
     assert isinstance(keep_prob, object)
 
     # local st
-    conv1 = rsvp_quick_inference.inference_local_st5_filter(images, 'conv1', out_feat=64)
-    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
-    conv1 = rsvp_quick_inference.inference_local_st5_filter(pool1, 'conv2', in_feat=64, out_feat=64)
-    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
-    conv1 = rsvp_quick_inference.inference_local_st5_filter(pool1, 'conv3', in_feat=64, out_feat=64)
-    pool1 = rsvp_quick_inference.inference_pooling_s_filter(conv1)
 
     # global st
     # conv1 = rsvp_quick_inference.inference_global_st_filter(images, 'conv1', out_feat=4)
@@ -59,7 +54,9 @@ def inference(images, keep_prob):
     # conv1 = rsvp_quick_inference.inference_1x1_filter(pool1, 'conv3', in_feat=4, out_feat=4)
     # pool1 = rsvp_quick_inference.inference_pooling_n_filter(conv1, kheight=2)
 
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool1, keep_prob)
+    # logits = rsvp_quick_inference.inference_fully_connected_1layer(pool1, keep_prob)
+
+    logits = autorun_infer.inference_roi_ts_cnn(images, keep_prob, layer=3, feat=[2, 32, 64])
 
     assert isinstance(logits, object)
     return logits
