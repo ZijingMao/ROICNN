@@ -56,7 +56,7 @@ def inference(images, keep_prob):
 
     # logits = rsvp_quick_inference.inference_fully_connected_1layer(pool1, keep_prob)
 
-    logits = autorun_infer.inference_roi_ts_cnn(images, keep_prob, layer=3, feat=[2, 32, 64])
+    logits = autorun_infer.inference_roi_ts_cnn(images, keep_prob, layer=2, feat=[2, 64])
 
     assert isinstance(logits, object)
     return logits
