@@ -14,7 +14,7 @@ from roimapper import split_eeg
 import numpy as np
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
-NUM_CLASSES = roi_property.BINARY_LABEL
+NUM_CLASSES = roi_property.BINARY_LABEL  # replace with multiple labels
 IMAGE_SIZE = roi_property.EEG_SIGNAL_SIZE
 KERNEL_SIZE = roi_property.BIOSEMI_CONV
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on 3/26/16 10:16 AM
+Created on 3/28/16 11:17 AM
 @author: Zijing Mao
 """
 
@@ -41,10 +41,9 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
-choose_cnn_type = 1
+learning_rate = 0.01
 batch_size = 64
-max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_step = roi_property.LARGE_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
@@ -324,7 +323,7 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(10, 11):
+    for model in range(7, 8):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
@@ -336,3 +335,4 @@ def main(_):
 
 if __name__ == '__main__':
     tf.app.run()
+
