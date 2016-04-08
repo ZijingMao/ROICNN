@@ -149,6 +149,22 @@ def inference_pooling_s_filter(images, kheight=2, kwidth=2):
     return pool_s
 
 
+def inference_pooling_t_filter(images, kheight=2, kwidth=2):
+    # channel domain pooling mapper
+    split_dim = 1   # 1 represents split on spatial domain
+    input_image_list = split_eeg.split_eeg_signal_axes(images,
+                                                       split_dim=split_dim)
+    input_image_length = len(input_image_list)
+    # the pooling mapper should choose half size of the image size
+    pool_t, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1, is_rep=True)
+    _print_tensor_size(pool_t)
+
+    # apply the normal max pooling methods with stride = 2
+    pool_t = inference_pooling_n_filter(pool_t, kheight, kwidth)
+
+    return pool_t
+
+
 def inference_pooling_n_filter(pool_s, kheight=2, kwidth=2):
 
     pool_s = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],

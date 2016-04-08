@@ -42,9 +42,9 @@ BINARY_LABEL = roi_property.BINARY_LABEL
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
+learning_rate = 0.006
 batch_size = 64
-max_step = roi_property.LARGE_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_step = roi_property.LARGE_TRAIN_SIZE * 2   # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
@@ -321,7 +321,7 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(7, 8):
+    for model in range(1, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
@@ -330,14 +330,6 @@ def main(_):
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model)
             autorun_util.close_save_file(orig_stdout, f)
-
-    # hyper_param = {
-    #     'layer':    3,
-    #     'feat':     [4, 4, 32]
-    # }
-    # orig_stdout, f = autorun_util.open_save_file(7, hyper_param['feat'])
-    # run_training(hyper_param, model)
-    # autorun_util.close_save_file(orig_stdout, f)
 
 
 if __name__ == '__main__':
