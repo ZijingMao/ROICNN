@@ -72,8 +72,8 @@ def inference_roicnn_1layer(images, keep_prob, feat=[2]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -86,8 +86,8 @@ def inference_roi_s_cnn_1layer(images, keep_prob, feat=[2]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_roi_s_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -100,8 +100,8 @@ def inference_roi_ts_cnn_1layer(images, keep_prob, feat=[2]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_roi_global_ts_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor, kwidth=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -114,8 +114,8 @@ def inference_cvcnn_1layer(images, keep_prob, feat=[2]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -129,8 +129,8 @@ def inference_local_t_cnn_1layer(images, keep_prob, feat=[2]):
     # local t
     # here use the 1*5 filter which go across channels
     conv_tensor = rsvp_quick_inference.inference_temporal_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -140,12 +140,11 @@ def inference_local_s_cnn_1layer(images, keep_prob, layer=1, feat=[2]):
 
     _print_tensor_size(images, 'inference_local_s_cnn')
     assert isinstance(keep_prob, object)
-    # local s
+    # local t
     # here use the 1*5 filter which go across channels
     conv_tensor = rsvp_quick_inference.inference_spatial_filter(images, 'conv0', out_feat=feat[0])
-    # the pooling should have the width padding to 1 because we only consider channel correlation
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -159,8 +158,8 @@ def inference_global_t_cnn_1layer(images, keep_prob, feat=[4]):
     # global t
     # here use the channel wise filter which go across channels
     conv_tensor = rsvp_quick_inference.inference_channel_wise_filter(images, 'conv1', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -172,8 +171,8 @@ def inference_global_s_cnn_1layer(images, keep_prob, feat=[4]):
     assert isinstance(keep_prob, object)
     # here use the spatial filter which go across time
     conv_tensor = rsvp_quick_inference.inference_time_wise_filter(images, 'conv1', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -198,8 +197,8 @@ def inference_stcnn_1layer(images, keep_prob, feat=[4]):
 
     # global spatial local temporal
     conv_tensor = rsvp_quick_inference.inference_global_st_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
@@ -211,8 +210,8 @@ def inference_tscnn_1layer(images, keep_prob, feat=[2]):
     assert isinstance(keep_prob, object)
 
     conv_tensor = rsvp_quick_inference.inference_global_ts_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
