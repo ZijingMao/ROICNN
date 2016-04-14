@@ -215,8 +215,8 @@ def run_training(hyper_param, model):
         init = tf.initialize_all_variables()
         sess.run(init)
         # Instantiate a SummaryWriter to output summaries and the Graph.
-        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-                                                graph_def=sess.graph_def)
+        # summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
+        #                                         graph=sess.graph)
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
             start_time = time.time()
@@ -240,8 +240,8 @@ def run_training(hyper_param, model):
                 # Print status to stdout.
                 print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
                 # Update the events file.
-                summary_str = sess.run(summary_op, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, step)
+                # summary_str = sess.run(summary_op, feed_dict=feed_dict)
+                # summary_writer.add_summary(summary_str, step)
             # Save a checkpoint and evaluate the model periodically.
             if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
                 saver.save(sess, FLAGS.train_dir, global_step=step)
@@ -323,15 +323,15 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(0, 11):
+    for model in range(2, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
             print(hyper_param['feat'])
             print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            #orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model)
-            autorun_util.close_save_file(orig_stdout, f)
+            #autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

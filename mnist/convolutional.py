@@ -28,7 +28,7 @@ PIXEL_DEPTH = 255
 NUM_LABELS = 10
 VALIDATION_SIZE = 5000  # Size of the validation set.
 SEED = 66478  # Set to None for random seed.
-BATCH_SIZE = 64
+BATCH_SIZE = 2
 NUM_EPOCHS = 2
 
 
@@ -150,12 +150,12 @@ def main(argv=None):  # pylint: disable=unused-argument
                             seed=SEED))
     conv2_biases = tf.Variable(tf.constant(0.1, shape=[64]))
     fc1_weights = tf.Variable(  # fully connected, depth 512.
-        tf.truncated_normal([IMAGE_SIZE / 4 * IMAGE_SIZE / 4 * 64, 512],
+        tf.truncated_normal([IMAGE_SIZE / 4 * IMAGE_SIZE / 4 * 64, 10],
                             stddev=0.1,
                             seed=SEED))
-    fc1_biases = tf.Variable(tf.constant(0.1, shape=[512]))
+    fc1_biases = tf.Variable(tf.constant(0.1, shape=[10]))
     fc2_weights = tf.Variable(
-        tf.truncated_normal([512, NUM_LABELS],
+        tf.truncated_normal([10, NUM_LABELS],
                             stddev=0.1,
                             seed=SEED))
     fc2_biases = tf.Variable(tf.constant(0.1, shape=[NUM_LABELS]))
