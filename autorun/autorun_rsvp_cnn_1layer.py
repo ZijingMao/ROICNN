@@ -10,6 +10,7 @@ import time
 import tensorflow as tf
 
 import autorun_infer_no_pooling_1layer
+import autorun_infer_pooling_1layer
 import autorun_util
 import rsvp_input_data
 import rsvp_quick_cnn_model
@@ -45,7 +46,7 @@ check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
-max_rand_search = roi_property.MAX_RAND_SEARCH
+max_rand_search = 8 # set the random search number to 8
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -168,7 +169,7 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model):
+def run_training(hyper_param, model, isPool=False):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -191,10 +192,16 @@ def run_training(hyper_param, model):
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
             FLAGS.batch_size)
         # Build a Graph that computes predictions from the inference model.
-        logits = autorun_infer_no_pooling_1layer.select_running_cnn(images_placeholder,
-                                                  keep_prob,
-                                                  feat=hyper_param['feat'],
-                                                  cnn_id=model)
+        if isPool:
+            logits = autorun_infer_pooling_1layer.select_running_cnn_1layer(images_placeholder,
+                                                      keep_prob,
+                                                      feat=hyper_param['feat'],
+                                                      cnn_id=model)
+        else:
+            logits = autorun_infer_no_pooling_1layer.select_running_cnn_1layer(images_placeholder,
+                                                      keep_prob,
+                                                      feat=hyper_param['feat'],
+                                                      cnn_id=model)
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
@@ -321,7 +328,7 @@ def main(_):
             print(hyper_param['feat'])
             print("Model" + str(model))
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model)
+            run_training(hyper_param, model, isPool=False)  # test on no pooling case
             autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
