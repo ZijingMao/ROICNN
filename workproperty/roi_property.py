@@ -10,14 +10,14 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN_Chen/'
+WORK_DIR = '/home/caffe1/PycharmProjects/ROICNN_Chen/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
 
 DIGIT_IMAGE_SIZE = 28
 
-EEG_SIGNAL_SIZE = 128
+EEG_SIGNAL_SIZE = 64
 BIOSEMI_CONV = 5
 BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2

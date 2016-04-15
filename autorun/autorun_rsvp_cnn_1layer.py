@@ -291,9 +291,8 @@ def run_training(hyper_param, model, isPool=False):
 
 def check_same_dict(x, y):
 
-    if x['layer'] == y['layer']:
-        if x['feat'] == y['feat']:
-            return True
+    if x['feat'] == y['feat']:
+        return True
     return False
 
 
