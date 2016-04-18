@@ -14,6 +14,7 @@
 import numpy as Math
 import matplotlib as mpl
 import matplotlib.pyplot as Plot
+import scipy.io as sio
 
 mpl.use('Agg')
 
@@ -171,8 +172,11 @@ def tsne(X = Math.array([]), no_dims = 2, initial_dims = 50, perplexity = 30.0):
 if __name__ == "__main__":
     print "Run Y = tsne.tsne(X, no_dims, perplexity) to perform t-SNE on your dataset."
     print "Running example on 2,500 MNIST digits..."
-    X = Math.loadtxt("mnist2500_X.txt")
-    labels = Math.loadtxt("mnist2500_labels.txt")
+    # X = Math.loadtxt("~/PycharmProjects/ROICNN/data/tsne/glove.6B.50d.txt")
+    mat = sio.loadmat('/home/caffe1/PycharmProjects/ROICNN/data/tsne/glove.6B.50d.mat')
+    X = mat['x']
+    labels = mat['y']
+    # labels = Math.loadtxt("mnist2500_labels.txt")
     Y = tsne(X, 2, 50, 20.0)
     fig = Plot.figure()
     ax = fig.add_subplot(111)
