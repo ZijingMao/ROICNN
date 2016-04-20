@@ -323,15 +323,15 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(2, 11):
+    for model in range(4, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
             print(hyper_param['feat'])
             print("Model" + str(model))
-            #orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model)
-            #autorun_util.close_save_file(orig_stdout, f)
+            autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()
