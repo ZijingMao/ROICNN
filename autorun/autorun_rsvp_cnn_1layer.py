@@ -46,7 +46,7 @@ check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
-max_rand_search = 8 # set the random search number to 8
+max_rand_search = 5 # set the random search number to 8
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -169,7 +169,7 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model, isPool=False):
+def run_training(hyper_param, model, isPool=True):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -291,10 +291,10 @@ def run_training(hyper_param, model, isPool=False):
 
 def check_same_dict(x, y):
 
-    if x['layer'] == y['layer']:
+    #if x['layer'] == y['layer']:
         if x['feat'] == y['feat']:
             return True
-    return False
+    #return False
 
 
 def def_hyper_param():
@@ -303,6 +303,7 @@ def def_hyper_param():
     while len(hyper_param_list) < max_rand_search:
         replicated = False
         rnd_feat = []
+        rnd_feat = [feat_list[np.random.randint(0, 5)]]
         # put them into dictionary
         hyper_param = {
             'feat':     rnd_feat
@@ -328,7 +329,7 @@ def main(_):
             print(hyper_param['feat'])
             print("Model" + str(model))
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model, isPool=False)  # test on no pooling case
+            run_training(hyper_param, model, isPool=True)  # test on no pooling case
             autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
