@@ -322,7 +322,7 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(0, 11):
+    for model in range(2, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
