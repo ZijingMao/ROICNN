@@ -46,7 +46,7 @@ check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
-max_rand_search = 8 # set the random search number to 8
+max_rand_search = 5 # set the random search number to 8
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -291,10 +291,10 @@ def run_training(hyper_param, model, isPool=False):
 
 def check_same_dict(x, y):
 
-    if x['layer'] == y['layer']:
+    #if x['layer'] == y['layer']:
         if x['feat'] == y['feat']:
             return True
-    return False
+    #return False
 
 
 def def_hyper_param():
@@ -303,6 +303,7 @@ def def_hyper_param():
     while len(hyper_param_list) < max_rand_search:
         replicated = False
         rnd_feat = []
+        rnd_feat = [feat_list[np.random.randint(0, 5)]]
         # put them into dictionary
         hyper_param = {
             'feat':     rnd_feat
