@@ -301,7 +301,7 @@ def def_hyper_param():
     hyper_param_list = []
     while len(hyper_param_list) < max_rand_search:
         replicated = False
-        rnd_feat = []
+        rnd_feat = [feat_list[np.random.randint(0, 5)]]
         # put them into dictionary
         hyper_param = {
             'feat':     rnd_feat
