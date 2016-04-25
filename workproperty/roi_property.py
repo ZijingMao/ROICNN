@@ -25,7 +25,7 @@ CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
 LAYER_LIST = range(2, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
-FEAT_LIST = [2**j for j in range(1, 11)]
+FEAT_LIST = [2**j for j in range(1, 9)]
 MAX_RAND_SEARCH = 32
 
 BATCH_SIZE = 32

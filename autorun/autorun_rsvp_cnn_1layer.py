@@ -46,7 +46,7 @@ check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
-max_rand_search = 10 # set the random search number to 8
+max_rand_search = 8 # set the random search number to 8
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -319,9 +319,16 @@ def def_hyper_param():
 
 
 def main(_):
+    # hyper_param = {
+    #     'feat': [16]
+    # }
+    # model = 0
+    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+    # run_training(hyper_param, model, isPool=False)  # test on no pooling case
+    # autorun_util.close_save_file(orig_stdout, f)
     hyper_param_list = def_hyper_param()
 
-    for model in range(0, 11):
+    for model in range(1, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
