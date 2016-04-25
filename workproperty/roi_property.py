@@ -10,7 +10,7 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/tensorflow1/PycharmProjects/ROICNN/'
+WORK_DIR = '/home/tensorflow1/PycharmProjects/ROICNN-cjx/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
