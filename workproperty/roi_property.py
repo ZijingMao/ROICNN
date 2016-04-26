@@ -10,7 +10,7 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/tensorflow1/PycharmProjects/ROICNN-cjx/'
+WORK_DIR = '/home/caffe1/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
@@ -25,8 +25,8 @@ CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
 LAYER_LIST = range(2, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
-FEAT_LIST = [2**j for j in range(1, 11)]
-MAX_RAND_SEARCH = 32
+FEAT_LIST = [2**j for j in range(2, 7)]
+MAX_RAND_SEARCH = 5
 
 BATCH_SIZE = 32
 SMALL_TRAIN_SIZE = 1000

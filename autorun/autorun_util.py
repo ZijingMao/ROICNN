@@ -30,6 +30,7 @@ acc_str = '.acc'
 auc_str = '.auc'
 log_str = '.log'
 csv_str = '.csv'
+time_str = '.time'
 
 
 def open_save_file(model, feat_list, log_flag=True):
@@ -75,3 +76,21 @@ def csv_writer(model, feat_list, acc_flag=True, auc_flag=True):
         csv_writer_auc = open(csv_writer_auc_name, 'w')
 
     return csv_writer_acc, csv_writer_auc
+
+
+def time_writer(model, feat_list, time_flag=True):
+
+    file_path_stub = file_path+name_str+'/'+str(model)+'/'
+    if not os.path.exists(file_path_stub):
+        os.makedirs(file_path_stub)
+
+    file_name_stub = file_path_stub + 'feat_'+'_'.join(str(p) for p in feat_list)
+    time_writer_name = file_name_stub + time_str
+
+    time_writer_one = None
+
+    # be careful no mistake here
+    if time_flag is True:
+        time_writer_one = open(time_writer_name, 'w')
+
+    return time_writer_one
