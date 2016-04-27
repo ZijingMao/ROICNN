@@ -923,6 +923,7 @@ POOL_8_IDX = np.array([   [ 1, 2],
                            [16, 15]])
 #endregion
 
+
 def roi_mapper_idx_select(chan_num, used_type='conv'):
     # which type to choose
     if used_type.lower() == 'conv':
@@ -952,6 +953,12 @@ def roi_mapper_idx_select(chan_num, used_type='conv'):
             chan_idx = POOL_16_IDX
         elif chan_num == 8:
             chan_idx = POOL_8_IDX
+        else:
+            print('Channel location not match, please make sure you used biosemi 128/64/32/16/8.')
+            return
+    elif used_type == 'direct_mapping':
+        if chan_num == 128:
+            chan_idx = POOL_128_IDX_DPX
         else:
             print('Channel location not match, please make sure you used biosemi 128/64/32/16/8.')
             return

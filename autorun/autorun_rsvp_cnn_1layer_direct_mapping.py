@@ -169,7 +169,7 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model, isPool=False):
+def run_training(hyper_param, model, isPool=True):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -193,7 +193,7 @@ def run_training(hyper_param, model, isPool=False):
             FLAGS.batch_size)
         # Build a Graph that computes predictions from the inference model.
         if isPool:
-            logits = autorun_infer_pooling_1layer.select_running_cnn_1layer(images_placeholder,
+            logits = autorun_infer_pooling_1layer.select_running_cnn_1layer_direct_mapping(images_placeholder,
                                                       keep_prob,
                                                       feat=hyper_param['feat'],
                                                       cnn_id=model)
@@ -329,7 +329,7 @@ def main(_):
             print(hyper_param['feat'])
             print("Model" + str(model))
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model, isPool=False)  # test on no pooling case
+            run_training(hyper_param, model, isPool=True)  # test on pooling case
             autorun_util.close_save_file(orig_stdout, f)
             duration = time.time() - start_time
             # print('running time = %.3f sec' % duration)
