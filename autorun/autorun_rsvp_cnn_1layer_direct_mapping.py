@@ -169,6 +169,8 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
+
+
 def run_training(hyper_param, model, isPool=True):
     '''
     Train RSVP for a number of steps.
