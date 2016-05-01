@@ -328,7 +328,7 @@ def main(_):
     # autorun_util.close_save_file(orig_stdout, f)
     hyper_param_list = def_hyper_param()
 
-    for model in range(1, 11):
+    for model in range(9, 11):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
