@@ -220,7 +220,7 @@ def run_training(hyper_param, model):
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
             feed_dict = fill_feed_dict(data_sets.train,
-                                       0.5,
+                                       0.0128,  # change the probablitity of dropout for testing
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
@@ -320,7 +320,7 @@ def def_hyper_param():
 def main(_):
     hyper_param_list = def_hyper_param()
 
-    for model in range(0, 11):
+    for model in range(5, 6):
         for hyper_param in hyper_param_list:
             print("Currently running: ")
             print("FeatMap: ")
