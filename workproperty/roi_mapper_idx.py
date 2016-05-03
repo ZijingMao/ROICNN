@@ -893,6 +893,43 @@ POOL_32_IDX = np.array([   [ 1, 33],
 
 #endregion
 
+
+#region POOL_32_IDX_DPX
+POOL_32_IDX_DPX = np.array([[1, 1],
+                           [3, 3],
+                           [7, 7],
+                           [5, 5],
+                           [11, 11],
+                           [9,  9],
+                           [15, 15],
+                           [13, 13],
+                           [19, 19],
+                           [17, 17],
+                           [23, 23],
+                           [21, 21],
+                           [31, 31],
+                           [26, 26],
+                           [27, 27],
+                           [29, 29],
+                           [64, 64],
+                           [63, 63],
+                           [58, 58],
+                           [60, 60],
+                           [54, 54],
+                           [56, 56],
+                           [50, 50],
+                           [52, 52],
+                           [44, 44],
+                           [46, 46],
+                           [40, 40],
+                           [42, 42],
+                           [36, 36],
+                           [34, 34],
+                           [38, 38],
+                           [48, 48]])
+#endregion
+
+
 #region POOL_16_IDX
 POOL_16_IDX = np.array([   [ 1,  2],
                            [30, 29],
@@ -912,6 +949,27 @@ POOL_16_IDX = np.array([   [ 1,  2],
                            [17, 16]])
 #endregion
 
+
+#region POOL_16_IDX_DPX
+POOL_16_IDX_DPX = np.array([[1,  1],
+                           [30, 30],
+                           [27, 27],
+                           [31, 31],
+                           [4, 4],
+                           [7, 7],
+                           [8, 8],
+                           [32, 32],
+                           [23, 23],
+                           [24, 24],
+                           [19, 19],
+                           [13, 13],
+                           [12, 12],
+                           [15, 15],
+                           [16, 16],
+                           [17, 17]])
+#endregion
+
+
 #region POOL_8_IDX
 POOL_8_IDX = np.array([   [ 1, 2],
                            [2, 1],
@@ -924,7 +982,19 @@ POOL_8_IDX = np.array([   [ 1, 2],
 #endregion
 
 
-def roi_mapper_idx_select(chan_num, used_type='conv'):
+#region POOL_8_IDX_DPX
+POOL_8_IDX_DPX = np.array([   [ 1, 1],
+                           [2, 2],
+                           [4, 4],
+                           [6, 6],
+                           [10, 10],
+                           [12, 12],
+                           [14, 14],
+                           [16, 16]])
+#endregion
+
+
+def roi_mapper_idx_select(chan_num, used_type='pool'):
     # which type to choose
     if used_type.lower() == 'conv':
         if chan_num == 256:
@@ -953,12 +1023,6 @@ def roi_mapper_idx_select(chan_num, used_type='conv'):
             chan_idx = POOL_16_IDX
         elif chan_num == 8:
             chan_idx = POOL_8_IDX
-        else:
-            print('Channel location not match, please make sure you used biosemi 128/64/32/16/8.')
-            return
-    elif used_type == 'direct_mapping':
-        if chan_num == 128:
-            chan_idx = POOL_128_IDX_DPX
         else:
             print('Channel location not match, please make sure you used biosemi 128/64/32/16/8.')
             return

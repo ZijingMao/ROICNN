@@ -329,7 +329,7 @@ def main(_):
             print(hyper_param['feat'])
             print("Model" + str(model))
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model, isPool=False)  # test on no pooling case
+            run_training(hyper_param, model, isPool=True)  # test on no pooling case
             autorun_util.close_save_file(orig_stdout, f)
             duration = time.time() - start_time
             # print('running time = %.3f sec' % duration)

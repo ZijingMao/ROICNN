@@ -57,39 +57,6 @@ def select_running_cnn_1layer(images,
     return logits
 
 
-def select_running_cnn_1layer_direct_mapping(images,
-                       keep_prob,
-                       feat=[2],
-                       cnn_id=1):
-    if cnn_id == INFERENCE_ROICNN:
-        # use direct mapping
-        logits = inference_roicnn_1layer_direct_mapping(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_CVCNN:
-        logits = inference_cvcnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_LOCAL_T_CNN:
-        logits = inference_local_t_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_LOCAL_S_CNN:
-        logits = inference_local_s_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_GLOBAL_T_CNN:
-        logits = inference_global_t_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_GLOBAL_S_CNN:
-        logits = inference_global_s_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_DNN_CNN:
-        logits = inference_dnn_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_STCNN:
-        logits = inference_stcnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_TSCNN:
-        logits = inference_tscnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_ROI_S_CNN:
-        logits = inference_roi_s_cnn_1layer(images, keep_prob, feat)
-    elif cnn_id == INFERENCE_ROI_TS_CNN:
-        logits = inference_roi_ts_cnn_1layer(images, keep_prob, feat)
-    else:
-        logits = None
-        print("unrecognized cnn model, make sure you have the correct inference")
-    return logits
-
-
 def _print_tensor_size(given_tensor, inference_name=""):
     # print the shape of tensor
     print("="*78)
@@ -106,20 +73,6 @@ def inference_roicnn_1layer(images, keep_prob, feat=[2]):
     # local st
     conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
-
-    assert isinstance(logits, object)
-    return logits
-
-
-def inference_roicnn_1layer_direct_mapping(images, keep_prob, feat=[2]):
-
-    _print_tensor_size(images, 'inference_roicnn')
-    assert isinstance(keep_prob, object)
-
-    # local st
-    conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter_direct_mapping(conv_tensor)
     logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
 
     assert isinstance(logits, object)
