@@ -320,7 +320,18 @@ def def_hyper_param():
 def main(_):
     # hyper_param_list = def_hyper_param()
 
-    hyper_param_list = [{'layer': 4, 'feat': [4, 4, 4, 512]}, {'layer': 4, 'feat': [8, 8, 8, 512]}, {'layer': 4, 'feat': [4, 4, 4, 256]}]
+    hyper_param_list = [{'layer': 2, 'feat': [4, 512]},
+                        {'layer': 2, 'feat': [8, 512]},
+                        {'layer': 2, 'feat': [4, 256]},
+                        {'layer': 3, 'feat': [4, 4, 512]},
+                        {'layer': 3, 'feat': [8, 8, 512]},
+                        {'layer': 3, 'feat': [4, 4, 256]},
+                        {'layer': 4, 'feat': [4, 4, 4, 512]},
+                        {'layer': 4, 'feat': [8, 8, 8, 512]},
+                        {'layer': 4, 'feat': [4, 4, 4, 256]},
+                        {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
+                        {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
+                        {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]
 
     for model in range(0, 1):
         for hyper_param in hyper_param_list:

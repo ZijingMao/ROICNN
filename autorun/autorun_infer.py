@@ -77,13 +77,13 @@ def inference_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
-    pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
+    # pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
     for l in range(1, layer):
         conv_tensor = rsvp_quick_inference.inference_local_st5_filter\
-            (pool_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
-        pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
+            (conv_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
+        # pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
 
-    logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
+    logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
     assert isinstance(logits, object)
     return logits
