@@ -38,7 +38,7 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
+learning_rate = 0.05   # 0.01-0.1
 choose_cnn_type = 1
 batch_size = 64
 max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
@@ -225,8 +225,9 @@ def run_training(hyper_param, model, isPool=False):
             start_time = time.time()
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
+            # drop rate: 0.01-0.5, default=0.5
             feed_dict = fill_feed_dict(data_sets.train,
-                                       0.5,
+                                       0.05,
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
@@ -329,7 +330,7 @@ def main(_):
             print(hyper_param['feat'])
             print("Model" + str(model))
             orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model, isPool=True)  # test on no pooling case
+            run_training(hyper_param, model, isPool=True)  # test on pooling case with direct mapper
             autorun_util.close_save_file(orig_stdout, f)
             duration = time.time() - start_time
             # print('running time = %.3f sec' % duration)
