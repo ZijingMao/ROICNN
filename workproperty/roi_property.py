@@ -10,14 +10,14 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN/'
+WORK_DIR = '/root/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
 
 DIGIT_IMAGE_SIZE = 28
 
-EEG_SIGNAL_SIZE = 128
+EEG_SIGNAL_SIZE = 64
 BIOSEMI_CONV = 5
 BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2
@@ -25,7 +25,7 @@ CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
 LAYER_LIST = range(2, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
-FEAT_LIST = [2**j for j in range(2, 6)]
+FEAT_LIST = [2**j for j in range(2, 8)]
 MAX_RAND_SEARCH = 32
 
 BATCH_SIZE = 32
