@@ -38,7 +38,7 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.05   # 0.01-0.1
+learning_rate = 0.01   # 0.01-0.1
 choose_cnn_type = 1
 batch_size = 64
 max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
@@ -227,7 +227,7 @@ def run_training(hyper_param, model, isPool=False):
             # for this particular training step.
             # drop rate: 0.01-0.5, default=0.5
             feed_dict = fill_feed_dict(data_sets.train,
-                                       0.05,
+                                       0.01,
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
