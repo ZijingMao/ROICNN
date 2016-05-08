@@ -222,6 +222,25 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
 # endregion
 
 
+# region dropout module
+
+def inference_dropout_filter(images, drop_layer_scope, keep_prob):
+    dim = 1
+    tensor_dim = images.get_shape()[1:].as_list()
+    for d in tensor_dim:
+        dim *= d
+    reshape = tf.reshape(images, [FLAGS.batch_size, dim])
+
+    # conv_output
+    with tf.variable_scope(drop_layer_scope) as scope:
+        dropout1 = tf.nn.dropout(images, keep_prob)
+        # _print_tensor_size(dropout1) # does not exist tensor shape
+
+    return dropout1
+
+# endregion
+
+
 # region define 1-layer modules here
 
 def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
@@ -236,7 +255,8 @@ def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)
-        _print_tensor_size(conv_output)
+        dropout1 = tf.nn.dropout(conv_output, 0.5)
+        _print_tensor_size(dropout1)
 
     return conv_output
 
