@@ -62,6 +62,7 @@ def inference(images, keep_prob):
     return logits
 
 
+
 def loss(logits, labels):
     """Add L2Loss to all the trainable variables.
 
