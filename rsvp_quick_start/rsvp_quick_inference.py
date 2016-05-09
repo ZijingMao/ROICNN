@@ -233,7 +233,9 @@ def inference_dropout_filter(images, drop_layer_scope, keep_prob):
 
     # conv_output
     with tf.variable_scope(drop_layer_scope) as scope:
-        dropout1 = tf.nn.dropout(images, keep_prob)
+        dropout1 = tf.nn.dropout(reshape, keep_prob)
+        new_dim = dropout1.get_shape()[0].as_list().extend(tensor_dim)
+        dropout1 = tf.reshape(dropout1, new_dim)
         # _print_tensor_size(dropout1) # does not exist tensor shape
 
     return dropout1
