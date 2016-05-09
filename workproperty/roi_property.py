@@ -4,13 +4,13 @@ import sys
 import urllib
 
 import math
-import tensorflow.python.platform
 import numpy
 import tensorflow as tf
+import tensorflow.python.platform
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN/'
+WORK_DIR = '/home/titan/PycharmProjects/ROICNN_v/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
