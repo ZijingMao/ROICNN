@@ -7,11 +7,12 @@ Created on 2/17/16 3:29 PM
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-import tensorflow as tf
+
 from workproperty import roi_property
 from roimapper import concat_eeg
 from roimapper import split_eeg
 import numpy as np
+import tensorflow as tf
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL  # replace with multiple labels
