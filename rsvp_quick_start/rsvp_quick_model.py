@@ -99,7 +99,7 @@ def loss(logits, labels):
     return loss
 
 
-def training(loss, learning_rate):
+def training(loss, learning_rate, max_step):
     """Sets up the training Ops.
     Creates a summarizer to track the loss over time in TensorBoard.
     Creates an optimizer and applies the gradients to all trainable variables.
@@ -108,15 +108,21 @@ def training(loss, learning_rate):
     Args:
       loss: Loss tensor, from loss().
       learning_rate: The learning rate to use for gradient descent.
+      max_step: set the max step for learning rate decay
     Returns:
       train_op: The Op for training.
     """
     # Add a scalar summary for the snapshot loss.
     tf.scalar_summary(loss.op.name, loss)
     # Create the gradient descent optimizer with the given learning rate.
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     # Create a variable to track the global step.
     global_step = tf.Variable(0, name='global_step', trainable=False)
+
+    curr_learning_rate = tf.train.exponential_decay(learning_rate, global_step,
+                                                    max_step, 0.96, staircase=True)
+
+    optimizer = tf.train.GradientDescentOptimizer(curr_learning_rate)
+
     # Use the optimizer to apply the gradients that minimize the loss
     # (and also increment the global step counter) as a single training step.
     train_op = optimizer.minimize(loss, global_step=global_step)
