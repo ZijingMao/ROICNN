@@ -257,8 +257,7 @@ def inference_local_st_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)
-        dropout1 = tf.nn.dropout(conv_output, 0.5)
-        _print_tensor_size(dropout1)
+        _print_tensor_size(conv_output)
 
     return conv_output
 
@@ -275,9 +274,10 @@ def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         conv_output = tf.nn.relu(bias, name=scope.name)
-        _print_tensor_size(conv_output)
+        dropout1 = tf.nn.dropout(conv_output, 0.5)
+        _print_tensor_size(dropout1)
 
-    return conv_output
+    return dropout1
 
 
 def inference_temporal_filter(images, conv_layer_scope, in_feat=1, out_feat=4):

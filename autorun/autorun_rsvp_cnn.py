@@ -37,10 +37,10 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
+learning_rate = 0.06
 choose_cnn_type = 1
-batch_size = 64
-max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+batch_size = 256
+max_step = 1000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
@@ -220,7 +220,7 @@ def run_training(hyper_param, model):
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
             feed_dict = fill_feed_dict(data_sets.train,
-                                       0.0625,  # change the probablitity of dropout for testing
+                                       0.5,  # change the probablitity of dropout for testing
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
@@ -319,19 +319,21 @@ def def_hyper_param():
 
 def main(_):
     # hyper_param_list = def_hyper_param()
+    # {'layer': 2, 'feat': [4, 4]},
+    # {'layer': 2, 'feat': [8, 512]},
+    # {'layer': 2, 'feat': [4, 256]},
 
-    hyper_param_list = [{'layer': 2, 'feat': [4, 4]},
-                        {'layer': 2, 'feat': [8, 512]},
-                        {'layer': 2, 'feat': [4, 256]},
-                        {'layer': 3, 'feat': [4, 4, 512]},
-                        {'layer': 3, 'feat': [8, 8, 512]},
-                        {'layer': 3, 'feat': [4, 4, 256]},
-                        {'layer': 4, 'feat': [4, 4, 4, 512]},
-                        {'layer': 4, 'feat': [8, 8, 8, 512]},
-                        {'layer': 4, 'feat': [4, 4, 4, 256]},
-                        {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
-                        {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
-                        {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]
+    # hyper_param_list = [{'layer': 3, 'feat': [4, 4, 512]},
+    #                     {'layer': 3, 'feat': [8, 8, 512]},
+    #                     {'layer': 3, 'feat': [4, 4, 256]},
+    #                     {'layer': 4, 'feat': [4, 4, 4, 512]},
+    #                     {'layer': 4, 'feat': [8, 8, 8, 512]},
+    #                     {'layer': 4, 'feat': [4, 4, 4, 256]},
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
+    #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]
+
+    hyper_param_list = [{'layer': 2, 'feat': [128, 64]}]
 
     for model in range(0, 1):
         for hyper_param in hyper_param_list:
@@ -339,9 +341,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model)
-            autorun_util.close_save_file(orig_stdout, f)
+            # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

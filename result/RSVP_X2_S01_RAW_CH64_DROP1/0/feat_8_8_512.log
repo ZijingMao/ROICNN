@@ -1,0 +1,70 @@
+Training data shape: 	(10000, 64, 64, 1)
+Training label shape:	(10000,)
+Testing data shape:  	(1910, 64, 64, 1)
+Testing label shape: 	(1910,)
+max input value is: 153.458
+min input value is: -104.189
+random permuted training data
+==============================================================================
+Model: 			inference_roicnn
+Tensor Name: 	Placeholder:0
+[64, 64, 64, 1]
+==============================================================================
+Tensor Name: concat_64:0
+[64, 320, 64, 1]
+==============================================================================
+Tensor Name: concat_129:0
+[64, 320, 320, 1]
+==============================================================================
+Tensor Name: conv0/dropout/mul_1:0
+[64, 64, 64, 8]
+==============================================================================
+Tensor Name: concat_194:0
+[64, 320, 64, 8]
+==============================================================================
+Tensor Name: concat_259:0
+[64, 320, 320, 8]
+==============================================================================
+Tensor Name: conv1/dropout/mul_1:0
+[64, 64, 64, 8]
+==============================================================================
+Tensor Name: concat_324:0
+[64, 320, 64, 8]
+==============================================================================
+Tensor Name: concat_389:0
+[64, 320, 320, 8]
+==============================================================================
+Tensor Name: conv2/dropout/mul_1:0
+[64, 64, 64, 512]
+==============================================================================
+Tensor Name: local1/local1:0
+[64, 128]
+==============================================================================
+Tensor Name: local2/local2:0
+[64, 128]
+==============================================================================
+Tensor Name: softmax_linear/softmax_linear:0
+[64, 2]
+Step 0: loss = 664.8997 (6.234 sec)
+Training Data Eval:
+  Num examples: 8960  Num correct: 5042  Precision @ 1: 0.5627  AUC @ 1: 0.4980
+Validation Data Eval:
+  Num examples: 960  Num correct: 538  Precision @ 1: 0.5604  AUC @ 1: 0.5173
+Test Data Eval:
+  Num examples: 1856  Num correct: 1063  Precision @ 1: 0.5727  AUC @ 1: 0.4837
+Step 100: loss = 613.7819 (6.247 sec)
+Training Data Eval:
+  Num examples: 8960  Num correct: 4991  Precision @ 1: 0.5570  AUC @ 1: 0.5203
+Validation Data Eval:
+  Num examples: 960  Num correct: 539  Precision @ 1: 0.5615  AUC @ 1: 0.5638
+Test Data Eval:
+  Num examples: 1856  Num correct: 1074  Precision @ 1: 0.5787  AUC @ 1: 0.5627
+Step 200: loss = 566.6180 (6.320 sec)
+Training Data Eval:
+  Num examples: 8960  Num correct: 5002  Precision @ 1: 0.5583  AUC @ 1: 0.5846
+Validation Data Eval:
+  Num examples: 960  Num correct: 541  Precision @ 1: 0.5635  AUC @ 1: 0.6173
+Test Data Eval:
+  Num examples: 1856  Num correct: 1072  Precision @ 1: 0.5776  AUC @ 1: 0.5563
+Step 300: loss = 523.1041 (6.340 sec)
+Training Data Eval:
