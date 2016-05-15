@@ -41,11 +41,11 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
+learning_rate = 0.03
 choose_cnn_type = 1
-batch_size = 64
-max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/100
+batch_size = 128
+max_step = 20000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/400
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -322,8 +322,21 @@ def def_hyper_param():
 
 
 def main(_):
-    # hyper_param_list = def_hyper_param()
+    hyper_param_list = [{'layer': 1, 'feat': [128]},
+                        {'layer': 2, 'feat': [128, 8]},
+                        {'layer': 2, 'feat': [128, 16]},
+                        {'layer': 2, 'feat': [128, 32]},
+                        {'layer': 2, 'feat': [128, 64]}]
 
+    # hyper_param_list = [{'layer': 3, 'feat': [4, 4, 512]},
+    #                     {'layer': 3, 'feat': [8, 8, 512]},
+    #                     {'layer': 3, 'feat': [4, 4, 256]},
+    #                     {'layer': 4, 'feat': [4, 4, 4, 512]},
+    #                     {'layer': 4, 'feat': [8, 8, 8, 512]},
+    #                     {'layer': 4, 'feat': [4, 4, 4, 256]},
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
+    #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
     model = 0
     for hyper_param in hyper_param_list:
