@@ -12,6 +12,7 @@ import os
 import sys
 
 import roi_property
+import datetime
 
 file_path = roi_property.SAVE_DIR
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
@@ -40,8 +41,10 @@ def open_save_file(model, feat_list, log_flag=True):
     if not os.path.exists(file_path_stub):
         os.makedirs(file_path_stub)
 
+    curr_time = datetime.datetime.now().strftime("%A%d%B%Y%I%M%p")
+
     file_name_stub = file_path_stub + 'feat_'+'_'.join(str(p) for p in feat_list)
-    f_name = file_name_stub + log_str
+    f_name = file_name_stub + curr_time + log_str
     f = open(f_name, 'w')
     orig_stdout = sys.stdout
     sys.stdout = f
