@@ -77,14 +77,15 @@ def inference_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
 
     # local st
     conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
-    conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=4)
+    # conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
+    conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1, kwidth=4)
     for l in range(1, layer):
         # conv_tensor = rsvp_quick_inference.inference_time_wise_filter(conv_tensor, 'conv1', in_feat=feat[0], out_feat=feat[1])
         # the pooling should have the height padding to 1 because no channel anymore
         # conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1, kwidth=2)
         conv_tensor = rsvp_quick_inference.inference_local_st5_filter\
             (conv_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
-        conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=4)
+        conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
 
     logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 

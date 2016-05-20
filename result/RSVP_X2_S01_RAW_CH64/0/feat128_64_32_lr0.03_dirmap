@@ -1,0 +1,439 @@
+/usr/bin/python2.7 /home/zijing/Github/ROICNN/multieeg/test_single_model.py
+I tensorflow/stream_executor/dso_loader.cc:105] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:105] successfully opened CUDA library libcudnn.so locally
+I tensorflow/stream_executor/dso_loader.cc:105] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:105] successfully opened CUDA library libcuda.so.1 locally
+I tensorflow/stream_executor/dso_loader.cc:105] successfully opened CUDA library libcurand.so locally
+Currently running:
+FeatMap:
+[128, 64, 32]
+Model0
+Training data shape: 	(10000, 64, 64, 1)
+Training label shape:	(10000,)
+Testing data shape:  	(1910, 64, 64, 1)
+Testing label shape: 	(1910,)
+max input value is: 153.458
+min input value is: -104.189
+random permuted training data
+==============================================================================
+Model: 			inference_roicnn
+Tensor Name: 	Placeholder:0
+[128, 64, 64, 1]
+==============================================================================
+Tensor Name: concat_64:0
+[128, 320, 64, 1]
+==============================================================================
+Tensor Name: concat_129:0
+[128, 320, 320, 1]
+==============================================================================
+Tensor Name: conv0/Reshape:0
+[128, 64, 64, 128]
+==============================================================================
+Tensor Name: concat_162:0
+[128, 64, 64, 128]
+==============================================================================
+Tensor Name: MaxPool:0
+[128, 32, 32, 128]
+==============================================================================
+Tensor Name: concat_195:0
+[128, 160, 32, 128]
+==============================================================================
+Tensor Name: concat_228:0
+[128, 160, 160, 128]
+==============================================================================
+Tensor Name: conv1/Reshape:0
+[128, 32, 32, 64]
+==============================================================================
+Tensor Name: concat_245:0
+[128, 32, 32, 64]
+==============================================================================
+Tensor Name: MaxPool_1:0
+[128, 16, 16, 64]
+==============================================================================
+Tensor Name: concat_262:0
+[128, 80, 16, 64]
+==============================================================================
+Tensor Name: concat_279:0
+[128, 80, 80, 64]
+==============================================================================
+Tensor Name: conv2/Reshape:0
+[128, 16, 16, 32]
+==============================================================================
+Tensor Name: concat_288:0
+[128, 16, 16, 32]
+==============================================================================
+Tensor Name: MaxPool_2:0
+[128, 8, 8, 32]
+==============================================================================
+Tensor Name: local1/local1:0
+[128, 128]
+==============================================================================
+Tensor Name: local2/local2:0
+[128, 128]
+==============================================================================
+Tensor Name: softmax_linear/softmax_linear:0
+[128, 2]
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:102] Found device 0 with properties:
+name: GeForce GTX TITAN X
+major: 5 minor: 2 memoryClockRate (GHz) 1.2155
+pciBusID 0000:03:00.0
+Total memory: 11.99GiB
+Free memory: 11.63GiB
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:126] DMA: 0
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:136] 0:   Y
+I tensorflow/core/common_runtime/gpu/gpu_device.cc:755] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX TITAN X, pci bus id: 0000:03:00.0)
+WARNING:tensorflow:Passing a `GraphDef` to the SummaryWriter is deprecated. Pass a `Graph` object instead, such as `sess.graph`.
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:244] PoolAllocator: After 1518 get requests, put_count=1109 evicted_count=1000 eviction_rate=0.901713 and unsatisfied allocation rate=0.994071
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:256] Raising pool_size_limit_ from 100 to 110
+Step 0: loss = 1.3831 (1.024 sec)
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:244] PoolAllocator: After 1518 get requests, put_count=1238 evicted_count=1000 eviction_rate=0.807754 and unsatisfied allocation rate=0.855731
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:256] Raising pool_size_limit_ from 212 to 233
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:244] PoolAllocator: After 1518 get requests, put_count=1496 evicted_count=1000 eviction_rate=0.668449 and unsatisfied allocation rate=0.699605
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:256] Raising pool_size_limit_ from 449 to 493
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:244] PoolAllocator: After 4554 get requests, put_count=4598 evicted_count=1000 eviction_rate=0.217486 and unsatisfied allocation rate=0.232982
+I tensorflow/core/common_runtime/gpu/pool_allocator.cc:256] Raising pool_size_limit_ from 1158 to 1273
+Training Data Eval:
+  Num examples: 9984  Num correct: 5569  Precision @ 1: 0.5578  AUC @ 1: 0.6229
+Test Data Eval:
+  Num examples: 1792  Num correct: 1025  Precision @ 1: 0.5720  AUC @ 1: 0.5998
+Step 50: loss = 1.3006 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 5557  Precision @ 1: 0.5566  AUC @ 1: 0.6113
+Test Data Eval:
+  Num examples: 1792  Num correct: 1050  Precision @ 1: 0.5859  AUC @ 1: 0.5950
+Step 100: loss = 1.2327 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 7307  Precision @ 1: 0.7319  AUC @ 1: 0.7696
+Test Data Eval:
+  Num examples: 1792  Num correct: 1226  Precision @ 1: 0.6842  AUC @ 1: 0.7228
+Step 150: loss = 1.0049 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 7725  Precision @ 1: 0.7737  AUC @ 1: 0.8225
+Test Data Eval:
+  Num examples: 1792  Num correct: 1287  Precision @ 1: 0.7182  AUC @ 1: 0.7476
+Step 200: loss = 0.9494 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 7804  Precision @ 1: 0.7817  AUC @ 1: 0.8403
+Test Data Eval:
+  Num examples: 1792  Num correct: 1311  Precision @ 1: 0.7316  AUC @ 1: 0.7715
+Step 250: loss = 0.8593 (0.347 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 7961  Precision @ 1: 0.7974  AUC @ 1: 0.8598
+Test Data Eval:
+  Num examples: 1792  Num correct: 1262  Precision @ 1: 0.7042  AUC @ 1: 0.7533
+Step 300: loss = 0.8559 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8010  Precision @ 1: 0.8023  AUC @ 1: 0.8651
+Test Data Eval:
+  Num examples: 1792  Num correct: 1332  Precision @ 1: 0.7433  AUC @ 1: 0.7795
+Step 350: loss = 0.7292 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8143  Precision @ 1: 0.8156  AUC @ 1: 0.8811
+Test Data Eval:
+  Num examples: 1792  Num correct: 1338  Precision @ 1: 0.7467  AUC @ 1: 0.8024
+Step 400: loss = 0.6851 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8155  Precision @ 1: 0.8168  AUC @ 1: 0.8834
+Test Data Eval:
+  Num examples: 1792  Num correct: 1320  Precision @ 1: 0.7366  AUC @ 1: 0.7844
+Step 450: loss = 0.6383 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8302  Precision @ 1: 0.8315  AUC @ 1: 0.8947
+Test Data Eval:
+  Num examples: 1792  Num correct: 1342  Precision @ 1: 0.7489  AUC @ 1: 0.7943
+Step 500: loss = 0.6253 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8263  Precision @ 1: 0.8276  AUC @ 1: 0.8966
+Test Data Eval:
+  Num examples: 1792  Num correct: 1323  Precision @ 1: 0.7383  AUC @ 1: 0.7979
+Step 550: loss = 0.6425 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8355  Precision @ 1: 0.8368  AUC @ 1: 0.9029
+Test Data Eval:
+  Num examples: 1792  Num correct: 1349  Precision @ 1: 0.7528  AUC @ 1: 0.8117
+Step 600: loss = 0.5307 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8397  Precision @ 1: 0.8410  AUC @ 1: 0.9077
+Test Data Eval:
+  Num examples: 1792  Num correct: 1343  Precision @ 1: 0.7494  AUC @ 1: 0.7945
+Step 650: loss = 0.4467 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8447  Precision @ 1: 0.8461  AUC @ 1: 0.9241
+Test Data Eval:
+  Num examples: 1792  Num correct: 1383  Precision @ 1: 0.7718  AUC @ 1: 0.8214
+Step 700: loss = 0.5873 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8516  Precision @ 1: 0.8530  AUC @ 1: 0.9215
+Test Data Eval:
+  Num examples: 1792  Num correct: 1373  Precision @ 1: 0.7662  AUC @ 1: 0.8247
+Step 750: loss = 0.4830 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8457  Precision @ 1: 0.8471  AUC @ 1: 0.9292
+Test Data Eval:
+  Num examples: 1792  Num correct: 1370  Precision @ 1: 0.7645  AUC @ 1: 0.8296
+Step 800: loss = 0.4336 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8701  Precision @ 1: 0.8715  AUC @ 1: 0.9365
+Test Data Eval:
+  Num examples: 1792  Num correct: 1355  Precision @ 1: 0.7561  AUC @ 1: 0.8148
+Step 850: loss = 0.4582 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8628  Precision @ 1: 0.8642  AUC @ 1: 0.9377
+Test Data Eval:
+  Num examples: 1792  Num correct: 1343  Precision @ 1: 0.7494  AUC @ 1: 0.8165
+Step 900: loss = 0.3975 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8777  Precision @ 1: 0.8791  AUC @ 1: 0.9459
+Test Data Eval:
+  Num examples: 1792  Num correct: 1383  Precision @ 1: 0.7718  AUC @ 1: 0.8394
+Step 950: loss = 0.4124 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8759  Precision @ 1: 0.8773  AUC @ 1: 0.9507
+Test Data Eval:
+  Num examples: 1792  Num correct: 1360  Precision @ 1: 0.7589  AUC @ 1: 0.8226
+Step 1000: loss = 0.4768 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8867  Precision @ 1: 0.8881  AUC @ 1: 0.9525
+Test Data Eval:
+  Num examples: 1792  Num correct: 1382  Precision @ 1: 0.7712  AUC @ 1: 0.8200
+Step 1050: loss = 0.3679 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8966  Precision @ 1: 0.8980  AUC @ 1: 0.9597
+Test Data Eval:
+  Num examples: 1792  Num correct: 1353  Precision @ 1: 0.7550  AUC @ 1: 0.8234
+Step 1100: loss = 0.2464 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8922  Precision @ 1: 0.8936  AUC @ 1: 0.9627
+Test Data Eval:
+  Num examples: 1792  Num correct: 1368  Precision @ 1: 0.7634  AUC @ 1: 0.8208
+Step 1150: loss = 0.3542 (0.347 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 8867  Precision @ 1: 0.8881  AUC @ 1: 0.9652
+Test Data Eval:
+  Num examples: 1792  Num correct: 1359  Precision @ 1: 0.7584  AUC @ 1: 0.8121
+Step 1200: loss = 0.3507 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9201  Precision @ 1: 0.9216  AUC @ 1: 0.9749
+Test Data Eval:
+  Num examples: 1792  Num correct: 1311  Precision @ 1: 0.7316  AUC @ 1: 0.7952
+Step 1250: loss = 0.3313 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9163  Precision @ 1: 0.9178  AUC @ 1: 0.9731
+Test Data Eval:
+  Num examples: 1792  Num correct: 1323  Precision @ 1: 0.7383  AUC @ 1: 0.7979
+Step 1300: loss = 0.2752 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9128  Precision @ 1: 0.9143  AUC @ 1: 0.9733
+Test Data Eval:
+  Num examples: 1792  Num correct: 1309  Precision @ 1: 0.7305  AUC @ 1: 0.7977
+Step 1350: loss = 0.2781 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9382  Precision @ 1: 0.9397  AUC @ 1: 0.9851
+Test Data Eval:
+  Num examples: 1792  Num correct: 1318  Precision @ 1: 0.7355  AUC @ 1: 0.8193
+Step 1400: loss = 0.2475 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9379  Precision @ 1: 0.9394  AUC @ 1: 0.9854
+Test Data Eval:
+  Num examples: 1792  Num correct: 1325  Precision @ 1: 0.7394  AUC @ 1: 0.8123
+Step 1450: loss = 0.2809 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9197  Precision @ 1: 0.9212  AUC @ 1: 0.9861
+Test Data Eval:
+  Num examples: 1792  Num correct: 1343  Precision @ 1: 0.7494  AUC @ 1: 0.7954
+Step 1500: loss = 0.3340 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9414  Precision @ 1: 0.9429  AUC @ 1: 0.9885
+Test Data Eval:
+  Num examples: 1792  Num correct: 1321  Precision @ 1: 0.7372  AUC @ 1: 0.7940
+Step 1550: loss = 0.2887 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9370  Precision @ 1: 0.9385  AUC @ 1: 0.9873
+Test Data Eval:
+  Num examples: 1792  Num correct: 1304  Precision @ 1: 0.7277  AUC @ 1: 0.8031
+Step 1600: loss = 0.2224 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9502  Precision @ 1: 0.9517  AUC @ 1: 0.9902
+Test Data Eval:
+  Num examples: 1792  Num correct: 1303  Precision @ 1: 0.7271  AUC @ 1: 0.7986
+Step 1650: loss = 0.2468 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9604  Precision @ 1: 0.9619  AUC @ 1: 0.9936
+Test Data Eval:
+  Num examples: 1792  Num correct: 1307  Precision @ 1: 0.7294  AUC @ 1: 0.8023
+Step 1700: loss = 0.1470 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9590  Precision @ 1: 0.9605  AUC @ 1: 0.9938
+Test Data Eval:
+  Num examples: 1792  Num correct: 1333  Precision @ 1: 0.7439  AUC @ 1: 0.7953
+Step 1750: loss = 0.1741 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9659  Precision @ 1: 0.9674  AUC @ 1: 0.9951
+Test Data Eval:
+  Num examples: 1792  Num correct: 1304  Precision @ 1: 0.7277  AUC @ 1: 0.8004
+Step 1800: loss = 0.2140 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9580  Precision @ 1: 0.9595  AUC @ 1: 0.9954
+Test Data Eval:
+  Num examples: 1792  Num correct: 1243  Precision @ 1: 0.6936  AUC @ 1: 0.7844
+Step 1850: loss = 0.1921 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9710  Precision @ 1: 0.9726  AUC @ 1: 0.9963
+Test Data Eval:
+  Num examples: 1792  Num correct: 1310  Precision @ 1: 0.7310  AUC @ 1: 0.7983
+Step 1900: loss = 0.1007 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9768  Precision @ 1: 0.9784  AUC @ 1: 0.9982
+Test Data Eval:
+  Num examples: 1792  Num correct: 1288  Precision @ 1: 0.7188  AUC @ 1: 0.8016
+Step 1950: loss = 0.1346 (0.434 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9783  Precision @ 1: 0.9799  AUC @ 1: 0.9980
+Test Data Eval:
+  Num examples: 1792  Num correct: 1287  Precision @ 1: 0.7182  AUC @ 1: 0.7913
+Step 2000: loss = 0.1168 (0.347 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9720  Precision @ 1: 0.9736  AUC @ 1: 0.9966
+Test Data Eval:
+  Num examples: 1792  Num correct: 1279  Precision @ 1: 0.7137  AUC @ 1: 0.7895
+Step 2050: loss = 0.1408 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9808  Precision @ 1: 0.9824  AUC @ 1: 0.9982
+Test Data Eval:
+  Num examples: 1792  Num correct: 1312  Precision @ 1: 0.7321  AUC @ 1: 0.8022
+Step 2100: loss = 0.0865 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9750  Precision @ 1: 0.9766  AUC @ 1: 0.9984
+Test Data Eval:
+  Num examples: 1792  Num correct: 1351  Precision @ 1: 0.7539  AUC @ 1: 0.8101
+Step 2150: loss = 0.1432 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9842  Precision @ 1: 0.9858  AUC @ 1: 0.9990
+Test Data Eval:
+  Num examples: 1792  Num correct: 1322  Precision @ 1: 0.7377  AUC @ 1: 0.8053
+Step 2200: loss = 0.1506 (0.346 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9859  Precision @ 1: 0.9875  AUC @ 1: 0.9992
+Test Data Eval:
+  Num examples: 1792  Num correct: 1270  Precision @ 1: 0.7087  AUC @ 1: 0.7927
+Step 2250: loss = 0.1198 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9793  Precision @ 1: 0.9809  AUC @ 1: 0.9986
+Test Data Eval:
+  Num examples: 1792  Num correct: 1304  Precision @ 1: 0.7277  AUC @ 1: 0.8019
+Step 2300: loss = 0.1928 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9864  Precision @ 1: 0.9880  AUC @ 1: 0.9993
+Test Data Eval:
+  Num examples: 1792  Num correct: 1275  Precision @ 1: 0.7115  AUC @ 1: 0.7846
+Step 2350: loss = 0.1444 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9801  Precision @ 1: 0.9817  AUC @ 1: 0.9986
+Test Data Eval:
+  Num examples: 1792  Num correct: 1323  Precision @ 1: 0.7383  AUC @ 1: 0.8031
+Step 2400: loss = 0.1152 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9845  Precision @ 1: 0.9861  AUC @ 1: 0.9991
+Test Data Eval:
+  Num examples: 1792  Num correct: 1303  Precision @ 1: 0.7271  AUC @ 1: 0.7993
+Step 2450: loss = 0.1339 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9855  Precision @ 1: 0.9871  AUC @ 1: 0.9993
+Test Data Eval:
+  Num examples: 1792  Num correct: 1294  Precision @ 1: 0.7221  AUC @ 1: 0.7970
+Step 2500: loss = 0.1170 (0.340 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9879  Precision @ 1: 0.9895  AUC @ 1: 0.9994
+Test Data Eval:
+  Num examples: 1792  Num correct: 1274  Precision @ 1: 0.7109  AUC @ 1: 0.7782
+Step 2550: loss = 0.1387 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9921  Precision @ 1: 0.9937  AUC @ 1: 0.9998
+Test Data Eval:
+  Num examples: 1792  Num correct: 1296  Precision @ 1: 0.7232  AUC @ 1: 0.7879
+Step 2600: loss = 0.0871 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9813  Precision @ 1: 0.9829  AUC @ 1: 0.9995
+Test Data Eval:
+  Num examples: 1792  Num correct: 1318  Precision @ 1: 0.7355  AUC @ 1: 0.7929
+Step 2650: loss = 0.0829 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9905  Precision @ 1: 0.9921  AUC @ 1: 0.9996
+Test Data Eval:
+  Num examples: 1792  Num correct: 1257  Precision @ 1: 0.7015  AUC @ 1: 0.7718
+Step 2700: loss = 0.0787 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9881  Precision @ 1: 0.9897  AUC @ 1: 0.9997
+Test Data Eval:
+  Num examples: 1792  Num correct: 1320  Precision @ 1: 0.7366  AUC @ 1: 0.8015
+Step 2750: loss = 0.0798 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9906  Precision @ 1: 0.9922  AUC @ 1: 0.9997
+Test Data Eval:
+  Num examples: 1792  Num correct: 1268  Precision @ 1: 0.7076  AUC @ 1: 0.7841
+Step 2800: loss = 0.1026 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9914  Precision @ 1: 0.9930  AUC @ 1: 0.9996
+Test Data Eval:
+  Num examples: 1792  Num correct: 1267  Precision @ 1: 0.7070  AUC @ 1: 0.7892
+Step 2850: loss = 0.0917 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9926  Precision @ 1: 0.9942  AUC @ 1: 0.9998
+Test Data Eval:
+  Num examples: 1792  Num correct: 1254  Precision @ 1: 0.6998  AUC @ 1: 0.7732
+Step 2900: loss = 0.0903 (0.341 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9844  Precision @ 1: 0.9860  AUC @ 1: 0.9990
+Test Data Eval:
+  Num examples: 1792  Num correct: 1271  Precision @ 1: 0.7093  AUC @ 1: 0.7894
+Step 2950: loss = 0.0947 (0.343 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9903  Precision @ 1: 0.9919  AUC @ 1: 0.9998
+Test Data Eval:
+  Num examples: 1792  Num correct: 1321  Precision @ 1: 0.7372  AUC @ 1: 0.8089
+Step 3000: loss = 0.1110 (0.344 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9943  Precision @ 1: 0.9959  AUC @ 1: 0.9999
+Test Data Eval:
+  Num examples: 1792  Num correct: 1286  Precision @ 1: 0.7176  AUC @ 1: 0.7921
+Step 3050: loss = 0.0976 (0.342 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9957  Precision @ 1: 0.9973  AUC @ 1: 1.0000
+Test Data Eval:
+  Num examples: 1792  Num correct: 1296  Precision @ 1: 0.7232  AUC @ 1: 0.7947
+Step 3100: loss = 0.0723 (0.351 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9944  Precision @ 1: 0.9960  AUC @ 1: 0.9999
+Test Data Eval:
+  Num examples: 1792  Num correct: 1296  Precision @ 1: 0.7232  AUC @ 1: 0.7968
+Step 3150: loss = 0.0692 (0.345 sec)
+Training Data Eval:
+  Num examples: 9984  Num correct: 9912  Precision @ 1: 0.9928  AUC @ 1: 0.9998
+Test Data Eval:
+  Num examples: 1792  Num correct: 1277  Precision @ 1: 0.7126  AUC @ 1: 0.7868
+Step 3200: loss = 0.0746 (0.343 sec)
+Training Data Eval:
+Traceback (most recent call last):
+  File "/home/zijing/Github/ROICNN/multieeg/test_single_model.py", line 354, in <module>
+    if __name__ == '__main__':
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/platform/app.py", line 30, in run
+    sys.exit(main(sys.argv))
+  File "/home/zijing/Github/ROICNN/multieeg/test_single_model.py", line 350, in main
+    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+  File "/home/zijing/Github/ROICNN/multieeg/test_single_model.py", line 260, in run_training
+    csv_writer_auc)
+  File "/home/zijing/Github/ROICNN/multieeg/test_single_model.py", line 149, in do_eval
+    true_count += sess.run(eval_correct, feed_dict=feed_dict)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 340, in run
+    run_metadata_ptr)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 564, in _run
+    feed_dict_string, options, run_metadata)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 637, in _do_run
+    target_list, options, run_metadata)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 644, in _do_call
+    return fn(*args)
+  File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/client/session.py", line 628, in _run_fn
+    session, None, feed_dict, fetch_list, target_list, None)
+KeyboardInterrupt
+
+Process finished with exit code 1

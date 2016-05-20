@@ -115,7 +115,8 @@ def read_data_sets(train_data,
                    one_hot=False,
                    dtype=tf.float32,
                    scale_data=False,
-                   reshape_t=True):
+                   reshape_t=True,
+                   validation_size=roi_property.MEDIUM_VALID_SIZE):
     class DataSets(object):
         pass
     data_sets = DataSets()
@@ -174,8 +175,6 @@ def read_data_sets(train_data,
         max_image_value = np.max(train_images)
         min_image_value = np.min(train_images)
         print('Rescale to: [%s, %s]' % (min_image_value, max_image_value))
-
-    validation_size = roi_property.MEDIUM_VALID_SIZE
 
     validation_images = train_images[:validation_size]
     validation_labels = train_labels[:validation_size]
