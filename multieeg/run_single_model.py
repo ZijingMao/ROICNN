@@ -322,11 +322,13 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 1, 'feat': [128]},
-                        {'layer': 2, 'feat': [128, 8]},
-                        {'layer': 2, 'feat': [128, 16]},
-                        {'layer': 2, 'feat': [128, 32]},
-                        {'layer': 2, 'feat': [128, 64]}]
+    hyper_param_list = [{'layer': 1, 'feat': [128]}]
+
+# {'layer': 1, 'feat': [128]},
+#                         {'layer': 2, 'feat': [128, 8]},
+#                         {'layer': 2, 'feat': [128, 16]},
+#                         {'layer': 2, 'feat': [128, 32]},
+#
 
     # hyper_param_list = [{'layer': 3, 'feat': [4, 4, 512]},
     #                     {'layer': 3, 'feat': [8, 8, 512]},
@@ -344,9 +346,9 @@ def main(_):
         print("FeatMap: ")
         print(hyper_param['feat'])
         print("Model" + str(model))
-        orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+        # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
         run_training(hyper_param, model)
-        autorun_util.close_save_file(orig_stdout, f)
+        # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

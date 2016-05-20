@@ -13,6 +13,7 @@ from roimapper import concat_eeg
 from roimapper import split_eeg
 import numpy as np
 import tensorflow as tf
+from tensorflow.python.framework import ops
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
 NUM_CLASSES = roi_property.BINARY_LABEL  # replace with multiple labels
@@ -134,6 +135,33 @@ def inference_augment_s_filter(images):
     return augment
 
 
+def inference_pooling_l2norm_filter(images, kwidth=5):
+    # channel domain pooling mapper
+    kheight=2
+    split_dim = 1   # 1 represents split on spatial domain
+    input_image_list = split_eeg.split_eeg_signal_axes(images,
+                                                       split_dim=split_dim)
+    input_image_length = len(input_image_list)
+
+    # the pooling mapper should choose half size of the image size
+    pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
+    _print_tensor_size(pool_s)
+
+    pool_s = tf.mul(pool_s,pool_s)
+    pool_s = tf.mul(float(kwidth), pool_s)
+
+    pool_s = tf.nn.avg_pool(pool_s, ksize=[1, 1, kwidth, 1],
+                            strides=[1, 1, kwidth, 1], padding='VALID')
+
+    pool_s = tf.sqrt(pool_s)
+
+    pool_s = tf.nn.max_pool(pool_s, ksize=[1, kheight, 1, 1],
+                             strides=[1, kheight, 1, 1], padding='VALID')
+
+    _print_tensor_size(pool_s)
+    return pool_s
+
+
 def inference_pooling_s_filter(images, kheight=2, kwidth=2):
     # channel domain pooling mapper
     split_dim = 1   # 1 represents split on spatial domain
@@ -150,7 +178,7 @@ def inference_pooling_s_filter(images, kheight=2, kwidth=2):
     return pool_s
 
 
-def inference_pooling_t_filter(images, kheight=2, kwidth=2):
+def inference_pooling_direct_map_filter(images, kheight=2, kwidth=2):
     # channel domain pooling mapper
     split_dim = 1   # 1 represents split on spatial domain
     input_image_list = split_eeg.split_eeg_signal_axes(images,
@@ -180,6 +208,28 @@ def inference_pooling_n_filter(pool_s, kheight=2, kwidth=2):
 
 # region define the fully connected layer
 
+def relu6_layer(x, weights, biases, name=None):
+  """Computes Relu(x * weight + biases).
+
+  Args:
+    x: a 2D tensor.  Dimensions typically: batch, in_units
+    weights: a 2D tensor.  Dimensions typically: in_units, out_units
+    biases: a 1D tensor.  Dimensions: out_units
+    name: A name for the operation (optional).  If not specified
+      "nn_relu_layer" is used.
+
+  Returns:
+    A 2-D Tensor computing relu(matmul(x, weights) + biases).
+    Dimensions typically: batch, out_units.
+  """
+  with ops.op_scope([x, weights, biases], name, "relu_layer") as name:
+    x = ops.convert_to_tensor(x, name="x")
+    weights = ops.convert_to_tensor(weights, name="weights")
+    biases = ops.convert_to_tensor(biases, name="biases")
+    xw_plus_b = tf.nn.bias_add(tf.nn.math_ops.matmul(x, weights), biases)
+    return tf.nn.tanh(xw_plus_b, name=name)
+
+
 def inference_fully_connected_1layer(conv_output, keep_prob):
 
     # local1
@@ -193,7 +243,7 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
         weights = _variable_with_weight_decay('weights', shape=[dim, 128],
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
+        local3 = relu6_layer(reshape, weights, biases, name=scope.name)
         _print_tensor_size(local3)
 
     # dropout1
@@ -206,7 +256,7 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
         weights = _variable_with_weight_decay('weights', shape=[128, 128],
                                               stddev=0.04, wd=0.004)
         biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
-        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
+        local4 = relu6_layer(dropout1, weights, biases, name=scope.name)
         _print_tensor_size(local4)
 
     # softmax, i.e. softmax(WX + b)
@@ -252,13 +302,13 @@ def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
                                              stddev=1e-2, wd=0.0)
         conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
-        bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+        conv_output = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
         # conv_output = tf.nn.relu(bias, name=scope.name)
         # conv_output = tf.nn.dropout(conv_output, 0.5)
-        # conv_output = tf.nn.local_response_normalization(conv_relu, depth_radius=5, alpha=0.0001)
-        _print_tensor_size(bias)
+        # conv_output = tf.nn.local_response_normalization(conv_output, depth_radius=5, alpha=0.0001)
+        _print_tensor_size(conv_output)
 
-    return bias
+    return conv_output
 
 
 def inference_temporal_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
