@@ -303,7 +303,7 @@ def inference_local_st5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
         conv = tf.nn.conv2d(augment, kernel, [1, 5, 5, 1], padding='SAME')
         biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         conv_output = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
-        # conv_output = tf.nn.relu(bias, name=scope.name)
+        conv_output = tf.nn.relu(bias, name=scope.name)
         # conv_output = tf.nn.dropout(conv_output, 0.5)
         # conv_output = tf.nn.local_response_normalization(conv_output, depth_radius=5, alpha=0.0001)
         _print_tensor_size(conv_output)
