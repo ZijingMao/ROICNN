@@ -225,9 +225,9 @@ def run_training(hyper_param, model, isPool=False):
             start_time = time.time()
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
-            # drop rate: 0.01-0.5, default=0.5
+            # drop rate: 0.1-0.5, default=0.5
             feed_dict = fill_feed_dict(data_sets.train,
-                                       0.01,
+                                       0.1,
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
@@ -329,9 +329,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model, isPool=True)  # test on pooling case with direct mapper
-            autorun_util.close_save_file(orig_stdout, f)
+            # autorun_util.close_save_file(orig_stdout, f)
             duration = time.time() - start_time
             # print('running time = %.3f sec' % duration)
             time_writer_one = autorun_util.time_writer(model, hyper_param['feat'])
