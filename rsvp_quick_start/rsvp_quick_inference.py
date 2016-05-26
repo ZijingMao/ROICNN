@@ -195,7 +195,7 @@ def inference_pooling_direct_map_filter(images, kheight=2, kwidth=2):
 
 
 def inference_pooling_n_filter(pool_s, kheight=2, kwidth=2):
-
+    # time max-pooling if kheight=1, kwidth=2
     pool_s = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
                             strides=[1, kheight, kwidth, 1], padding='VALID')
     _print_tensor_size(pool_s)
