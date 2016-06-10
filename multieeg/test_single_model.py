@@ -41,11 +41,11 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.03
+learning_rate = 0.006
 choose_cnn_type = 1
-batch_size = 128
-max_step = 20000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/400
+batch_size = 64
+max_step = 100000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -189,7 +189,7 @@ def run_training(hyper_param, model):
     data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=1000)
+                                               validation_size=896)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -248,16 +248,16 @@ def run_training(hyper_param, model):
             if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
                 saver.save(sess, FLAGS.train_dir, global_step=step)
                 # Evaluate against the training set.
-                print('Training Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.train,
-                        csv_writer_acc,
-                        csv_writer_auc)
+                # print('Training Data Eval:')
+                # do_eval(sess,
+                #         eval_correct,
+                #         logits,
+                #         images_placeholder,
+                #         labels_placeholder,
+                #         keep_prob,
+                #         data_sets.train,
+                #         csv_writer_acc,
+                #         csv_writer_auc)
                 # Evaluate against the validation set.
                 print('Validation Data Eval:')
                 do_eval(sess,
@@ -323,7 +323,9 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 3, 'feat': [128, 16, 16]}]
+    hyper_param_list = [{'layer': 1, 'feat': [32]},
+                        {'layer': 1, 'feat': [64]},
+                        {'layer': 1, 'feat': [96]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},

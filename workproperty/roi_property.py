@@ -45,7 +45,7 @@ BINARY_LABEL = 2
 MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['X2']
+EXP_NAME_STR = ['X2A']
 DAT_TYPE_STR = ['RAW']
 SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
