@@ -45,7 +45,7 @@ learning_rate = 0.006
 choose_cnn_type = 1
 batch_size = 64
 max_step = 100000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/50
+check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -323,9 +323,8 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 1, 'feat': [32]},
-                        {'layer': 1, 'feat': [64]},
-                        {'layer': 1, 'feat': [96]}]
+    hyper_param_list = [{'layer': 2, 'feat': [16, 32]},
+                        {'layer': 1, 'feat': [32]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
