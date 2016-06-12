@@ -24,7 +24,7 @@ import tensorflow as tf
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
 DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
-SUB_STR = roi_property.SUB_STR[0]
+SUB_STR = roi_property.SUB_STR[1]
 CHAN_STR = roi_property.CHAN_STR
 
 EEG_DATA = EXP_TYPE_STR + '_' + \
@@ -43,9 +43,9 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 
 learning_rate = 0.006
 choose_cnn_type = 1
-batch_size = 64
-max_step = 100000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/100
+batch_size = 128
+max_step = 10000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -323,8 +323,7 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 2, 'feat': [16, 32]},
-                        {'layer': 1, 'feat': [32]}]
+    hyper_param_list = [{'layer': 1, 'feat': [128]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},

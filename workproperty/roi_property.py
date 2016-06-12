@@ -10,7 +10,7 @@ import tensorflow.python.platform
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN/'
+WORK_DIR = '/caffe1/zijing/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
@@ -45,7 +45,7 @@ BINARY_LABEL = 2
 MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['X2A']
+EXP_NAME_STR = ['X2']
 DAT_TYPE_STR = ['RAW']
 SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
