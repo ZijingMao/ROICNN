@@ -41,7 +41,7 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.006
+learning_rate = 0.03
 choose_cnn_type = 1
 batch_size = 128
 max_step = 10000    # to guarantee 64 epochs # should be training sample_size
@@ -323,7 +323,10 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 1, 'feat': [128]}]
+    hyper_param_list = [{'layer': 1, 'feat': [128]},
+                        {'layer': 2, 'feat': [64]},
+                        {'layer': 2, 'feat': [128, 16]},
+                        {'layer': 2, 'feat': [128, 32]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},

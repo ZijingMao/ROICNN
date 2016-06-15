@@ -227,7 +227,7 @@ def relu6_layer(x, weights, biases, name=None):
     weights = ops.convert_to_tensor(weights, name="weights")
     biases = ops.convert_to_tensor(biases, name="biases")
     xw_plus_b = tf.nn.bias_add(tf.nn.math_ops.matmul(x, weights), biases)
-    return tf.nn.tanh(xw_plus_b, name=name)
+    return tf.nn.relu6(xw_plus_b, name=name)
 
 
 def inference_fully_connected_1layer(conv_output, keep_prob):
