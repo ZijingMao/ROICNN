@@ -27,11 +27,7 @@ DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
 SUB_STR = roi_property.SUB_STR[1]
 CHAN_STR = roi_property.CHAN_STR
 
-EEG_DATA = EXP_TYPE_STR + '_' + \
-           EXP_NAME_STR + '_' + \
-           SUB_STR + '_' + \
-           DAT_TYPE_STR + '_' + \
-           CHAN_STR
+EEG_DATA = autorun_util.EEG_DATA
 EEG_DATA_DIR = roi_property.FILE_DIR + \
                'rsvp_data/mat/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
@@ -323,10 +319,10 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 1, 'feat': [128]},
+    hyper_param_list = [{'layer': 1, 'feat': [32]},
                         {'layer': 2, 'feat': [64]},
-                        {'layer': 2, 'feat': [128, 16]},
-                        {'layer': 2, 'feat': [128, 32]}]
+                        {'layer': 2, 'feat': [32, 16]},
+                        {'layer': 2, 'feat': [32, 32]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},

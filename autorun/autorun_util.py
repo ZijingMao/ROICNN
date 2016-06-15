@@ -17,7 +17,7 @@ file_path = roi_property.SAVE_DIR
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
 DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
-SUB_STR = roi_property.SUB_STR[0]
+SUB_STR = roi_property.SUB_STR[1]
 CHAN_STR = roi_property.CHAN_STR
 EEG_DATA = EXP_TYPE_STR + '_' + \
            EXP_NAME_STR + '_' + \
