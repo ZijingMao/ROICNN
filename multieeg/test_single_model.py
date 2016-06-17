@@ -43,8 +43,8 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 
 learning_rate = 0.006
 choose_cnn_type = 1
-batch_size = 64
-max_step = 100000    # to guarantee 64 epochs # should be training sample_size
+batch_size = 128
+max_step = 50000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
@@ -248,16 +248,16 @@ def run_training(hyper_param, model):
             if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
                 saver.save(sess, FLAGS.train_dir, global_step=step)
                 # Evaluate against the training set.
-                # print('Training Data Eval:')
-                # do_eval(sess,
-                #         eval_correct,
-                #         logits,
-                #         images_placeholder,
-                #         labels_placeholder,
-                #         keep_prob,
-                #         data_sets.train,
-                #         csv_writer_acc,
-                #         csv_writer_auc)
+                print('Training Data Eval:')
+                do_eval(sess,
+                        eval_correct,
+                        logits,
+                        images_placeholder,
+                        labels_placeholder,
+                        keep_prob,
+                        data_sets.train,
+                        csv_writer_acc,
+                        csv_writer_auc)
                 # Evaluate against the validation set.
                 print('Validation Data Eval:')
                 do_eval(sess,
@@ -323,8 +323,9 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 2, 'feat': [16, 32]},
-                        {'layer': 1, 'feat': [32]}]
+    hyper_param_list = [{'layer': 2, 'feat': [64, 64]},
+                        {'layer': 3, 'feat': [64, 64, 64]},
+                        {'layer': 3, 'feat': [32, 16, 16]}]
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
