@@ -27,11 +27,7 @@ DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
 SUB_STR = roi_property.SUB_STR[0]
 CHAN_STR = roi_property.CHAN_STR
 
-EEG_DATA = EXP_TYPE_STR + '_' + \
-           EXP_NAME_STR + '_' + \
-           SUB_STR + '_' + \
-           DAT_TYPE_STR + '_' + \
-           CHAN_STR
+EEG_DATA = autorun_util.EEG_DATA
 EEG_DATA_DIR = roi_property.FILE_DIR + \
                'rsvp_data/mat/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
@@ -44,8 +40,8 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 learning_rate = 0.03
 choose_cnn_type = 1
 batch_size = 128
-max_step = 20000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/400
+max_step = 50000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -188,7 +184,8 @@ def run_training(hyper_param, model):
     # test on RSVP.
     data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
                                                FLAGS.fake_data,
-                                               reshape_t=False)
+                                               reshape_t=False,
+                                               validation_size=896)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -322,7 +319,7 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = [{'layer': 1, 'feat': [128]}]
+    hyper_param_list = def_hyper_param()
 
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},

@@ -118,7 +118,8 @@ def training(loss, learning_rate):
         staircase=True)
     tf.scalar_summary(loss.op.name, loss)
     # Create the gradient descent optimizer with the given learning rate.
-    optimizer = tf.train.MomentumOptimizer(lr, 0.9)
+    # optimizer = tf.train.MomentumOptimizer(lr, 0.9)
+    optimizer = tf.train.GradientDescentOptimizer(lr)
     # Create a variable to track the global step.
     # Use the optimizer to apply the gradients that minimize the loss
     # (and also increment the global step counter) as a single training step.
