@@ -21,26 +21,20 @@ import numpy as np
 
 import tensorflow as tf
 
-EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
-EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
-DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
-SUB_STR = roi_property.SUB_STR[0]
-CHAN_STR = roi_property.CHAN_STR
-
-EEG_DATA = autorun_util.EEG_DATA
-EEG_DATA_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/mat/' + EEG_DATA
-EEG_TF_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/' + EEG_DATA
-EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
+# EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
+# EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
+# DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
+# SUB_STR = roi_property.SUB_STR[0]
+# CHAN_STR = roi_property.CHAN_STR
 
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
-
-learning_rate = 0.03
+EEG_TF_DIR = roi_property.FILE_DIR + \
+               'rsvp_data/rand_search'
+learning_rate = 0.006
 choose_cnn_type = 1
 batch_size = 128
-max_step = 50000    # to guarantee 64 epochs # should be training sample_size
+max_step = 10000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
@@ -57,7 +51,7 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
 
 
-def placeholder_inputs(batch_size):
+def placeholder_inputs(batch_size, feat_size=1):
     """Generate placeholder variables to represent the input tensors.
     These placeholders are used as inputs by the rest of the model building
     code and will be fed from the downloaded data in the .run() loop, below.
@@ -73,7 +67,7 @@ def placeholder_inputs(batch_size):
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           1))
+                                                           feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
     keep_prob = tf.placeholder(tf.float32)
@@ -168,21 +162,26 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model):
+def run_training(hyper_param, model, name_idx):
     '''
     Train RSVP for a number of steps.
     Args:
         hyper_param: three elements, layer & feat & model
         model:
+        name_idx:
 
     Returns:
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'])
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'], name_idx=name_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
-    data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
+    eeg_data = autorun_util.str_name(name_idx)
+    eeg_data_dir = roi_property.FILE_DIR + \
+                   'rsvp_data/mat_x2/' + eeg_data
+    eeg_data_mat = eeg_data_dir + '.mat'
+    data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
                                                validation_size=896)
@@ -190,7 +189,7 @@ def run_training(hyper_param, model):
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
-            FLAGS.batch_size)
+            FLAGS.batch_size, data_sets.feature_shape[3])
         # Build a Graph that computes predictions from the inference model.
         logits = autorun_infer.select_running_cnn(images_placeholder,
                                                   keep_prob,
@@ -214,7 +213,7 @@ def run_training(hyper_param, model):
         sess.run(init)
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-                                                graph_def=sess.graph_def)
+                                                graph=sess.graph)
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
             start_time = time.time()
@@ -337,15 +336,18 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    model = 0
-    for hyper_param in hyper_param_list:
-        print("Currently running: ")
-        print("FeatMap: ")
-        print(hyper_param['feat'])
-        print("Model" + str(model))
-        # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-        run_training(hyper_param, model)
-        # autorun_util.close_save_file(orig_stdout, f)
+    models = [0, 1, 7, 8]
+
+    for model in models:
+        for hyper_param in hyper_param_list:
+            print("Currently running model: "+str(model))
+            print("FeatMap: ")
+            print(hyper_param['feat'])
+            for idx in range(0, 2):
+                print("Data: " + roi_property.DAT_TYPE_STR[idx])
+                orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx)
+                run_training(hyper_param, model, name_idx=idx)
+                autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

@@ -56,7 +56,7 @@ class DataSet(object):
 
             # Convert shape from [num examples, rows, columns, depth]
             # to [num examples, rows*columns] (assuming depth == 1)
-            assert images.shape[3] == 1
+            # assert images.shape[3] == 1
             if reshape_tensor:
                 images = images.reshape(images.shape[0],
                                         images.shape[1] * images.shape[2])
@@ -193,5 +193,6 @@ def read_data_sets(train_data,
                              test_labels,
                              dtype=dtype,
                              reshape_tensor=reshape_t)
+    data_sets.feature_shape = train_images.shape
 
     return data_sets

@@ -24,8 +24,8 @@ BIOSEMI_POOL = 2
 CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
-LAYER_LIST = range(2, int(math.log(EEG_SIGNAL_SIZE, 2))-3)
-FEAT_LIST = [2**j for j in range(2, 6)]
+LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
+FEAT_LIST = [2**j for j in range(3, 7)]
 MAX_RAND_SEARCH = 32
 
 BATCH_SIZE = 32
@@ -45,8 +45,8 @@ BINARY_LABEL = 2
 MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['X2A']
-DAT_TYPE_STR = ['RAW']
+EXP_NAME_STR = ['X2']
+DAT_TYPE_STR = ['RAWP300FREQ', 'FREQ']
 SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 

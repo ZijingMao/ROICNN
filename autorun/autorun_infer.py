@@ -76,9 +76,10 @@ def inference_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
         return
 
     # local st
-    conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
-    conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
-    # conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
+    # conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
+    conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
     # conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kheight=1, kwidth=4)
     for l in range(1, layer):
         # conv_tensor = rsvp_quick_inference.inference_time_wise_filter(conv_tensor, 'conv1', in_feat=feat[0], out_feat=feat[1])
@@ -86,8 +87,8 @@ def inference_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
         # conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1, kwidth=2)
         conv_tensor = rsvp_quick_inference.inference_local_st5_filter\
             (conv_tensor, 'conv'+str(l), in_feat=feat[l-1], out_feat=feat[l])
-        conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
-        # conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
+        # conv_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
+        conv_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
 
     logits = rsvp_quick_inference.inference_fully_connected_1layer(conv_tensor, keep_prob)
 
@@ -105,7 +106,8 @@ def inference_roi_s_cnn(images, keep_prob, layer=2, feat=[2, 4]):
         return
 
     # local st
-    conv_tensor = rsvp_quick_inference.inference_roi_s_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_roi_s_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     # pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor)
     # for l in range(1, layer):
     #     conv_tensor = rsvp_quick_inference.inference_roi_s_filter\
@@ -128,7 +130,8 @@ def inference_roi_ts_cnn(images, keep_prob, layer=2, feat=[2, 4]):
         return
 
     # local st
-    conv_tensor = rsvp_quick_inference.inference_roi_global_ts_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_roi_global_ts_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_s_filter(conv_tensor, kwidth=1)
     for l in range(1, layer):
         conv_tensor = rsvp_quick_inference.inference_roi_s_filter\
@@ -151,7 +154,8 @@ def inference_cvcnn(images, keep_prob, layer=2, feat=[2, 4]):
         return
 
     # local st
-    conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
     # pool_tensor = rsvp_quick_inference.inference_pooling_direct_map_filter(conv_tensor, kwidth=2)
     for l in range(1, layer):
@@ -176,7 +180,8 @@ def inference_local_t_cnn(images, keep_prob, layer=1, feat=[2]):
 
     # local t
     # here use the 1*5 filter which go across channels
-    conv_tensor = rsvp_quick_inference.inference_temporal_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_temporal_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     # the pooling should have the width padding to 1 because we only consider channel correlation
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
     for l in range(1, layer):
@@ -203,7 +208,8 @@ def inference_local_s_cnn(images, keep_prob, layer=1, feat=[2]):
 
     # local t
     # here use the 1*5 filter which go across channels
-    conv_tensor = rsvp_quick_inference.inference_spatial_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_spatial_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     # the pooling should have the width padding to 1 because we only consider channel correlation
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
     for l in range(1, layer):
@@ -226,7 +232,8 @@ def inference_global_t_cnn(images, keep_prob, layer=1, feat=[4]):
 
     # global t
     # here use the channel wise filter which go across channels
-    conv_tensor = rsvp_quick_inference.inference_channel_wise_filter(images, 'conv1', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_channel_wise_filter(images, 'conv1', in_feat=image_shape[3], out_feat=feat[0])
     # the pooling should have the width padding to 1 because no width anymore
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
 
@@ -243,7 +250,8 @@ def inference_global_s_cnn(images, keep_prob, layer=1, feat=[4]):
 
     # global s
     # here use the spatial filter which go across time
-    conv_tensor = rsvp_quick_inference.inference_time_wise_filter(images, 'conv1', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_time_wise_filter(images, 'conv1', in_feat=image_shape[3], out_feat=feat[0])
     # the pooling should have the height padding to 1 because no channel anymore
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
 
@@ -271,7 +279,8 @@ def inference_stcnn(images, keep_prob, layer=2, feat=[2, 4]):
     assert isinstance(keep_prob, object)
 
     # global spatial local temporal
-    conv_tensor = rsvp_quick_inference.inference_global_st_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_global_st_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kheight=1)
 
     for l in range(1, layer):
@@ -293,7 +302,8 @@ def inference_tscnn(images, keep_prob, layer=2, feat=[2, 4]):
     assert isinstance(keep_prob, object)
 
     # global temporal local temporal
-    conv_tensor = rsvp_quick_inference.inference_global_ts_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_global_ts_filter(images, 'conv0',in_feat=image_shape[3],  out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, kwidth=1)
 
     for l in range(1, layer):
