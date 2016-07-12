@@ -15,11 +15,11 @@ import roi_property
 
 file_path = roi_property.SAVE_DIR
 
-def str_name(name_idx):
+def str_name(name_idx, sub_idx=0):
     exp_type_str = roi_property.EXP_TYPE_STR[0]
     exp_name_str = roi_property.EXP_NAME_STR[0]
     dat_type_str = roi_property.DAT_TYPE_STR[name_idx]
-    sub_str = roi_property.SUB_STR[0]
+    sub_str = roi_property.SUB_STR[sub_idx]
     chan_str = roi_property.CHAN_STR
     eeg_data = exp_type_str + '_' + \
                sub_str + '_' + \
