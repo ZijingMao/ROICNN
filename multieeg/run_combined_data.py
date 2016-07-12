@@ -162,7 +162,7 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model, name_idx):
+def run_training(hyper_param, model, name_idx, sub_idx):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -177,7 +177,7 @@ def run_training(hyper_param, model, name_idx):
     csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'], name_idx=name_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
-    eeg_data = autorun_util.str_name(name_idx)
+    eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
                    'rsvp_data/mat_x2/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
@@ -319,7 +319,7 @@ def def_hyper_param():
 
 def main(_):
     hyper_param_list = def_hyper_param()
-
+    # hyper_param_list = [{'layer': 3, 'feat': [8, 16, 64]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
 #                         {'layer': 2, 'feat': [128, 16]},
@@ -336,18 +336,20 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [0, 1, 7, 8]
+    models = [5, 7]
 
     for model in models:
         for hyper_param in hyper_param_list:
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(1, 2):
+            for idx in range(0, 2):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                orig_stdout, f = autorun_util.open_save_file(model, [8, 32, 8], name_idx=idx)
-                run_training(hyper_param, model, name_idx=idx)
-                autorun_util.close_save_file(orig_stdout, f)
+                for subIdx in range(1, 10):
+                    print("Subject: " + subIdx)
+                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx)
+                    run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
+                    autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()
