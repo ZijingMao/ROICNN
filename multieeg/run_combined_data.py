@@ -179,12 +179,12 @@ def run_training(hyper_param, model, name_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_x2/' + eeg_data
+                   'rsvp_data/mat_xJam/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=896)
+                                               validation_size=256)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -336,16 +336,16 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [0, 1, 7, 8]
+    models = [5, 1, 7, 8]   # GS , LSLT, GSLT, LSGT
 
     for model in models:
         for hyper_param in hyper_param_list:
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(1, 2):
+            for idx in range(0, len(roi_property.DAT_TYPE_STR)):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                orig_stdout, f = autorun_util.open_save_file(model, [8, 32, 8], name_idx=idx)
+                orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx)
                 run_training(hyper_param, model, name_idx=idx)
                 autorun_util.close_save_file(orig_stdout, f)
 
