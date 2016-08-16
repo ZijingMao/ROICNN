@@ -15,7 +15,7 @@ import roi_property
 
 file_path = roi_property.SAVE_DIR
 
-def str_name(name_idx, sub_idx=0):
+def str_name(name_idx, sub_idx):
     exp_type_str = roi_property.EXP_TYPE_STR[0]
     exp_name_str = roi_property.EXP_NAME_STR[0]
     dat_type_str = roi_property.DAT_TYPE_STR[name_idx]
@@ -34,11 +34,11 @@ log_str = '.log'
 csv_str = '.csv'
 
 
-def open_save_file(model, feat_list, log_flag=True, name_idx=0):
+def open_save_file(model, feat_list, log_flag=True, name_idx=0, sub_idx=0):
     if log_flag is False:
         return None, None
 
-    name_str = str_name(name_idx)
+    name_str = str_name(name_idx, sub_idx)
     file_path_stub = file_path+name_str+'/'+str(model)+'/'
     if not os.path.exists(file_path_stub):
         os.makedirs(file_path_stub)
@@ -59,9 +59,9 @@ def close_save_file(orig_stdout, f):
         f.close()
 
 
-def csv_writer(model, feat_list, acc_flag=True, auc_flag=True, name_idx=0):
+def csv_writer(model, feat_list, acc_flag=True, auc_flag=True, name_idx=0, sub_idx=0):
 
-    file_path_stub = file_path+str_name(name_idx)+'/'+str(model)+'/'
+    file_path_stub = file_path+str_name(name_idx, sub_idx)+'/'+str(model)+'/'
     if not os.path.exists(file_path_stub):
         os.makedirs(file_path_stub)
 

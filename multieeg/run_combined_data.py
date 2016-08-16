@@ -169,12 +169,14 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         hyper_param: three elements, layer & feat & model
         model:
         name_idx:
+        sub_idx:
 
     Returns:
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'], name_idx=name_idx)
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer\
+        (model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
@@ -336,18 +338,18 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [5, 7]
+    models = [1]
 
     for model in models:
         for hyper_param in hyper_param_list:
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(0, 2):
+            for idx in range(2, len(roi_property.DAT_TYPE_STR)):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
                 for subIdx in range(1, 10):
-                    print("Subject: " + subIdx)
-                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx)
+                    print("Subject: " + str(subIdx))
+                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
                     autorun_util.close_save_file(orig_stdout, f)
 
