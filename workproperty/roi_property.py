@@ -26,7 +26,7 @@ POOL_CHAN_INFO = [128, 64, 32, 16]
 
 LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
 FEAT_LIST = [2**j for j in range(3, 7)]
-MAX_RAND_SEARCH = 32
+MAX_RAND_SEARCH = 10
 
 BATCH_SIZE = 32
 SMALL_TRAIN_SIZE = 1000

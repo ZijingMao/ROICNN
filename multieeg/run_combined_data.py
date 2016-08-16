@@ -345,9 +345,10 @@ def main(_):
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(2, len(roi_property.DAT_TYPE_STR)):
+            # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
+            for idx in range(3, 4):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(1, 10):
+                for subIdx in range(0, 10):
                     print("Subject: " + str(subIdx))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
