@@ -65,7 +65,7 @@ def placeholder_inputs(batch_size, feat_size=1):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           64,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
@@ -162,7 +162,7 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model, name_idx):
+def run_training(hyper_param, model, name_idx, sub_idx):
     '''
     Train RSVP for a number of steps.
     Args:
@@ -174,10 +174,10 @@ def run_training(hyper_param, model, name_idx):
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'], name_idx=name_idx)
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
-    eeg_data = autorun_util.str_name(name_idx)
+    eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
                    'rsvp_data/mat_xJam/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
@@ -336,7 +336,7 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [5, 1, 7, 8]   # GS , LSLT, GSLT, LSGT
+    models = [5]   # GS , LSLT, GSLT, LSGT
 
     for model in models:
         for hyper_param in hyper_param_list:
@@ -345,9 +345,11 @@ def main(_):
             print(hyper_param['feat'])
             for idx in range(0, len(roi_property.DAT_TYPE_STR)):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx)
-                run_training(hyper_param, model, name_idx=idx)
-                autorun_util.close_save_file(orig_stdout, f)
+                for subidx in range(0,10):
+                    print("Subject:" + str(subidx+1).zfill(2))
+                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subidx)
+                    run_training(hyper_param, model, name_idx=idx, sub_idx=subidx)
+                    autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

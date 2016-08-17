@@ -23,7 +23,6 @@ def str_name(name_idx, sub_idx=0):
     chan_str = roi_property.CHAN_STR
     eeg_data = exp_type_str + '_' + \
                sub_str + '_' + \
-               exp_name_str + '_' + \
                dat_type_str + '_' + \
                chan_str
     return eeg_data
@@ -34,11 +33,11 @@ log_str = '.log'
 csv_str = '.csv'
 
 
-def open_save_file(model, feat_list, log_flag=True, name_idx=0):
+def open_save_file(model, feat_list, log_flag=True, name_idx=0, sub_idx=0):
     if log_flag is False:
         return None, None
 
-    name_str = str_name(name_idx)
+    name_str = str_name(name_idx, sub_idx)
     file_path_stub = file_path+name_str+'/'+str(model)+'/'
     if not os.path.exists(file_path_stub):
         os.makedirs(file_path_stub)
@@ -59,9 +58,9 @@ def close_save_file(orig_stdout, f):
         f.close()
 
 
-def csv_writer(model, feat_list, acc_flag=True, auc_flag=True, name_idx=0):
+def csv_writer(model, feat_list, acc_flag=True, auc_flag=True, name_idx=0, sub_idx=0):
 
-    file_path_stub = file_path+str_name(name_idx)+'/'+str(model)+'/'
+    file_path_stub = file_path+str_name(name_idx, sub_idx)+'/'+str(model)+'/'
     if not os.path.exists(file_path_stub):
         os.makedirs(file_path_stub)
 

@@ -10,7 +10,7 @@ import tensorflow.python.platform
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN/'
+WORK_DIR = '/root/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
@@ -24,7 +24,7 @@ BIOSEMI_POOL = 2
 CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
-LAYER_LIST = range(2, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
+LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2)))
 FEAT_LIST = [2**j for j in range(2, 7)]
 # MAX_RAND_SEARCH = 32
 MAX_RAND_SEARCH = 10
@@ -47,8 +47,8 @@ MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
 EXP_NAME_STR = ['']
-DAT_TYPE_STR = ['CS_RAW', 'FREQ', 'RAWFREQ', 'NORMFREQ', 'NORM']
-SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
+DAT_TYPE_STR = ['CS_RAW', 'CS_FREQ', 'CS_NORM', 'CS_FREQNORM', 'CS_FREQRAW']
+SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 11)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 
 
