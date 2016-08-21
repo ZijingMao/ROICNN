@@ -65,8 +65,8 @@ def placeholder_inputs(batch_size, feat_size=1):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           64,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -336,7 +336,7 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [5]   # GS , LSLT, GSLT, LSGT
+    models = [7]   # GS , LSLT, GSLT, LSGT
 
     for model in models:
         for hyper_param in hyper_param_list:

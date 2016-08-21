@@ -1,0 +1,388 @@
+Training data shape: 	(3825, 30, 64, 1)
+Training label shape:	(3825,)
+Testing data shape:  	(510, 30, 64, 1)
+Testing label shape: 	(510,)
+max input value is: 14.3839135638
+min input value is: -10.9262291682
+random permuted training data
+==============================================================================
+Model: 			inference_stcnn
+Tensor Name: 	Placeholder:0
+[128, 30, 64, 1]
+==============================================================================
+Tensor Name: conv0/conv0:0
+[128, 1, 60, 32]
+==============================================================================
+Tensor Name: MaxPool:0
+[128, 1, 30, 32]
+==============================================================================
+Tensor Name: conv1/conv1:0
+[128, 1, 26, 64]
+==============================================================================
+Tensor Name: MaxPool_1:0
+[128, 1, 13, 64]
+==============================================================================
+Tensor Name: conv2/conv2:0
+[128, 1, 9, 8]
+==============================================================================
+Tensor Name: MaxPool_2:0
+[128, 1, 4, 8]
+==============================================================================
+Tensor Name: local1/local1:0
+[128, 128]
+==============================================================================
+Tensor Name: local2/local2:0
+[128, 128]
+==============================================================================
+Tensor Name: softmax_linear/softmax_linear:0
+[128, 2]
+Step 0: loss = 0.7441 (0.051 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1963  Precision @ 1: 0.5680  AUC @ 1: 0.5916
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5440
+Test Data Eval:
+  Num examples: 384  Num correct: 162  Precision @ 1: 0.4219  AUC @ 1: 0.6833
+Step 200: loss = 0.7454 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1936  Precision @ 1: 0.5602  AUC @ 1: 0.5992
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5377
+Test Data Eval:
+  Num examples: 384  Num correct: 216  Precision @ 1: 0.5625  AUC @ 1: 0.6260
+Step 400: loss = 0.7452 (0.038 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1946  Precision @ 1: 0.5631  AUC @ 1: 0.6123
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5391
+Test Data Eval:
+  Num examples: 384  Num correct: 221  Precision @ 1: 0.5755  AUC @ 1: 0.6224
+Step 600: loss = 0.7279 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1928  Precision @ 1: 0.5579  AUC @ 1: 0.6000
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5378
+Test Data Eval:
+  Num examples: 384  Num correct: 222  Precision @ 1: 0.5781  AUC @ 1: 0.6285
+Step 800: loss = 0.7424 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1961  Precision @ 1: 0.5674  AUC @ 1: 0.6092
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5381
+Test Data Eval:
+  Num examples: 384  Num correct: 212  Precision @ 1: 0.5521  AUC @ 1: 0.6190
+Step 1000: loss = 0.7505 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1951  Precision @ 1: 0.5645  AUC @ 1: 0.6081
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5383
+Test Data Eval:
+  Num examples: 384  Num correct: 214  Precision @ 1: 0.5573  AUC @ 1: 0.6251
+Step 1200: loss = 0.7370 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1931  Precision @ 1: 0.5587  AUC @ 1: 0.6098
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5378
+Test Data Eval:
+  Num examples: 384  Num correct: 217  Precision @ 1: 0.5651  AUC @ 1: 0.6346
+Step 1400: loss = 0.7162 (0.038 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1957  Precision @ 1: 0.5663  AUC @ 1: 0.6088
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5372
+Test Data Eval:
+  Num examples: 384  Num correct: 224  Precision @ 1: 0.5833  AUC @ 1: 0.6527
+Step 1600: loss = 0.7174 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1974  Precision @ 1: 0.5712  AUC @ 1: 0.6142
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5379
+Test Data Eval:
+  Num examples: 384  Num correct: 226  Precision @ 1: 0.5885  AUC @ 1: 0.6354
+Step 1800: loss = 0.7253 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1951  Precision @ 1: 0.5645  AUC @ 1: 0.6034
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5399
+Test Data Eval:
+  Num examples: 384  Num correct: 216  Precision @ 1: 0.5625  AUC @ 1: 0.6238
+Step 2000: loss = 0.7336 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1934  Precision @ 1: 0.5596  AUC @ 1: 0.6048
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5397
+Test Data Eval:
+  Num examples: 384  Num correct: 213  Precision @ 1: 0.5547  AUC @ 1: 0.6213
+Step 2200: loss = 0.7391 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1957  Precision @ 1: 0.5663  AUC @ 1: 0.6120
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5405
+Test Data Eval:
+  Num examples: 384  Num correct: 220  Precision @ 1: 0.5729  AUC @ 1: 0.6579
+Step 2400: loss = 0.7330 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1977  Precision @ 1: 0.5720  AUC @ 1: 0.6156
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5413
+Test Data Eval:
+  Num examples: 384  Num correct: 209  Precision @ 1: 0.5443  AUC @ 1: 0.6382
+Step 2600: loss = 0.7248 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1955  Precision @ 1: 0.5657  AUC @ 1: 0.6100
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5445
+Test Data Eval:
+  Num examples: 384  Num correct: 213  Precision @ 1: 0.5547  AUC @ 1: 0.6334
+Step 2800: loss = 0.7278 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1948  Precision @ 1: 0.5637  AUC @ 1: 0.6152
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5457
+Test Data Eval:
+  Num examples: 384  Num correct: 222  Precision @ 1: 0.5781  AUC @ 1: 0.6466
+Step 3000: loss = 0.7195 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1979  Precision @ 1: 0.5726  AUC @ 1: 0.6088
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5432
+Test Data Eval:
+  Num examples: 384  Num correct: 211  Precision @ 1: 0.5495  AUC @ 1: 0.6369
+Step 3200: loss = 0.7110 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1941  Precision @ 1: 0.5616  AUC @ 1: 0.6071
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5438
+Test Data Eval:
+  Num examples: 384  Num correct: 209  Precision @ 1: 0.5443  AUC @ 1: 0.6218
+Step 3400: loss = 0.7268 (0.038 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1937  Precision @ 1: 0.5605  AUC @ 1: 0.6261
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5425
+Test Data Eval:
+  Num examples: 384  Num correct: 224  Precision @ 1: 0.5833  AUC @ 1: 0.6236
+Step 3600: loss = 0.7325 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1961  Precision @ 1: 0.5674  AUC @ 1: 0.6057
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5443
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6471
+Step 3800: loss = 0.7261 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1953  Precision @ 1: 0.5651  AUC @ 1: 0.6186
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5489
+Test Data Eval:
+  Num examples: 384  Num correct: 212  Precision @ 1: 0.5521  AUC @ 1: 0.6219
+Step 4000: loss = 0.7132 (0.038 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1994  Precision @ 1: 0.5770  AUC @ 1: 0.6014
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5491
+Test Data Eval:
+  Num examples: 384  Num correct: 214  Precision @ 1: 0.5573  AUC @ 1: 0.6347
+Step 4200: loss = 0.7452 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1951  Precision @ 1: 0.5645  AUC @ 1: 0.6132
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5483
+Test Data Eval:
+  Num examples: 384  Num correct: 209  Precision @ 1: 0.5443  AUC @ 1: 0.6503
+Step 4400: loss = 0.7245 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1977  Precision @ 1: 0.5720  AUC @ 1: 0.6151
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5480
+Test Data Eval:
+  Num examples: 384  Num correct: 214  Precision @ 1: 0.5573  AUC @ 1: 0.6576
+Step 4600: loss = 0.7426 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1946  Precision @ 1: 0.5631  AUC @ 1: 0.6158
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5471
+Test Data Eval:
+  Num examples: 384  Num correct: 215  Precision @ 1: 0.5599  AUC @ 1: 0.6143
+Step 4800: loss = 0.7201 (0.035 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1938  Precision @ 1: 0.5608  AUC @ 1: 0.6158
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5487
+Test Data Eval:
+  Num examples: 384  Num correct: 220  Precision @ 1: 0.5729  AUC @ 1: 0.6423
+Step 5000: loss = 0.7173 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1920  Precision @ 1: 0.5556  AUC @ 1: 0.6189
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5481
+Test Data Eval:
+  Num examples: 384  Num correct: 219  Precision @ 1: 0.5703  AUC @ 1: 0.6331
+Step 5200: loss = 0.7234 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1947  Precision @ 1: 0.5634  AUC @ 1: 0.6167
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5482
+Test Data Eval:
+  Num examples: 384  Num correct: 208  Precision @ 1: 0.5417  AUC @ 1: 0.6317
+Step 5400: loss = 0.7254 (0.070 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1957  Precision @ 1: 0.5663  AUC @ 1: 0.6277
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5484
+Test Data Eval:
+  Num examples: 384  Num correct: 211  Precision @ 1: 0.5495  AUC @ 1: 0.6510
+Step 5600: loss = 0.7294 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1937  Precision @ 1: 0.5605  AUC @ 1: 0.6167
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5506
+Test Data Eval:
+  Num examples: 384  Num correct: 213  Precision @ 1: 0.5547  AUC @ 1: 0.6395
+Step 5800: loss = 0.6917 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1991  Precision @ 1: 0.5761  AUC @ 1: 0.6252
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5504
+Test Data Eval:
+  Num examples: 384  Num correct: 219  Precision @ 1: 0.5703  AUC @ 1: 0.6305
+Step 6000: loss = 0.7328 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1939  Precision @ 1: 0.5611  AUC @ 1: 0.6172
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5523
+Test Data Eval:
+  Num examples: 384  Num correct: 214  Precision @ 1: 0.5573  AUC @ 1: 0.6087
+Step 6200: loss = 0.7099 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1956  Precision @ 1: 0.5660  AUC @ 1: 0.6210
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5512
+Test Data Eval:
+  Num examples: 384  Num correct: 216  Precision @ 1: 0.5625  AUC @ 1: 0.6299
+Step 6400: loss = 0.7340 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1936  Precision @ 1: 0.5602  AUC @ 1: 0.6257
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5512
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6501
+Step 6600: loss = 0.7049 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1955  Precision @ 1: 0.5657  AUC @ 1: 0.6185
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5530
+Test Data Eval:
+  Num examples: 384  Num correct: 215  Precision @ 1: 0.5599  AUC @ 1: 0.6324
+Step 6800: loss = 0.7235 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1924  Precision @ 1: 0.5567  AUC @ 1: 0.6264
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5534
+Test Data Eval:
+  Num examples: 384  Num correct: 214  Precision @ 1: 0.5573  AUC @ 1: 0.6518
+Step 7000: loss = 0.7214 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1948  Precision @ 1: 0.5637  AUC @ 1: 0.6183
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5537
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6388
+Step 7200: loss = 0.7106 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1954  Precision @ 1: 0.5654  AUC @ 1: 0.6164
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5556
+Test Data Eval:
+  Num examples: 384  Num correct: 209  Precision @ 1: 0.5443  AUC @ 1: 0.6515
+Step 7400: loss = 0.7306 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1922  Precision @ 1: 0.5561  AUC @ 1: 0.6145
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5559
+Test Data Eval:
+  Num examples: 384  Num correct: 217  Precision @ 1: 0.5651  AUC @ 1: 0.6612
+Step 7600: loss = 0.7080 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1955  Precision @ 1: 0.5657  AUC @ 1: 0.6234
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5567
+Test Data Eval:
+  Num examples: 384  Num correct: 219  Precision @ 1: 0.5703  AUC @ 1: 0.6630
+Step 7800: loss = 0.7280 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1942  Precision @ 1: 0.5619  AUC @ 1: 0.6186
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5555
+Test Data Eval:
+  Num examples: 384  Num correct: 215  Precision @ 1: 0.5599  AUC @ 1: 0.6426
+Step 8000: loss = 0.7072 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1954  Precision @ 1: 0.5654  AUC @ 1: 0.6132
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5571
+Test Data Eval:
+  Num examples: 384  Num correct: 222  Precision @ 1: 0.5781  AUC @ 1: 0.6606
+Step 8200: loss = 0.7098 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1974  Precision @ 1: 0.5712  AUC @ 1: 0.6235
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5566
+Test Data Eval:
+  Num examples: 384  Num correct: 216  Precision @ 1: 0.5625  AUC @ 1: 0.6504
+Step 8400: loss = 0.7031 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1926  Precision @ 1: 0.5573  AUC @ 1: 0.6236
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5556
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6176
+Step 8600: loss = 0.7237 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1956  Precision @ 1: 0.5660  AUC @ 1: 0.6203
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5566
+Test Data Eval:
+  Num examples: 384  Num correct: 213  Precision @ 1: 0.5547  AUC @ 1: 0.6623
+Step 8800: loss = 0.7022 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1950  Precision @ 1: 0.5642  AUC @ 1: 0.6224
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5587
+Test Data Eval:
+  Num examples: 384  Num correct: 205  Precision @ 1: 0.5339  AUC @ 1: 0.6553
+Step 9000: loss = 0.6999 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1966  Precision @ 1: 0.5689  AUC @ 1: 0.6204
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5583
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6383
+Step 9200: loss = 0.7267 (0.036 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1962  Precision @ 1: 0.5677  AUC @ 1: 0.6138
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5592
+Test Data Eval:
+  Num examples: 384  Num correct: 218  Precision @ 1: 0.5677  AUC @ 1: 0.6387
+Step 9400: loss = 0.7078 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1938  Precision @ 1: 0.5608  AUC @ 1: 0.6205
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5593
+Test Data Eval:
+  Num examples: 384  Num correct: 220  Precision @ 1: 0.5729  AUC @ 1: 0.6249
+Step 9600: loss = 0.7220 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1952  Precision @ 1: 0.5648  AUC @ 1: 0.6242
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5591
+Test Data Eval:
+  Num examples: 384  Num correct: 226  Precision @ 1: 0.5885  AUC @ 1: 0.6626
+Step 9800: loss = 0.7384 (0.037 sec)
+Training Data Eval:
+  Num examples: 3456  Num correct: 1929  Precision @ 1: 0.5582  AUC @ 1: 0.6171
+Validation Data Eval:
+  Num examples: 256  Num correct: 145  Precision @ 1: 0.5664  AUC @ 1: 0.5595
+Test Data Eval:
+  Num examples: 384  Num correct: 223  Precision @ 1: 0.5807  AUC @ 1: 0.6147
