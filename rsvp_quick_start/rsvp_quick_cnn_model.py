@@ -113,7 +113,7 @@ def training(loss, learning_rate):
     lr = tf.train.exponential_decay(
         learning_rate,                # Base learning rate.
         global_step,  # Current index into the dataset.
-        1000,          # Decay step.
+        500,          # Decay step.
         0.95,                # Decay rate.
         staircase=True)
     tf.scalar_summary(loss.op.name, loss)
