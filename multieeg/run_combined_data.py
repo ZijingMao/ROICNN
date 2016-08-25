@@ -184,7 +184,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=256)
+                                               validation_size=500)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
