@@ -46,7 +46,7 @@ MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
 EXP_NAME_STR = ['X2']
-DAT_TYPE_STR = ['NORMFREQ', 'FREQ', 'NORM', 'RAWFREQ', 'RAW']
+DAT_TYPE_STR = ['NORMFREQ', 'FREQ', 'NORM', 'RAWFREQ', 'RAW', 'SUB']
 SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 

@@ -34,7 +34,7 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
 learning_rate = 0.006
 choose_cnn_type = 1
 batch_size = 128
-max_step = 10000    # to guarantee 64 epochs # should be training sample_size
+max_step = 5000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
@@ -338,7 +338,7 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [7, 8]
+    models = [5, 7]
 
     for model in models:
         for hyper_param in hyper_param_list:
@@ -346,9 +346,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(4, 5):
+            for idx in range(5, 6):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(0, 10):
+                for subIdx in range(0, 1):
                     print("Subject: " + str(subIdx))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
