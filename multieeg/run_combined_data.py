@@ -181,7 +181,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_x2/' + eeg_data
+                   'rsvp_data/mat_sub/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,

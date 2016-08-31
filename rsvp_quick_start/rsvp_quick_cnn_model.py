@@ -11,7 +11,7 @@ import rsvp_quick_inference
 from autorun import autorun_infer
 
 # The RSVP dataset has 2 classes, representing the digits 0 through 1.
-NUM_CLASSES = roi_property.BINARY_LABEL
+NUM_CLASSES = roi_property.MULTI_LABEL
 IMAGE_SIZE = roi_property.EEG_SIGNAL_SIZE
 
 flags = tf.app.flags
