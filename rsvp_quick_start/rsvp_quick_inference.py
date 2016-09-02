@@ -25,6 +25,14 @@ FLAGS = flags.FLAGS
 
 # region define the variable methods
 
+batch_size = 128
+
+def set_batch_size(_batch_size):
+    global batch_size
+    batch_size = _batch_size
+
+# region define the variable methods
+
 
 def _variable_on_cpu(name, shape, initializer):
     """Helper to create a Variable stored on CPU memory.
@@ -194,14 +202,119 @@ def inference_pooling_direct_map_filter(images, kheight=2, kwidth=2):
     return pool_t
 
 
-def inference_pooling_n_filter(pool_s, kheight=2, kwidth=2):
+def inference_pooling_n_filter(pool_s, pool_layer_scope='pool', kheight=2, kwidth=2):
+    with tf.variable_scope(pool_layer_scope, reuse=True) as scope:
+        pool_s2 = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
+                                strides=[1, kheight, kwidth, 1], padding='SAME')
+        _print_tensor_size(pool_s2)
+    return pool_s2
 
-    pool_s = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
-                            strides=[1, kheight, kwidth, 1], padding='VALID')
+
+def inference_pooling_n_dropout_filter(pool_s, pool_layer_scope, kheight=2, kwidth=2):
+    with tf.variable_scope(pool_layer_scope) as scope:
+        pool_shape = pool_s.get_shape().as_list()
+
+        if pool_shape[1] < 4 or pool_shape[2] < 4:
+            pool_s2 = tf.nn.dropout(pool_s, 0.5)
+            switches = tf.Variables(tf.ones_like(pool_s2), name='switches')
+            return pool_s2
+
+        # Recreate 1D switches for scatter update
+        dim = 1
+
+        for d in pool_shape:
+            dim *= d
+
+        ones_temp = tf.ones([(dim // kheight) // kwidth])
+        temp_zeros = tf.zeros([dim])
+
+        switches = tf.Variable(temp_zeros, name='switches')
+
+        # clear switches
+        tf.assign(switches, temp_zeros)
+
+        [pool_s2, ind] = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
+                                strides=[1, kheight, kwidth, 1], padding='VALID')
+        _print_tensor_size(pool_s)
+
+        switches = tf.scatter_update(switches, ind, ones_temp)
+
+        # set switches
+        switches = tf.scatter_update(switches, ind, ones_temp)
+
+        # reshape back to batches
+        switches = tf.reshape(switches, [pool_shape[0], pool_shape[1] // 2, pool_shape[2] // 2, pool_shape[3]])
+
+        return pool_s2
+
+
+def inference_pooling_L2norm_filter(images, kwidth=5):
+    kheight = 2
+    # channel domain pooling mapper
+    split_dim = 1   # 1 represents split on spatial domain
+    input_image_list = split_eeg.split_eeg_signal_axes(images,
+                                                       split_dim=split_dim)
+    input_image_length = len(input_image_list)
+
+    if input_image_length < 16:
+        images2 = tf.nn.dropout(images, 0.85)
+        return images2
+
+    # the pooling mapper should choose half size of the image size
+    pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
+    _print_tensor_size(pool_s)
+
+    pool_s = tf.mul(pool_s,pool_s)
+    pool_s = tf.mul(float(kwidth), pool_s)
+
+    pool_s = tf.nn.avg_pool(pool_s, ksize=[1, 1, kwidth, 1],
+                            strides=[1, 1, kwidth, 1], padding='VALID')
+
+    pool_s = tf.sqrt(pool_s)
+
+    pool_s = tf.nn.max_pool(pool_s, ksize=[1, 2, 1, 1],
+                             strides=[1, 2, 1, 1], padding='VALID')
+
+    _print_tensor_size(pool_s)
+
+    pool_s2 = tf.nn.dropout(pool_s, 0.85)
+
+    return pool_s2
+
+
+def inference_pooling_L2norm_choose_filter(images, kheight=2, kwidth=5):
+    # channel domain pooling mapper
+    split_dim = 1   # 1 represents split on spatial domain
+    input_image_list = split_eeg.split_eeg_signal_axes(images,
+                                                       split_dim=split_dim)
+    input_image_length = len(input_image_list)
+
+    # the pooling mapper should choose half size of the image size
+    pool_s, _ = concat_eeg.pool_eeg_signal_channel(input_image_list, input_image_length/2, 1)
+    _print_tensor_size(pool_s)
+
+    input_shape = pool_s.get_shape()
+
+    range_even = tf.range(0, input_shape[0], 2)
+    range_odd  = tf.range(1, input_shape[0], 2)
+
+    even_rows = tf.nn.embedding_lookup(images, range_even)
+    odd_rows = tf.nn.embedding_lookup(images, range_odd)
+
+    even_rows = tf.mul(pool_s,pool_s)
+    even_rows = tf.mul(3.0, pool_s)
+
+    even_rows = tf.nn.avg_pool(even_rows, ksize=[1, 1, 3, 1],
+                            strides=[1, 1, 3, 1], padding='VALID')
+
+    pool_s = tf.sqrt(pool_s)
+
+    pool_s = tf.nn.max_pool(pool_s, ksize=[1, 2, 1, 1],
+                             strides=[1, 2, 1, 1], padding='VALID')
+
     _print_tensor_size(pool_s)
 
     return pool_s
-
 
 # endregion
 
