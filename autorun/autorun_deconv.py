@@ -109,12 +109,12 @@ def test_roicnn(images, keep_prob, layer=2, feat=[2, 4]):
 
     for l in range(0, layer):
         if l == 0:
-            conv_tensor = rsvp_quick_inference.inference_local_st5_filter(images, 'conv0', out_feat=feat[0])
+            conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', out_feat=feat[0])
         else:
-            conv_tensor = rsvp_quick_inference.inference_local_st5_filter \
+            conv_tensor = rsvp_quick_inference.inference_5x5_filter \
                 (pool_tensor, 'conv' + str(l), in_feat=feat[l - 1], out_feat=feat[l])
 
-        pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, 'pool' + str(l), kheight=1, kwidth=4)
+        pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, 'pool' + str(l), kheight=2, kwidth=2)
 
     logits = rsvp_quick_inference.inference_fully_connected_1layer(pool_tensor, keep_prob)
 

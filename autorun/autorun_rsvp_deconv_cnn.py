@@ -65,7 +65,6 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
 
 
-
 def set_batch_size(_batch_size):
     global batch_size
     set_batch_infer_size(_batch_size)
@@ -328,7 +327,6 @@ def run_training(hyper_param, model):
 
         # Run the Op to initialize the variables.
 
-
         # Instantiate a SummaryWriter to output summaries and the Graph.
         #summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
         #                                        graph_def=sess.graph_def)
@@ -338,8 +336,12 @@ def run_training(hyper_param, model):
 
         saver = tf.train.Saver()
 
-        saver.restore(sess, "/home/caffe1/PycharmProjects/ROICNN/data/rsvp_train/-4999")
-        print("Model restored.")
+        checkpoint = tf.train.get_checkpoint_state("saved_networks")
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        else:
+            print("Model restored.")
 
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
@@ -402,7 +404,7 @@ def run_training(hyper_param, model):
                         data_sets.test)
 
 
-	    # Change batchsize and model to fit new batchsize
+        # Change batchsize and model to fit new batchsize
         temp = set(tf.all_variables())
 
         set_batch_size(1)

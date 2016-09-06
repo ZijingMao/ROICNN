@@ -18,6 +18,7 @@ import rsvp_quick_cnn_model
 from workproperty import roi_property
 import sklearn.metrics as metrics
 import numpy as np
+import scipy.io
 
 import tensorflow as tf
 
@@ -98,21 +99,17 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
                                                    FLAGS.fake_data)
     feed_dict = {
         images_pl: images_feed,
-        labels_pl: labels_feed,
         keep_prob: drop_rate
     }
-    return feed_dict
+    return feed_dict, labels_feed
 
 
 def do_eval(sess,
-            eval_correct,
-            logits,
             images_placeholder,
             labels_placeholder,
             keep_prob,
             data_set,
-            csv_writer_acc=None,
-            csv_writer_auc=None):
+            name):
     """Runs one evaluation against the full epoch of data.
     Args:
       sess: The session in which the model has been trained.
@@ -123,43 +120,30 @@ def do_eval(sess,
         input_data.read_data_sets().
     """
     # And run one epoch of eval.
-    true_count = 0  # Counts the number of correct predictions.
     steps_per_epoch = data_set.num_examples // FLAGS.batch_size
     num_examples = steps_per_epoch * FLAGS.batch_size
 
     true_label = np.array([]).reshape(0,)   # the label information is only 1 dimension
-    fake_label = np.array([]).reshape(0, 2)   # the logit information is only 2 dimensions
+    true_feat = np.array([]).reshape(0, 128)   # the feature information is 2 dimensions
 
     for step in xrange(steps_per_epoch):
-        feed_dict = fill_feed_dict(data_set,
-                                   1,
-                                   images_placeholder,
-                                   labels_placeholder,
-                                   keep_prob)
-        true_count += sess.run(eval_correct, feed_dict=feed_dict)
-        forward_logits = sess.run(logits, feed_dict=feed_dict)  # define the logits output
-        forward_labels = feed_dict[labels_placeholder]          # define the labels output
+        feed_dict, labels_feed = fill_feed_dict(data_set,
+                                               1,
+                                               images_placeholder,
+                                               labels_placeholder,
+                                               keep_prob)
+        softmax_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
+        forward_feats = sess.run(softmax_tensor, feed_dict=feed_dict)
+        forward_labels = labels_feed          # define the labels output
+
         true_label = np.concatenate((true_label, forward_labels), axis=0)
-        fake_label = np.concatenate((fake_label, forward_logits), axis=0)
+        true_feat = np.concatenate((true_feat, forward_feats), axis=0)
 
-    # now you can calculate the auc of roc
-    fpr, tpr, thresholds = metrics.roc_curve(true_label, fake_label[:, 1], pos_label=1)
-    auc = metrics.auc(fpr, tpr)
+    # now you can save the feature, matlab save in mat file
+    scipy.io.savemat('/home/caffe1/PycharmProjects/ROICNN/data/rsvp_data/feature_output/'+name+'.mat',
+                     mdict={name+'_x': true_feat, name+'_y': true_label})
 
-    precision = true_count / num_examples
-    # will implement AUC curve later
-    # import sklearn.metrics as metrics
-    # fpr, tpr, thresholds = metrics.roc_curve(y_test, x_test[:,1], pos_label=1)
-    # auc = metrics.auc(fpr, tpr)
-    print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f  AUC @ 1: %0.04f' %
-          (num_examples, true_count, precision, auc))
-    # write the csv file if exists
-    if csv_writer_acc is not None:
-        csv_writer_acc.write('%0.06f' % precision)
-        csv_writer_acc.write('\n')
-    if csv_writer_auc is not None:
-        csv_writer_auc.write('%0.06f' % auc)
-        csv_writer_auc.write('\n')
+    print('Feature saved')
 
 
 def run_training(hyper_param, model, name_idx, sub_idx):
@@ -175,8 +159,6 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer\
-        (model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
@@ -213,76 +195,45 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Run the Op to initialize the variables.
         init = tf.initialize_all_variables()
         sess.run(init)
-        # Instantiate a SummaryWriter to output summaries and the Graph.
-        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-                                                graph=sess.graph)
-        # And then after everything is built, start the training loop.
-        for step in xrange(FLAGS.max_steps):
-            start_time = time.time()
-            # Fill a feed dictionary with the actual set of images and labels
-            # for this particular training step.
-            feed_dict = fill_feed_dict(data_sets.train,
-                                       0.5,
-                                       images_placeholder,
-                                       labels_placeholder,
-                                       keep_prob)
-            # Run one step of the model.  The return values are the activations
-            # from the `train_op` (which is discarded) and the `loss` Op.  To
-            # inspect the values of your Ops or variables, you may include them
-            # in the list passed to sess.run() and the value tensors will be
-            # returned in the tuple from the call.
-            _, loss_value = sess.run([train_op, loss],
-                                     feed_dict=feed_dict)
-            duration = time.time() - start_time
-            # Write the summaries and print an overview fairly often.
-            if step % check_step == 0:
-                # Print status to stdout.
-                print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
-                # Update the events file.
-                summary_str = sess.run(summary_op, feed_dict=feed_dict)
-                summary_writer.add_summary(summary_str, step)
-            # Save a checkpoint and evaluate the model periodically.
-            if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
-                saver.save(sess, FLAGS.train_dir, global_step=step)
-                # Evaluate against the training set.
-                print('Training Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.train,
-                        csv_writer_acc,
-                        csv_writer_auc)
-                # Evaluate against the validation set.
-                print('Validation Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.validation,
-                        csv_writer_acc,
-                        csv_writer_auc)
-                # Evaluate against the test set.
-                print('Test Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.test,
-                        csv_writer_acc,
-                        csv_writer_auc)
 
-    # turn off writer after finish
-    if csv_writer_acc is not None:
-        csv_writer_acc.close()
-    if csv_writer_auc is not None:
-        csv_writer_auc.close()
+        checkpoint = tf.train.get_checkpoint_state("saved_networks")
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        else:
+            print("Could not find old network weights")
+
+        images_feed, labels_feed = data_sets.train.next_batch(FLAGS.batch_size,
+                                                           FLAGS.fake_data)
+
+        softmax_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
+        readout_train = sess.run(softmax_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
+
+        print('Training Data Eval:')
+        do_eval(sess,
+                images_placeholder,
+                labels_placeholder,
+                keep_prob,
+                data_sets.train,
+                'train')
+        # Evaluate against the validation set.
+        print('Validation Data Eval:')
+        do_eval(sess,
+                images_placeholder,
+                labels_placeholder,
+                keep_prob,
+                data_sets.validation,
+                'valid')
+        # Evaluate against the test set.
+        print('Test Data Eval:')
+        do_eval(sess,
+                images_placeholder,
+                labels_placeholder,
+                keep_prob,
+                data_sets.test,
+                'test')
+
+        return readout_train
 
 
 def check_same_dict(x, y):
@@ -336,7 +287,7 @@ def main(_):
     #                     {'layer': 4, 'feat': [4, 4, 4, 256]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
-    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]
 
     models = [1]
 
