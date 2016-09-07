@@ -56,7 +56,7 @@ max_rand_search = roi_property.MAX_RAND_SEARCH
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-lr = 0
+
 flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
@@ -315,7 +315,7 @@ def run_training(hyper_param, model):
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
-        train_op = rsvp_quick_cnn_model.training(loss, lr)
+        train_op = rsvp_quick_cnn_model.training(loss, learning_rate)
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
@@ -664,9 +664,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+            # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
             run_training(hyper_param, model)
-            autorun_util.close_save_file(orig_stdout, f)
+            # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

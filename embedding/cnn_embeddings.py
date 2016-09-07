@@ -95,8 +95,7 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
     """
     # Create the feed_dict for the placeholders filled with the next
     # `batch size ` examples.
-    images_feed, labels_feed = data_set.next_batch(FLAGS.batch_size,
-                                                   FLAGS.fake_data)
+    images_feed, labels_feed = data_set.all_batch()
     feed_dict = {
         images_pl: images_feed,
         keep_prob: drop_rate
@@ -105,8 +104,6 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
 
 
 def do_eval(sess,
-            images_placeholder,
-            labels_placeholder,
             keep_prob,
             data_set,
             name):
@@ -127,13 +124,10 @@ def do_eval(sess,
     true_feat = np.array([]).reshape(0, 128)   # the feature information is 2 dimensions
 
     for step in xrange(steps_per_epoch):
-        feed_dict, labels_feed = fill_feed_dict(data_set,
-                                               1,
-                                               images_placeholder,
-                                               labels_placeholder,
-                                               keep_prob)
+        images_feed, labels_feed = data_set.all_batch(FLAGS.batch_size)
+
         softmax_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
-        forward_feats = sess.run(softmax_tensor, feed_dict=feed_dict)
+        forward_feats = sess.run(softmax_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
         forward_labels = labels_feed          # define the labels output
 
         true_label = np.concatenate((true_label, forward_labels), axis=0)
@@ -165,10 +159,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     eeg_data_dir = roi_property.FILE_DIR + \
                    'rsvp_data/mat_sub/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
-    data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
-                                               FLAGS.fake_data,
-                                               reshape_t=False,
-                                               validation_size=896)
+    data_sets = rsvp_input_data.read_all_data(eeg_data_mat)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -203,37 +194,16 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         else:
             print("Could not find old network weights")
 
-        images_feed, labels_feed = data_sets.train.next_batch(FLAGS.batch_size,
-                                                           FLAGS.fake_data)
-
-        softmax_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
-        readout_train = sess.run(softmax_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
-
-        print('Training Data Eval:')
         do_eval(sess,
-                images_placeholder,
-                labels_placeholder,
                 keep_prob,
                 data_sets.train,
                 'train')
-        # Evaluate against the validation set.
-        print('Validation Data Eval:')
         do_eval(sess,
-                images_placeholder,
-                labels_placeholder,
-                keep_prob,
-                data_sets.validation,
-                'valid')
-        # Evaluate against the test set.
-        print('Test Data Eval:')
-        do_eval(sess,
-                images_placeholder,
-                labels_placeholder,
                 keep_prob,
                 data_sets.test,
                 'test')
 
-        return readout_train
+        return
 
 
 def check_same_dict(x, y):
@@ -303,6 +273,7 @@ def main(_):
                     print("Subject: " + str(subIdx))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
+
                     autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':

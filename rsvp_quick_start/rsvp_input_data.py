@@ -82,6 +82,23 @@ class DataSet(object):
     def epochs_completed(self):
         return self._epochs_completed
 
+    def all_batch(self, batch_size):
+        start = self._index_in_epoch
+        self._index_in_epoch += batch_size
+        if self._index_in_epoch > self._num_examples:
+            self._epochs_completed += 1
+            start = 0
+            self._index_in_epoch = batch_size
+            assert batch_size <= self._num_examples
+        end = self._index_in_epoch
+        return self._images[start:end], self._labels[start:end]
+
+    def next_batch_at_offset(self, batch_size, batch_offset):
+        return self._images[batch_offset*batch_size:(batch_offset + 1)*batch_size], self._labels[batch_offset*batch_size:(batch_offset + 1)*batch_size]
+
+    def get_labels(self, batch_offsets_list):
+        return self._labels[batch_offsets_list]
+
     def next_batch(self, batch_size, fake_data=False):
         """Return the next `batch_size` examples from this data set."""
         if fake_data:
@@ -108,6 +125,36 @@ class DataSet(object):
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
         return self._images[start:end], self._labels[start:end]
+
+
+def read_all_data(train_data,
+                  dtype=tf.float32):
+    class DataSets(object):
+        pass
+    forward_data_sets = DataSets()
+
+    # Get the data.
+    f = h5py.File(train_data)
+    train_x = f['train_x'][:]
+    train_y = f['train_y'][:]
+    test_x = f['test_x'][:]
+    test_y = f['test_y'][:]
+
+    train_images = np.transpose(train_x, [0, 2, 3, 1])
+    train_labels = train_y[:, 0].astype(int)
+    test_images = np.transpose(test_x, [0, 2, 3, 1])
+    test_labels = test_y[:, 0].astype(int)
+
+    forward_data_sets.train = DataSet(train_images,
+                              train_labels,
+                              dtype=dtype,
+                              reshape_tensor=False)
+    forward_data_sets.test = DataSet(test_images,
+                             test_labels,
+                             dtype=dtype,
+                             reshape_tensor=False)
+    forward_data_sets.feature_shape = train_images.shape
+    return forward_data_sets
 
 
 def read_data_sets(train_data,
