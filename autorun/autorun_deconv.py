@@ -142,9 +142,9 @@ def fake_logits():
 def find_max_activation_roicnn(images, cur_image_num, layer=2, feat=[2, 4]):
     for l in range(0, layer):
         if l == 0:
-            conv_tensor = rsvp_quick_deconv.deconv_local_st5_filter(images, 'conv0', in_feat=1, out_feat=feat[0])
+            conv_tensor = rsvp_quick_deconv.deconv_5x5_filter(images, 'conv0', in_feat=1, out_feat=feat[0])
         else:
-            conv_tensor = rsvp_quick_deconv.deconv_local_st5_filter \
+            conv_tensor = rsvp_quick_deconv.deconv_5x5_filter \
                 (pool_tensor, 'conv' + str(l), in_feat=feat[l - 1], out_feat=feat[l])
 
 
@@ -250,10 +250,10 @@ def reconstruct_input_roicnn(images, layer_num, filter_num, max_act_pl, max_ind_
 
     for l in range(0, layer_num + 1):
         if l == 0:
-            conv_tensor = rsvp_quick_deconv.deconv_local_st5_filter(images, 'conv0', in_feat=1, out_feat=feat[0])
+            conv_tensor = rsvp_quick_deconv.deconv_5x5_filter(images, 'conv0', in_feat=1, out_feat=feat[0])
             conv_tensor_input_shape.append(images.get_shape().as_list())
         else:
-            conv_tensor = rsvp_quick_deconv.deconv_local_st5_filter \
+            conv_tensor = rsvp_quick_deconv.deconv_5x5_filter \
                 (pool_tensor, 'conv' + str(l), in_feat=feat[l - 1], out_feat=feat[l])
             conv_tensor_input_shape.append(pool_tensor.get_shape().as_list())
 
@@ -278,11 +278,14 @@ def reconstruct_input_roicnn(images, layer_num, filter_num, max_act_pl, max_ind_
     for l in range(layer_num, -1, -1):
         unpool_tensor = rsvp_quick_deconv.deconv_unpooling_n_filter(deconv_tensor , switches[l], 'pool' + str(l), kheight=2, kwidth=2)
 
-        if l == 0:
-            deconv_tensor = rsvp_quick_deconv.deconv_local_st5_unfilter(unpool_tensor, conv_tensor_input_shape[l], 'conv0')
-        else:
-            deconv_tensor = rsvp_quick_deconv.deconv_local_st5_unfilter \
-                (unpool_tensor, conv_tensor_input_shape[l], 'conv' + str(l))
+        deconv_tensor = rsvp_quick_deconv.deconv_5x5_unfilter \
+                        (unpool_tensor, conv_tensor_input_shape[l], 'conv' + str(l))
+
+        # if l == 0:
+        #     deconv_tensor = rsvp_quick_deconv.deconv_5x5_unfilter(unpool_tensor, conv_tensor_input_shape[l], 'conv0')
+        # else:
+        #     deconv_tensor = rsvp_quick_deconv.deconv_5x5_unfilter \
+        #         (unpool_tensor, conv_tensor_input_shape[l], 'conv' + str(l))
 
     returnTensors = []
     returnTensors.extend([max_act_feat])

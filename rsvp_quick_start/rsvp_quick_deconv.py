@@ -171,8 +171,6 @@ def deconv_augment_s_filter(images):
     return augment
 
 
-
-
 def deconv_pooling_n_filter(pool_s, pool_layer_scope, kheight=2, kwidth=2):
     with tf.variable_scope(pool_layer_scope, reuse=True) as scope:
         pool_shape = pool_s.get_shape().as_list()
@@ -294,7 +292,7 @@ def deconv_5x5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     return conv_output
 
 
-def deconv_5x5_unfilter(images, conv_layer_scope, in_feat=1, out_feat=4):
+def deconv_5x5_unfilter(images, output_shape, conv_layer_scope, in_feat=1, out_feat=4):
 
     # conv_output
     with tf.variable_scope(conv_layer_scope, reuse=True) as scope:
@@ -302,8 +300,8 @@ def deconv_5x5_unfilter(images, conv_layer_scope, in_feat=1, out_feat=4):
         biases = tf.get_variable('biases')
         relu_output = tf.nn.relu(images, name=scope.name)
         deconv = tf.reshape(tf.nn.bias_add(relu_output, -biases), images.get_shape().as_list())
-        deconv_output = tf.nn.conv2d_transpose(relu_output, kernel, [1, 1, 1, 1], padding='SAME')
-        #deconv_output = tf.nn.conv2d(deconv, kernel, tf.transpose(kernel, perm=[0, 1, 3, 2]), [1, 1, 1, 1], padding='SAME')
+        deconv_output = tf.nn.conv2d_transpose(deconv, kernel, output_shape, [1, 1, 1, 1], padding='SAME')
+        # deconv_output = tf.nn.conv2d(deconv, kernel, tf.transpose(kernel, perm=[0, 1, 3, 2]), [1, 1, 1, 1], padding='SAME')
         _print_tensor_size(deconv_output)
 
     return deconv_output

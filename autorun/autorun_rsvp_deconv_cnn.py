@@ -447,7 +447,7 @@ def run_training(hyper_param, model):
 
         #select the nth highest feature
         for n in range(30):
-            for step in xrange(10000):
+            for step in range(0, 19000):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
                                             1.0,
@@ -457,6 +457,9 @@ def run_training(hyper_param, model):
                                             filter_num2, image_num2, max_act_pl2, max_ind_pl2,
                                             0, step, 0.0, 0, # placeholders
                                             batch_offset=step)  # batch offset
+
+                if step == 19000:
+                    pass
 
                 returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
                 _ = returnTensorVals
@@ -507,12 +510,9 @@ def run_training(hyper_param, model):
             # update max threshold
             sess.run(returnTensorsTmp, feed_dict=feed_dict2)
 
-
         for l in range(0, num_layers):
             max_labels_np_tmp = data_sets.train.get_labels(max_image_ind_list[l])
             max_labels_list.append(max_labels_np_tmp.tolist())
-
-
 
         # find the top 9 activations from all features in top layer
         cur_layer = 1
@@ -575,7 +575,7 @@ def run_training(hyper_param, model):
         top_nth_reconstructions_np = np.array([input_reconstructions])
         top_nth_images_np = np.array([input_images])
 
-        spio.savemat('/home/e/deconvresults/neg.mat',
+        spio.savemat(roi_property.WORK_DIR+'/result/deconv/neg.mat',
                      dict(recon = top_nth_reconstructions_np, images = top_nth_images_np,
                           batch_nums=batch_nums, max_acts=max_acts,max_indicies=max_indicies,
                           max_filters=max_filters))
@@ -611,7 +611,7 @@ def run_training(hyper_param, model):
         top_nth_reconstructions_np = np.array([input_reconstructions])
         top_nth_images_np = np.array([input_images])
 
-        spio.savemat('/home/e/deconvresults/pos.mat',
+        spio.savemat(roi_property.WORK_DIR+'/result/deconv/pos.mat',
                      dict(recon=top_nth_reconstructions_np, images=top_nth_images_np, batch_nums=batch_nums, max_acts=max_acts,max_indicies=max_indicies,max_filters=max_filters))
 
 
