@@ -11,6 +11,7 @@ import tensorflow as tf
 
 import rsvp_quick_inference
 import rsvp_quick_deconv
+import roi_property
 import scipy.io as spio
 import numpy as np
 
@@ -390,7 +391,7 @@ def save_conv_weights(fname, allWeights, layer, layer_fc):
         w = np.array([allWeights[l]])
         b = np.array([allWeights[l + layer + layer_fc + 1]])
 
-        spio.savemat('/home/e/LASSOdeconv/lassoresults/' + fname + str(l) + '.mat', dict(weights=w, biases=b))
+        spio.savemat(roi_property.SAVE_DIR+'deconv/' + fname + str(l) + '.mat', dict(weights=w, biases=b))
 
 
 def load_conv_weights(layername, layer=2, layer_fc=2):
@@ -401,7 +402,7 @@ def load_conv_weights(layername, layer=2, layer_fc=2):
     for l in range(0, layer+3):
         # f = scipy.io.loadmat(train_data)
         # f = scipy.io.loadmat('/home/e/deconvresults/preprocess/RSVP_X2_S01_RAW_CH64_preproc.mat')
-        f = spio.loadmat('/home/e/LASSOdeconv/lassoresults/' + layername + str(l) + '.mat')
+        f = spio.loadmat(roi_property.SAVE_DIR+'deconv/' + layername + str(l) + '.mat')
         layerweights_np = np.squeeze(f["weights"][:], (0,))
         layerbiases_np = np.squeeze(f["biases"][:])
         print("size of loaded weights: " + str(np.shape(layerweights_np)))

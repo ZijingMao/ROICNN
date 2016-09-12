@@ -33,9 +33,9 @@ EEG_DATA = EXP_TYPE_STR + '_' + \
            DAT_TYPE_STR + '_' + \
            CHAN_STR
 EEG_DATA_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/mat/' + EEG_DATA
+               'rsvp_data/mat_sub/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/' + EEG_DATA
+               'rsvp_data/mat_sub/' + EEG_DATA
 EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 
 # Basic model parameters as external flags.
@@ -47,7 +47,7 @@ decay_steps = 100
 choose_cnn_type = 1
 #deconv_batch_size = 1
 batch_size = 125
-max_step = 1000   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_step = 500   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
 check_step = 100
 
 mode = autorun_deconv_lasso.TEST
@@ -345,11 +345,16 @@ def run_training(hyper_param, model):
         #summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
         #                                        graph_def=sess.graph_def)
 
+        saver = tf.train.Saver()
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        saver = tf.train.Saver()
-
+        checkpoint = tf.train.get_checkpoint_state("saved_networks")
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        else:
+            print("Could not find old network weights")
         #saver.restore(sess, "/home/e/Downloads/models/-2649")
         #print("Model restored.")
 
@@ -645,7 +650,7 @@ def run_training(hyper_param, model):
             top_nth_reconstructions_np = np.array([input_reconstructions])
             top_nth_images_np = np.array([input_images])
 
-            save_location = '/home/e/deconvresults/'
+            save_location = roi_property.SAVE_DIR+'deconv/'
             if i == 0:
                 print('Writing neg10.mat')
                 spio.savemat(save_location + 'neg10.mat',
@@ -698,7 +703,7 @@ def def_hyper_param():
 
 def main(_):
     #hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [128, 32]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
 
     #for model in range(0, 1):
 

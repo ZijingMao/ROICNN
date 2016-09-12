@@ -156,7 +156,7 @@ def read_data_sets(train_data,
     #f = scipy.io.loadmat('/home/e/LASSOdeconv/DeconvDataNew/subject1/alldatasubject1.mat')
     #f = scipy.io.loadmat('/home/e/LASSOdeconv/cifar/testDeconvImageCifar10.mat')
 
-    f = scipy.io.loadmat('/home/e/LASSOdeconv/DeconvDataNew/subject1/alldatasubject1.mat')  # Put filename here
+    f = h5py.File(train_data)  # Put filename here
 
     if (testData):
         train_x = f["train_x"][:]
@@ -169,8 +169,6 @@ def read_data_sets(train_data,
         train_x = np.transpose(np.reshape(f["avg_train_x_pos"][:], (1,64,64,1)), [0,2,1,3])
         train_y = np.ones((1,), dtype=np.float32)
 
-
-
     print("size" + str(np.shape(train_x)))
     print("size" + str(np.shape(train_y)))
 
@@ -182,11 +180,10 @@ def read_data_sets(train_data,
 
     # For avg
     if (testData):
-        train_images = np.transpose(train_x, [3, 0, 1, 2])
-        train_labels = np.transpose(train_y[0, :].astype(int))
-
-        test_images = np.transpose(test_x, [3, 0, 1, 2])
-        test_labels = np.transpose(test_y[0, :].astype(int))
+        train_images = np.transpose(train_x, [0, 2, 3, 1])
+        train_labels = train_y[:, 0].astype(int)
+        test_images = np.transpose(test_x, [0, 2, 3, 1])
+        test_labels = test_y[:, 0].astype(int)
     else:
         train_images = np.transpose(train_x, [0, 2, 1, 3])
         train_labels = train_y
