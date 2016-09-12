@@ -175,8 +175,8 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer\
-        (model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(
+        model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
@@ -186,7 +186,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=896)
+                                               validation_size=1800)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -320,7 +320,10 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = def_hyper_param()
+    # hyper_param_list = def_hyper_param()
+    hyper_param_list = [{'layer': 2, 'feat': [64, 64]},
+                        {'layer': 3, 'feat': [64, 64, 64]},
+                        {'layer': 3, 'feat': [32, 16, 16]}]
     # hyper_param_list = [{'layer': 3, 'feat': [8, 16, 64]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
@@ -338,21 +341,21 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [8]
+    models = [7]
 
     for model in models:
         for hyper_param in hyper_param_list:
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(0, len(roi_property.DAT_TYPE_STR)):
-            # for idx in range(3, 4):
+            # for idx in range(0, len(roi_property.DAT_TYPE_STR)):
+            for idx in range(1, 2):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(0, 10):
-                    print("Subject: " + str(subIdx))
-                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
+                for subIdx in range(3, 4):
+                    print("Subject: " + str(subIdx+1))
+                    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
-                    autorun_util.close_save_file(orig_stdout, f)
+                    # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

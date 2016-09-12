@@ -41,7 +41,7 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.03
+learning_rate = 0.0006
 choose_cnn_type = 1
 batch_size = 128
 max_step = 50000    # to guarantee 64 epochs # should be training sample_size
@@ -189,7 +189,7 @@ def run_training(hyper_param, model):
     data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=896)
+                                               validation_size=1800)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -343,7 +343,7 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    model = 0
+    model = 5
     for hyper_param in hyper_param_list:
         print("Currently running: ")
         print("FeatMap: ")
