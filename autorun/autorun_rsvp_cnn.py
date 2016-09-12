@@ -7,6 +7,8 @@ from __future__ import print_function
 import random
 import time
 
+import tensorflow as tf
+
 import autorun_infer
 import autorun_util
 import rsvp_input_data
@@ -15,19 +17,21 @@ from workproperty import roi_property
 import sklearn.metrics as metrics
 import numpy as np
 
-import tensorflow as tf
-
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
 DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
 SUB_STR = roi_property.SUB_STR[0]
 CHAN_STR = roi_property.CHAN_STR
+DCT_STR = roi_property.DCT_STR
 
 EEG_DATA = EXP_TYPE_STR + '_' + \
            EXP_NAME_STR + '_' + \
            SUB_STR + '_' + \
            DAT_TYPE_STR + '_' + \
-           CHAN_STR
+           CHAN_STR  #+ '_' + \
+           #DCT_STR
+
+
 EEG_DATA_DIR = roi_property.FILE_DIR + \
                'rsvp_data/mat/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
@@ -37,11 +41,25 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.1
+learning_rate = .03
+learn_rate_decay_factor = 0.999
+decay_steps = 10
 choose_cnn_type = 1
 batch_size = 64
-max_step = roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/100
+max_step = 100000  #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+check_step = 100
+check_step_full = 100
+
+#rng0 = 0
+#rng1 = 2000  #okay
+#rng2 = 30000  # maybe this should be ~3500
+#rng3 = 100000
+
+rng0 = 0
+rng1 = 0
+rng2 = 0
+rng3 = 100000
+
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -49,12 +67,32 @@ max_rand_search = roi_property.MAX_RAND_SEARCH
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
+
+global_step = 0
+lr = 0
 flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', roi_property.WORK_DIR + 'data/rsvp_train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
+def get_lr():
+    global lr
+    return lr
+
+def define_learning_rate():
+    global global_step, lr, flags
+    # Create a variable to track the global step.
+    global_step = tf.Variable(0, name='global_step', trainable=False)
+
+    lr = tf.train.exponential_decay(learning_rate,
+                                    global_step,
+                                    decay_steps,
+                                    learn_rate_decay_factor,
+                                    staircase=True)
+
+    #flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
+    return
 
 
 def placeholder_inputs(batch_size):
@@ -138,7 +176,7 @@ def do_eval(sess,
 
     for step in xrange(steps_per_epoch):
         feed_dict = fill_feed_dict(data_set,
-                                   1,
+                                   1.0,   # DO NOT TOUCH THIS
                                    images_placeholder,
                                    labels_placeholder,
                                    keep_prob)
@@ -190,16 +228,18 @@ def run_training(hyper_param, model):
         # Generate placeholders for the images and labels.
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
             FLAGS.batch_size)
+        define_learning_rate()
         # Build a Graph that computes predictions from the inference model.
         logits = autorun_infer.select_running_cnn(images_placeholder,
                                                   keep_prob,
+                                                  lr,
                                                   layer=hyper_param['layer'],
                                                   feat=hyper_param['feat'],
                                                   cnn_id=model)
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
-        train_op = rsvp_quick_cnn_model.training(loss, FLAGS.learning_rate)
+        train_op = rsvp_quick_cnn_model.training(loss, lr, global_step)
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
@@ -219,11 +259,26 @@ def run_training(hyper_param, model):
             start_time = time.time()
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
-            feed_dict = fill_feed_dict(data_sets.train,
-                                       0.5,
+            if (step >= rng0 and step < rng1):
+                feed_dict = fill_feed_dict(data_sets.train1,
+                                           0.25,
+                                           images_placeholder,
+                                           labels_placeholder,
+                                           keep_prob)
+            elif (step >= rng1 and step < rng2):
+                feed_dict = fill_feed_dict(data_sets.train2,
+                                       0.25,
                                        images_placeholder,
                                        labels_placeholder,
                                        keep_prob)
+            elif (step >= rng2 and step <= rng3):
+                feed_dict = fill_feed_dict(data_sets.train3,
+                                       0.25,
+                                       images_placeholder,
+                                       labels_placeholder,
+                                       keep_prob)
+
+
             # Run one step of the model.  The return values are the activations
             # from the `train_op` (which is discarded) and the `loss` Op.  To
             # inspect the values of your Ops or variables, you may include them
@@ -244,28 +299,65 @@ def run_training(hyper_param, model):
                 saver.save(sess, FLAGS.train_dir, global_step=step)
                 # Evaluate against the training set.
                 print('Training Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.train,
-                        csv_writer_acc,
-                        csv_writer_auc)
+                if (step >= rng0 and step < rng1):
+                    do_eval(sess,
+                            eval_correct,
+                            logits,
+                            images_placeholder,
+                            labels_placeholder,
+                            keep_prob,
+                            data_sets.train1,
+                            csv_writer_acc,
+                            csv_writer_auc)
+                elif (step >= rng1 and step < rng2):
+                    do_eval(sess,
+                            eval_correct,
+                            logits,
+                            images_placeholder,
+                            labels_placeholder,
+                            keep_prob,
+                            data_sets.train2,
+                            csv_writer_acc,
+                            csv_writer_auc)
+                elif (step >= rng2 and step <= rng3):
+                    do_eval(sess,
+                            eval_correct,
+                            logits,
+                            images_placeholder,
+                            labels_placeholder,
+                            keep_prob,
+                            data_sets.train3,
+                            csv_writer_acc,
+                            csv_writer_auc)
+
+
+
                 # Evaluate against the validation set.
                 print('Validation Data Eval:')
+                #do_eval(sess,
+                #        eval_correct,
+                #        logits,
+                #        images_placeholder,
+                #        labels_placeholder,
+                #        keep_prob,
+                #        data_sets.validation,
+                #        csv_writer_acc,
+                #        csv_writer_auc)
+                # Evaluate against the test set.
+                print('Small Test Data Eval:')
                 do_eval(sess,
                         eval_correct,
                         logits,
                         images_placeholder,
                         labels_placeholder,
                         keep_prob,
-                        data_sets.validation,
+                        data_sets.test2,
                         csv_writer_acc,
                         csv_writer_auc)
-                # Evaluate against the test set.
-                print('Test Data Eval:')
+
+            if (step + 1) % check_step_full == 0 or (step + 1) == FLAGS.max_steps or step == rng1 or step == rng2 or step == rng3:
+                # Evaluate against the training set.
+                print('Full Test Data Eval:')
                 do_eval(sess,
                         eval_correct,
                         logits,
@@ -318,17 +410,19 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = def_hyper_param()
+    #hyper_param_list = def_hyper_param()
 
     for model in range(0, 1):
-        for hyper_param in hyper_param_list:
-            print("Currently running: ")
-            print("FeatMap: ")
-            print(hyper_param['feat'])
-            print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model)
-            autorun_util.close_save_file(orig_stdout, f)
+        #for hyper_param in hyper_param_list:
+        hyper_param = {'layer': 3, 'feat': [128, 128, 128]}
+
+        print("Currently running: ")
+        print("FeatMap: ")
+        print(hyper_param['feat'])
+        print("Model" + str(model))
+        orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+        run_training(hyper_param, model)
+        autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

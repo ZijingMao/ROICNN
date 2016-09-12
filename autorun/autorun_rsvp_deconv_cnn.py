@@ -5,10 +5,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from collections import Counter
+
 import random
 import time
 
-import autorun_deconv
+import autorun_deconv_lasso
 import autorun_util
 import rsvp_input_data
 import rsvp_quick_cnn_model
@@ -21,7 +23,7 @@ import scipy.io as spio
 
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
-DAT_TYPE_STR = roi_property.DAT_TYPE_STR[5]
+DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
 SUB_STR = roi_property.SUB_STR[0]
 CHAN_STR = roi_property.CHAN_STR
 
@@ -31,7 +33,7 @@ EEG_DATA = EXP_TYPE_STR + '_' + \
            DAT_TYPE_STR + '_' + \
            CHAN_STR
 EEG_DATA_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/mat_sub/' + EEG_DATA
+               'rsvp_data/mat/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/' + EEG_DATA
 EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
@@ -45,10 +47,10 @@ decay_steps = 100
 choose_cnn_type = 1
 #deconv_batch_size = 1
 batch_size = 125
-max_step = 200   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_step = 1000   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
 check_step = 100
 
-mode = autorun_deconv.TEST
+mode = autorun_deconv_lasso.TEST
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -56,13 +58,15 @@ max_rand_search = roi_property.MAX_RAND_SEARCH
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
-
+lr = 0
 flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
-flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
+#flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', roi_property.WORK_DIR + 'data/rsvp_train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
+
+max_feature_size = (1,16,16,32)
 
 
 def set_batch_size(_batch_size):
@@ -111,6 +115,7 @@ def placeholder_inputs(batch_size):
 
 
 def placeholder_inputs2(batch_size):
+    global max_feature_size
     """Generate placeholder variables to represent the input tensors.
     These placeholders are used as inputs by the rest of the model building
     code and will be fed from the downloaded data in the .run() loop, below.
@@ -126,20 +131,22 @@ def placeholder_inputs2(batch_size):
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           1))
-    labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
+                                                           1), name='images_placeholder')
+    labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size), name='labels_placeholder')
 
-    keep_prob = tf.placeholder(tf.float32)
+    max_features_placeholder = tf.placeholder(tf.float32, shape=max_feature_size, name='max_features_placeholder')
 
-    filter_num = tf.placeholder(tf.int64)
+    keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
-    image_num = tf.placeholder(tf.int64)
+    filter_num = tf.placeholder(tf.int64, name='filter_num')
 
-    max_act_pl = tf.placeholder(tf.float32)
+    image_num = tf.placeholder(tf.int64, name='image_num')
 
-    max_ind_pl = tf.placeholder(tf.int64)
+    max_act_pl = tf.placeholder(tf.float32, name='max_act_pl')
 
-    return images_placeholder, labels_placeholder, keep_prob, filter_num, image_num, max_act_pl, max_ind_pl
+    max_ind_pl = tf.placeholder(tf.int64, name='max_ind_pl')
+
+    return images_placeholder, labels_placeholder, max_features_placeholder, keep_prob, filter_num, image_num, max_act_pl, max_ind_pl
 
 
 def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
@@ -173,7 +180,7 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
     }
     return feed_dict
 
-def fill_feed_dict2(data_set, drop_rate, images_pl, labels_pl, keep_prob,
+def fill_feed_dict2(data_set, max_features_pl, max_features, drop_rate, images_pl, labels_pl, keep_prob,
                        filter_num, image_num, max_act_pl, max_ind_pl,
                        filter_num_val=0, image_num_val=0, max_act_val=0.0, max_ind_val=0,
                        batch_offset=0):
@@ -194,7 +201,7 @@ def fill_feed_dict2(data_set, drop_rate, images_pl, labels_pl, keep_prob,
     Returns:
       feed_dict: The feed dictionary mapping from placeholders to values.
     """
-    global batch_size
+    global batch_size, max_feature_size
 
     # Create the feed_dict for the placeholders filled with the next
     # `batch size ` examples.
@@ -204,6 +211,7 @@ def fill_feed_dict2(data_set, drop_rate, images_pl, labels_pl, keep_prob,
     feed_dict = {
         images_pl: images_feed,
         labels_pl: labels_feed,
+        max_features_pl: max_features if max_features != None else np.zeros(max_feature_size, dtype=np.float32),
         keep_prob: drop_rate,
         filter_num: int(filter_num_val),
         image_num: int(image_num_val),
@@ -274,7 +282,7 @@ def do_eval(sess,
 
 
 def run_training(hyper_param, model):
-    global batch_size
+    global batch_size, max_feature_size
     '''
     Train RSVP for a number of steps.
     Args:
@@ -297,25 +305,30 @@ def run_training(hyper_param, model):
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
+        # Build a Graph that computes predictions from the inference model.
+        # Generate placeholders for the images and labels.
         images_placeholder, labels_placeholder, keep_prob = \
                                                 placeholder_inputs(batch_size)
-        # define_learning_rate()
+
+        define_learning_rate()
+
         # Build a Graph that computes predictions from the inference model.
-        results = autorun_deconv.select_running_cnn(images_placeholder,
-                                                keep_prob, None,
-                                                None, None, None, None,
-                                                mode=0,
-                                                layer=hyper_param['layer'],
-                                                feat=hyper_param['feat'],
-                                                cnn_id=model
-                                                )
+        results = autorun_deconv_lasso.select_running_cnn(images_placeholder,
+                                                          None,
+                                                          keep_prob, None,
+                                                          None, None, None, None,
+                                                          mode=0,
+                                                          layer=hyper_param['layer'],
+                                                          feat=hyper_param['feat'],
+                                                          cnn_id=model
+                                                          )
 
         logits = results
 
         # Add to the Graph the Ops for loss calculation.
         loss = rsvp_quick_cnn_model.loss(logits, labels_placeholder)
         # Add to the Graph the Ops that calculate and apply gradients.
-        train_op = rsvp_quick_cnn_model.training(loss, learning_rate)
+        train_op = rsvp_quick_cnn_model.training(loss, lr, global_step)
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
@@ -327,6 +340,7 @@ def run_training(hyper_param, model):
 
         # Run the Op to initialize the variables.
 
+
         # Instantiate a SummaryWriter to output summaries and the Graph.
         #summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
         #                                        graph_def=sess.graph_def)
@@ -336,20 +350,16 @@ def run_training(hyper_param, model):
 
         saver = tf.train.Saver()
 
-        checkpoint = tf.train.get_checkpoint_state("saved_networks")
-        if checkpoint and checkpoint.model_checkpoint_path:
-            saver.restore(sess, checkpoint.model_checkpoint_path)
-            print("Successfully loaded:", checkpoint.model_checkpoint_path)
-        else:
-            print("Model restored.")
+        #saver.restore(sess, "/home/e/Downloads/models/-2649")
+        #print("Model restored.")
 
         # And then after everything is built, start the training loop.
-        for step in xrange(FLAGS.max_steps):
+        for step in range(0,FLAGS.max_steps):
 
             start_time = time.time()
             # Fill a feed dictionary with the actual set of images and labels
             # for this particular training step.
-            if mode == autorun_deconv.TEST:
+            if mode == autorun_deconv_lasso.TEST:
                 feed_dict = fill_feed_dict(data_sets.train,
                                            0.5, #0.0625,  # was .5 works good
                                            images_placeholder,
@@ -384,7 +394,7 @@ def run_training(hyper_param, model):
                         keep_prob,
                         data_sets.train)
                 # Evaluate against the validation set.
-                # print('Validation Data Eval:')
+                print('Validation Data Eval:')
                 #do_eval(sess,
                 #        eval_correct,
                 #        logits,
@@ -403,37 +413,42 @@ def run_training(hyper_param, model):
                         keep_prob,
                         data_sets.test)
 
+        ################################### REBUILD MODEL #####################################
 
-        # Change batchsize and model to fit new batchsize
         temp = set(tf.all_variables())
 
         set_batch_size(1)
 
-        images_placeholder2, labels_placeholder2, keep_prob2, filter_num2, image_num2, max_act_pl2, max_ind_pl2 = \
+        images_placeholder2, labels_placeholder2, max_features_pl2, keep_prob2, filter_num2, image_num2, max_act_pl2, max_ind_pl2 = \
             placeholder_inputs2(batch_size)
 
-        # Build a Graph that computes predictions from the inference model.
-        returnTensors = autorun_deconv.select_running_cnn(images_placeholder2,
-                                                          keep_prob2, None,
-                                                          filter_num2, image_num2, max_act_pl2, max_ind_pl2,
-                                                          mode=autorun_deconv.FIND_MAX_ACTIVATION_GET_SWITCHES,
-                                                          layer=hyper_param['layer'],
-                                                          feat=hyper_param['feat'],
-                                                          cnn_id=model)
-
         feed_dict2 = fill_feed_dict2(data_sets.train,
-                                    1.0,
-                                    images_placeholder2,
-                                    labels_placeholder2,
-                                    keep_prob2,
-                                    filter_num2, image_num2, max_act_pl2, max_ind_pl2)
+                                     max_features_pl2, None,
+                                     1.0,
+                                     images_placeholder2,
+                                     labels_placeholder2,
+                                     keep_prob2,
+                                     filter_num2, image_num2, max_act_pl2, max_ind_pl2)
+
+        # Build a Graph that computes predictions from the inference model.
+        returnTensors = autorun_deconv_lasso.select_running_cnn(images_placeholder2,
+                                                                max_features_pl2,
+                                                                keep_prob2, 1,
+                                                                filter_num2, image_num2,
+                                                                max_act_pl2, max_ind_pl2,
+                                                                mode=autorun_deconv_lasso.FIND_MAX_ACTIVATION_GET_SWITCHES,
+                                                                layer=hyper_param['layer'],
+                                                                feat=hyper_param['feat'],
+                                                                cnn_id=model
+                                                                )
 
         # writer = tf.train.SummaryWriter("/home/e/deconvgraph/deconv_logs", sess.graph)
 
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+        ################################### REBUILD MODEL END #####################################
 
-        updates = autorun_deconv.get_update_threshold()
-        clear_vars = autorun_deconv.get_clear_variables()
+        updates = autorun_deconv_lasso.get_update_threshold()
+        clear_vars = autorun_deconv_lasso.get_clear_variables()
 
         # Find maximum activation
         num_layers = hyper_param['layer']
@@ -445,21 +460,20 @@ def run_training(hyper_param, model):
         max_activation_list = []
         max_labels_list = []
 
+
         #select the nth highest feature
-        for n in range(30):
-            for step in range(0, 19000):
+        for n in range(200):
+            for step in range(0,9000,20):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
-                                            1.0,
-                                            images_placeholder2,
-                                            labels_placeholder2,
-                                            keep_prob2,
-                                            filter_num2, image_num2, max_act_pl2, max_ind_pl2,
-                                            0, step, 0.0, 0, # placeholders
-                                            batch_offset=step)  # batch offset
-
-                if step == 19000:
-                    pass
+                                             max_features_pl2, None,
+                                             1.0,
+                                             images_placeholder2,
+                                             labels_placeholder2,
+                                             keep_prob2,
+                                             filter_num2, image_num2, max_act_pl2, max_ind_pl2,
+                                             0, step, 0.0, 0,  # placeholders
+                                             batch_offset=step)  # batch offset
 
                 returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
                 _ = returnTensorVals
@@ -496,6 +510,7 @@ def run_training(hyper_param, model):
 
             # restart at batch zero
             feed_dict2 = fill_feed_dict2(data_sets.train,
+                                         max_features_pl2, None,
                                          1.0,
                                          images_placeholder2,
                                          labels_placeholder2,
@@ -510,9 +525,12 @@ def run_training(hyper_param, model):
             # update max threshold
             sess.run(returnTensorsTmp, feed_dict=feed_dict2)
 
+
         for l in range(0, num_layers):
             max_labels_np_tmp = data_sets.train.get_labels(max_image_ind_list[l])
             max_labels_list.append(max_labels_np_tmp.tolist())
+
+
 
         # find the top 9 activations from all features in top layer
         cur_layer = 1
@@ -523,99 +541,123 @@ def run_training(hyper_param, model):
 
         sorted_activations_pos = sorted(max_activation_info, key=lambda x: (-x[0], -x[1]))
 
+        print(Counter(max_labels_list[cur_layer]))
+
 
         # Reconstruct
+        ################################### REBUILD MODEL #####################################
 
         temp = set(tf.all_variables())
 
-        top_nth_reconstructions = []
-        layer_switches = []
+        set_batch_size(1)
 
-        temp = set(tf.all_variables())
+        images_placeholder2, labels_placeholder2, max_features_pl2, keep_prob2, filter_num2, image_num2, max_act_pl2, max_ind_pl2 = \
+            placeholder_inputs2(batch_size)
 
-        returnTensors = autorun_deconv.select_running_cnn(images_placeholder2,
-                                                          keep_prob2, cur_layer,
-                                                          filter_num2, image_num2,
-                                                          max_act_pl2, max_ind_pl2,
-                                                          mode=autorun_deconv.RECONSTRUCT_INPUT,
-                                                          layer=hyper_param['layer'],
-                                                          feat=hyper_param['feat'],
-                                                          cnn_id=model
-                                                          )
+        feed_dict2 = fill_feed_dict2(data_sets.train,
+                                     max_features_pl2, None,
+                                     1.0,
+                                     images_placeholder2,
+                                     labels_placeholder2,
+                                     keep_prob2,
+                                     filter_num2, image_num2, max_act_pl2, max_ind_pl2)
+
+        # Build a Graph that computes predictions from the inference model.
+        returnTensors = autorun_deconv_lasso.select_running_cnn(images_placeholder2,
+                                                                max_features_pl2,
+                                                                keep_prob2, 1,
+                                                                filter_num2, image_num2,
+                                                                max_act_pl2, max_ind_pl2,
+                                                                mode=autorun_deconv_lasso.DECONV_LASSO,
+                                                                layer=hyper_param['layer'],
+                                                                feat=hyper_param['feat'],
+                                                                cnn_id=model
+                                                                )
+
+        # writer = tf.train.SummaryWriter("/home/e/deconvgraph/deconv_logs", sess.graph)
+
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
-
-        # top 9 negative label reconstructions
-        input_reconstructions = []
-        input_images = []
-        batch_nums = []
-        max_acts = []
-        max_indicies = []
-        max_filters = []
-        for top_nth in range(0, 30):
-            _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_neg[top_nth]
-            feed_dict2 = fill_feed_dict2(data_sets.train,
-                                        1.0,
-                                        images_placeholder2,
-                                        labels_placeholder2,
-                                        keep_prob2,
-                                        filter_num2, image_num2, max_act_pl2, max_ind_pl2,  # placeholders
-                                        filter_num_val, 0,  max_act_val, max_ind_val,  # values
-                                        batch_num)  # batch offset
-
-            image = feed_dict2[images_placeholder2].copy()
-            max_acts.append(max_act_val)
-            max_indicies.append(max_ind_val)
-            max_filters.append(filter_num_val)
-            batch_nums.append(batch_num)
-            input_images.append(image)  # unpack
-            returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
-            input_reconstructions.append(returnTensorVals[2])   # unpack
+        ################################### REBUILD MODEL END #####################################
 
 
-        top_nth_reconstructions_np = np.array([input_reconstructions])
-        top_nth_images_np = np.array([input_images])
+        # top 9 positive/negative label reconstructions
 
-        spio.savemat(roi_property.WORK_DIR+'/result/deconv/neg.mat',
-                     dict(recon = top_nth_reconstructions_np, images = top_nth_images_np,
-                          batch_nums=batch_nums, max_acts=max_acts,max_indicies=max_indicies,
-                          max_filters=max_filters))
+        for i in range(0,2):
+            input_reconstructions = []
+            input_images = []
+            batch_nums = []
+            max_acts = []
+            max_indicies = []
+            max_filters = []
+            for top_nth in range(0, 50):
+                if i == 0:
+                    _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_neg[top_nth]
+                else:
+                    _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_pos[top_nth]
 
-        # top 9 positive label reconstructions
-        input_reconstructions = []
-        input_images = []
-        batch_nums = []
-        max_acts = []
-        max_indicies = []
-        max_filters = []
-        for top_nth in range(0, 30):
-            _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_pos[top_nth]
-            feed_dict2 = fill_feed_dict2(data_sets.train,
-                                         1.0,
-                                         images_placeholder2,
-                                         labels_placeholder2,
-                                         keep_prob2,
-                                         filter_num2, image_num2, max_act_pl2, max_ind_pl2,  # placeholders
-                                         filter_num_val, 0, max_act_val, max_ind_val,  # values
-                                         batch_num)  # batch offset
-
-            image = feed_dict2[images_placeholder2].copy()
-            max_acts.append(max_act_val)
-            max_indicies.append(max_ind_val)
-            max_filters.append(filter_num_val)
-            batch_nums.append(batch_num)
-            input_images.append(image)  # unpack
-            returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
-            input_reconstructions.append(returnTensorVals[2])  # unpack
+                all_features_mask = np.zeros(
+                    shape=max_feature_size,
+                    dtype=np.float32)
+                #ind_max_unraveled = np.unravel_index(max_ind_val , (1,16,16,1))
+                #ind_max_unraveled2 = np.unravel_index(filter_num_val , (1,16,16,hyper_param['feat'][1]))
+                #sum_ind = tuple(map(lambda a, b: a + b, ind_max_unraveled, ind_max_unraveled2))
+                #all_features_mask
+                all_features_mask[0, :, :, filter_num_val] = 1.0
+                all_features = np.zeros(
+                    shape=max_feature_size,
+                    dtype=np.float32)
 
 
-        top_nth_reconstructions_np = np.array([input_reconstructions])
-        top_nth_images_np = np.array([input_images])
+                feed_dict2 = fill_feed_dict2(data_sets.train,
+                                             max_features_pl2, all_features,
+                                             1.0,
+                                             images_placeholder2,
+                                             labels_placeholder2,
+                                             keep_prob2,
+                                             filter_num2, image_num2, max_act_pl2, max_ind_pl2,
+                                             0, batch_num, 0.0, 0,  # placeholders
+                                             batch_offset=batch_num)  # batch offset
 
-        spio.savemat(roi_property.WORK_DIR+'/result/deconv/pos.mat',
-                     dict(recon=top_nth_reconstructions_np, images=top_nth_images_np, batch_nums=batch_nums, max_acts=max_acts,max_indicies=max_indicies,max_filters=max_filters))
+                returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
+
+                all_features = returnTensorVals[hyper_param['layer'] * 2 - 1] * all_features_mask
+
+                feed_dict2 = fill_feed_dict2(data_sets.train,
+                                             max_features_pl2, all_features,
+                                             1.0,
+                                             images_placeholder2,
+                                             labels_placeholder2,
+                                             keep_prob2,
+                                             filter_num2, image_num2, max_act_pl2, max_ind_pl2,
+                                             0, batch_num, 0.0, 0,  # placeholders
+                                             batch_offset=batch_num)  # batch offset
+
+                returnTensorVals = sess.run(returnTensors, feed_dict=feed_dict2)
+                image = feed_dict2[images_placeholder2].copy()
+                max_acts.append(max_act_val)
+                max_indicies.append(max_ind_val)
+                max_filters.append(filter_num_val)
+                batch_nums.append(batch_num)
+                input_images.append(image)  # unpack
+                input_reconstructions.append(returnTensorVals[hyper_param['layer'] - 1])
 
 
+            top_nth_reconstructions_np = np.array([input_reconstructions])
+            top_nth_images_np = np.array([input_images])
 
+            save_location = '/home/e/deconvresults/'
+            if i == 0:
+                print('Writing neg10.mat')
+                spio.savemat(save_location + 'neg10.mat',
+                             dict(recon = top_nth_reconstructions_np, images = top_nth_images_np,
+                                  batch_nums=batch_nums, max_acts=max_acts,max_indicies=max_indicies,
+                                  max_filters=max_filters))
+            else:
+                print('Writing pos10.mat')
+                spio.savemat(save_location + 'pos10.mat',
+                             dict(recon=top_nth_reconstructions_np, images=top_nth_images_np,
+                                  batch_nums=batch_nums, max_acts=max_acts, max_indicies=max_indicies,
+                                  max_filters=max_filters))
 
     return
 
@@ -656,17 +698,21 @@ def def_hyper_param():
 
 def main(_):
     #hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [128, 32]}]
 
-    for model in range(0, 1):
-        for hyper_param in hyper_param_list:
-            print("Currently running: ")
-            print("FeatMap: ")
-            print(hyper_param['feat'])
-            print("Model" + str(model))
-            # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model)
-            # autorun_util.close_save_file(orig_stdout, f)
+    #for model in range(0, 1):
+
+    #
+    model = autorun_deconv_lasso.DECONV_CVCNN
+
+    for hyper_param in hyper_param_list:
+        print("Currently running: ")
+        print("FeatMap: ")
+        print(hyper_param['feat'])
+        print("Model" + str(model))
+        orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
+        run_training(hyper_param, model)
+        autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

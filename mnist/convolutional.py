@@ -9,11 +9,11 @@ import os
 import sys
 import urllib
 
+import tensorflow.python.platform
 import roi_property
 
 import numpy
 import tensorflow as tf
-import tensorflow.python.platform
 
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
 WORK_DIRECTORY = roi_property.WORK_DIR + 'data/mnist'

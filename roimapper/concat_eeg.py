@@ -142,13 +142,8 @@ def pool_eeg_signal_channel(
     # conv_idx = biosemi_chan_mapper.pool_mapper(channel_idx)
 
     if is_rep:  # this will only be used for pooling of resize channels
-        # vec_idx = np.arange(0, EEG_SIGNAL_SIZE),
-        # vec_idx = np.reshape(vec_idx, (EEG_SIGNAL_SIZE, 1))
-        # conv_idx = np.repeat(vec_idx, BIOSEMI_POOL, axis=1)
-        vec_idx = roi_mapper_idx.roi_mapper_idx_select(channel_idx)
-        vec_idx = biosemi_chan_mapper.replace_mapper_idx(vec_idx)
-        vec_idx = np.array([row[0] for row in vec_idx])
-        vec_idx = np.reshape(vec_idx, (len(vec_idx), 1))
+        vec_idx = np.arange(0, EEG_SIGNAL_SIZE),
+        vec_idx = np.reshape(vec_idx, (EEG_SIGNAL_SIZE, 1))
         conv_idx = np.repeat(vec_idx, BIOSEMI_POOL, axis=1)
     else:
         conv_idx = roi_mapper_idx.roi_mapper_idx_select(channel_idx, 'pool')

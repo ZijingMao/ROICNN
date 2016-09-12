@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Created on 5/25/16 5:29 PM
-@author: Ehren Biglari
+Created on 2/17/16 3:29 PM
+@author: Zijing Mao
 """
 
 from __future__ import absolute_import
@@ -22,6 +22,8 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 # region define the variable methods
+
+batch_size = 1
 
 
 def _variable_on_cpu(name, shape, initializer):
@@ -171,10 +173,15 @@ def deconv_augment_s_filter(images):
     return augment
 
 
+
+
 def deconv_pooling_n_filter(pool_s, pool_layer_scope, kheight=2, kwidth=2):
     with tf.variable_scope(pool_layer_scope, reuse=True) as scope:
         pool_shape = pool_s.get_shape().as_list()
-
+        #if pool_shape[1] < 4 or pool_shape[2] < 4:
+        #    pool_s2 = tf.nn.dropout(pool_s, 0.5)
+        #    switches = tf.ones_like(pool_s2)
+        #    return pool_s2
         #Recreate 1D switches for scatter update
         dim = 1
 
@@ -186,7 +193,9 @@ def deconv_pooling_n_filter(pool_s, pool_layer_scope, kheight=2, kwidth=2):
 
         _print_tensor_size(pool_s2)
 
+        #ones_temp = tf.ones_like([(dim // kheight) // kwidth])
         ones_temp = tf.ones_like(ind, dtype=tf.float32)
+        #temp_zeros =
 
         switches = tf.Variable(tf.zeros([dim]), name='switches')
 
@@ -215,27 +224,86 @@ def deconv_unpooling_n_filter(unpool_s, switches, unpool_layer_scope, kheight=2,
         ones_temp = tf.ones([(dim // kheight) // kwidth])
         temp_zeros = tf.zeros([dim])
 
-        unpool_s_resize = tf.image.resize_nearest_neighbor(unpool_s, [switches_shape[1], switches_shape[2]], align_corners=True)
+        unpool_s_resize = tf.image.resize_nearest_neighbor(unpool_s, [switches_shape[1], switches_shape[2]], align_corners=False)
 
         unpool_s2 = tf.mul(unpool_s_resize, switches)
 
         _print_tensor_size(unpool_s2)
 
-    return unpool_s2
+    return unpool_s2, unpool_s_resize
 
 
 # endregion
+
+
+
+
+def deconv_fully_connected_1layer(conv_output, keep_prob):
+    global batch_size
+    # local1
+    with tf.variable_scope('local1', reuse=True ) as scope:
+        # Move everything into depth so we can perform a single matrix multiply.
+        dim = 1
+        for d in conv_output.get_shape()[1:].as_list():
+            dim *= d
+        reshape = tf.reshape(conv_output, [batch_size, dim])
+
+        weights = tf.get_variable('weights')
+        biases = tf.get_variable('biases')
+        local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
+        _print_tensor_size(local3)
+
+    # dropout1
+    with tf.name_scope('dropout1'):
+        dropout1 = tf.nn.dropout(local3, keep_prob)
+        # _print_tensor_size(dropout1) # does not exist tensor shape
+
+    # local2
+    with tf.variable_scope('local2', reuse=True) as scope:
+        weights = tf.get_variable('weights')
+        biases = tf.get_variable('biases')
+        local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
+        _print_tensor_size(local4)
+
+    # dropout1
+    #with tf.name_scope('dropout1'):
+    #    dropout2 = tf.nn.dropout(local4, keep_prob)
+        # _print_tensor_size(dropout1) # does not exist tensor shape
+
+    # local2
+    #with tf.variable_scope('local3') as scope:
+    #    weights = _variable_with_weight_decay('weights', shape=[25, 16],
+    #                                          stddev=0.04, wd=0.004)
+    #    biases = _variable_on_cpu('biases', [16], tf.constant_initializer(0.1))
+    #    local5 = tf.nn.relu_layer(dropout2, weights, biases, name=scope.name)
+    #    _print_tensor_size(local5)
+
+
+    # softmax, i.e. softmax(WX + b)
+    with tf.variable_scope('softmax_linear', reuse=True) as scope:
+        weights = tf.get_variable('weights')
+        biases = tf.get_variable('biases')
+        logits = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+        _print_tensor_size(logits)
+
+    return logits, local3, local4
+
+
+
 
 
 # region define 1-layer modules here
 
 def deconv_local_st5_filter(images, conv_layer_scope, in_feat, out_feat):
 
+    #augment = inference_augment_st_filter(images, KERNEL_SIZE)
     augment = deconv_augment_s_filter(images)
 
     # conv_output
     with tf.variable_scope(conv_layer_scope, reuse=True) as scope:
-
+        #kernel = _variable_with_weight_decay('weights', shape=[5, 5, in_feat, out_feat],
+        #                                     stddev=1e-2, wd=0.0)
+        #biases = _variable_on_cpu('biases', [out_feat], tf.constant_initializer(0.0))
         kernel = tf.get_variable('weights')
         biases = tf.get_variable('biases')
         conv = tf.nn.conv2d(augment, kernel, [1, 5, 1, 1], padding='SAME')
@@ -246,10 +314,24 @@ def deconv_local_st5_filter(images, conv_layer_scope, in_feat, out_feat):
     return conv_output
 
 
+def deconv_get_weights(layer_scope):
+
+    # conv_output
+    with tf.variable_scope(layer_scope, reuse=True) as scope:
+        weights = tf.get_variable('weights')
+        biases = tf.get_variable('biases')
+
+    return weights, biases
+
+
+
 def deconv_local_st5_unfilter(images, output_shape, conv_layer_scope):
 
+    #augment = inference_augment_st_filter(images, KERNEL_SIZE)
+    augment = deconv_augment_s_filter(images)
+    images = augment
 
-    # deconv_output
+    # conv_output
     with tf.variable_scope(conv_layer_scope, reuse=True) as scope:
         images_shape = images.get_shape().as_list()
         inv_map = tf.range(0, images_shape[0]*images_shape[1]*images_shape[2]*output_shape[3])
@@ -263,7 +345,8 @@ def deconv_local_st5_unfilter(images, output_shape, conv_layer_scope):
         relu_output = tf.nn.relu(images, name=scope.name)
         bias = tf.nn.bias_add(relu_output, -biases)
 
-	# do deconvolution
+        #deconv = tf.reshape(tf.nn.bias_add(relu_output, -biases), augment.get_shape().as_list())
+        #deconv_output = tf.nn.conv2d(relu_output*25, tf.transpose(kernel, perm=[0, 1, 3, 2]), [1, 5, 1, 1], padding='SAME')
         deconv_output = tf.nn.conv2d_transpose(bias, kernel, output_shape=[output_shape[0], output_shape[1]*5, output_shape[2], output_shape[3]], strides=[1, 5, 1, 1], padding='SAME')
 
         deconv_output_1d = tf.reshape(deconv_output, [-1])
@@ -300,8 +383,12 @@ def deconv_5x5_unfilter(images, output_shape, conv_layer_scope, in_feat=1, out_f
         biases = tf.get_variable('biases')
         relu_output = tf.nn.relu(images, name=scope.name)
         deconv = tf.reshape(tf.nn.bias_add(relu_output, -biases), images.get_shape().as_list())
-        deconv_output = tf.nn.conv2d_transpose(deconv, kernel, output_shape, [1, 1, 1, 1], padding='SAME')
-        # deconv_output = tf.nn.conv2d(deconv, kernel, tf.transpose(kernel, perm=[0, 1, 3, 2]), [1, 1, 1, 1], padding='SAME')
+        #deconv3 = tf.nn.relu(images, name=scope.name)
+        #deconv2 = tf.reshape(tf.nn.bias_add(deconv3, -biases), images.get_shape().as_list())
+        #deconv1 = tf.nn.relu(deconv2, name=scope.name)
+        deconv_output = tf.nn.conv2d_transpose(relu_output, kernel, output_shape=[output_shape[0], output_shape[1], output_shape[2], output_shape[3]], strides=[1, 1, 1, 1], padding='SAME')
+
+        #deconv_output = tf.nn.conv2d(deconv, kernel, tf.transpose(kernel, perm=[0, 1, 3, 2]), [1, 1, 1, 1], padding='SAME')
         _print_tensor_size(deconv_output)
 
     return deconv_output
