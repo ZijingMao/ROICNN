@@ -41,13 +41,13 @@ EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 
-learning_rate = 0.03
+learning_rate = 0.006
 learn_rate_decay_factor = 0.99997
 decay_steps = 100
 choose_cnn_type = 1
 #deconv_batch_size = 1
 batch_size = 125
-max_step = 500   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_step = 5000   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
 check_step = 100
 
 mode = autorun_deconv_lasso.TEST
@@ -55,6 +55,9 @@ mode = autorun_deconv_lasso.TEST
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
 max_rand_search = roi_property.MAX_RAND_SEARCH
+layer1_feat = 32
+layer2_feat = 64
+max_feature_size = (1, 16, 16, layer2_feat)
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -65,9 +68,6 @@ flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
 flags.DEFINE_string('train_dir', roi_property.WORK_DIR + 'data/rsvp_train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
-
-max_feature_size = (1,16,16,32)
-
 
 def set_batch_size(_batch_size):
     global batch_size
@@ -211,7 +211,7 @@ def fill_feed_dict2(data_set, max_features_pl, max_features, drop_rate, images_p
     feed_dict = {
         images_pl: images_feed,
         labels_pl: labels_feed,
-        max_features_pl: max_features if max_features != None else np.zeros(max_feature_size, dtype=np.float32),
+        max_features_pl: max_features if max_features is not None else np.zeros(max_feature_size, dtype=np.float32),
         keep_prob: drop_rate,
         filter_num: int(filter_num_val),
         image_num: int(image_num_val),
@@ -332,7 +332,7 @@ def run_training(hyper_param, model):
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
-        #summary_op = tf.merge_all_summaries()
+        summary_op = tf.merge_all_summaries()
         # Create a saver for writing training checkpoints.
 
         # Create a session for running Ops on the Graph.
@@ -342,81 +342,83 @@ def run_training(hyper_param, model):
 
 
         # Instantiate a SummaryWriter to output summaries and the Graph.
-        #summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-        #                                        graph_def=sess.graph_def)
+        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
+                                                graph=sess.graph)
 
         saver = tf.train.Saver()
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        checkpoint = tf.train.get_checkpoint_state("saved_networks")
+        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
         if checkpoint and checkpoint.model_checkpoint_path:
             saver.restore(sess, checkpoint.model_checkpoint_path)
             print("Successfully loaded:", checkpoint.model_checkpoint_path)
         else:
             print("Could not find old network weights")
-        #saver.restore(sess, "/home/e/Downloads/models/-2649")
-        #print("Model restored.")
 
-        # And then after everything is built, start the training loop.
-        for step in range(0,FLAGS.max_steps):
+            # saver.restore(sess, "/home/e/Downloads/models/-2649")
+            # print("Model restored.")
 
-            start_time = time.time()
-            # Fill a feed dictionary with the actual set of images and labels
-            # for this particular training step.
-            if mode == autorun_deconv_lasso.TEST:
-                feed_dict = fill_feed_dict(data_sets.train,
-                                           0.5, #0.0625,  # was .5 works good
-                                           images_placeholder,
-                                           labels_placeholder,
-                                           keep_prob)
+            # And then after everything is built, start the training loop.
+            for step in range(0,FLAGS.max_steps):
+
+                start_time = time.time()
+                # Fill a feed dictionary with the actual set of images and labels
+                # for this particular training step.
+                if mode == autorun_deconv_lasso.TEST:
+                    feed_dict = fill_feed_dict(data_sets.train,
+                                               0.5, #0.0625,  # was .5 works good
+                                               images_placeholder,
+                                               labels_placeholder,
+                                               keep_prob)
 
 
-            # Run one step of the model.  The return values are the activations
-            # from the `train_op` (which is discarded) and the `loss` Op.  To
-            # inspect the values of your Ops or variables, you may include them
-            # in the list passed to sess.run() and the value tensors will be
-            # returned in the tuple from the call.
-            _, loss_value = sess.run([train_op, loss],
-                                     feed_dict=feed_dict)
-            duration = time.time() - start_time
-            # Write the summaries and print an overview fairly often.
-            if step % check_step == 0:
-                # Print status to stdout.
-                print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
-                # Update the events file.
-                #summary_str = sess.run(summary_op, feed_dict=feed_dict)
-                #summary_writer.add_summary(summary_str, step)
-            # Save a checkpoint and evaluate the model periodically.
-            if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
-                # Evaluate against the training set.
-                print('Training Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.train)
-                # Evaluate against the validation set.
-                print('Validation Data Eval:')
-                #do_eval(sess,
-                #        eval_correct,
-                #        logits,
-                #        images_placeholder,
-                #        labels_placeholder,
-                #        keep_prob,
-                #        filter_num, image_num,
-                #        data_sets.validation)
-                # Evaluate against the test set.
-                print('Test Data Eval:')
-                do_eval(sess,
-                        eval_correct,
-                        logits,
-                        images_placeholder,
-                        labels_placeholder,
-                        keep_prob,
-                        data_sets.test)
+                # Run one step of the model.  The return values are the activations
+                # from the `train_op` (which is discarded) and the `loss` Op.  To
+                # inspect the values of your Ops or variables, you may include them
+                # in the list passed to sess.run() and the value tensors will be
+                # returned in the tuple from the call.
+                _, loss_value = sess.run([train_op, loss],
+                                         feed_dict=feed_dict)
+                duration = time.time() - start_time
+                # Write the summaries and print an overview fairly often.
+                if step % check_step == 0:
+                    # Print status to stdout.
+                    print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
+                    # Update the events file.
+                    summary_str = sess.run(summary_op, feed_dict=feed_dict)
+                    summary_writer.add_summary(summary_str, step)
+                # Save a checkpoint and evaluate the model periodically.
+                if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
+                    saver.save(sess, FLAGS.train_dir, global_step=step)
+                    # Evaluate against the training set.
+                    print('Training Data Eval:')
+                    do_eval(sess,
+                            eval_correct,
+                            logits,
+                            images_placeholder,
+                            labels_placeholder,
+                            keep_prob,
+                            data_sets.train)
+                    # Evaluate against the validation set.
+                    print('Validation Data Eval:')
+                    #do_eval(sess,
+                    #        eval_correct,
+                    #        logits,
+                    #        images_placeholder,
+                    #        labels_placeholder,
+                    #        keep_prob,
+                    #        filter_num, image_num,
+                    #        data_sets.validation)
+                    # Evaluate against the test set.
+                    print('Test Data Eval:')
+                    do_eval(sess,
+                            eval_correct,
+                            logits,
+                            images_placeholder,
+                            labels_placeholder,
+                            keep_prob,
+                            data_sets.test)
 
         ################################### REBUILD MODEL #####################################
 
@@ -467,8 +469,8 @@ def run_training(hyper_param, model):
 
 
         #select the nth highest feature
-        for n in range(200):
-            for step in range(0,9000,20):
+        for n in range(1000):
+            for step in range(0, 19000 , 20):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
                                              max_features_pl2, None,
@@ -594,7 +596,7 @@ def run_training(hyper_param, model):
             max_acts = []
             max_indicies = []
             max_filters = []
-            for top_nth in range(0, 50):
+            for top_nth in range(0, 10000):
                 if i == 0:
                     _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_neg[top_nth]
                 else:
@@ -703,7 +705,7 @@ def def_hyper_param():
 
 def main(_):
     #hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [layer1_feat, layer2_feat]}]
 
     #for model in range(0, 1):
 
