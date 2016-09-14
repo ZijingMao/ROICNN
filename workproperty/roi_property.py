@@ -11,7 +11,7 @@ import tensorflow as tf
 import warnings
 
 # WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
-WORK_DIR = '/home/caffe1/PycharmProjects/ROICNN/'
+WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'

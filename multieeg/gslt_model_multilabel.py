@@ -22,7 +22,7 @@ import numpy as np
 
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
-learning_rate = 0.03
+learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
 max_step = 50000    # to guarantee 64 epochs # should be training sample_size
