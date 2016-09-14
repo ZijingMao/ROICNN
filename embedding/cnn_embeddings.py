@@ -9,7 +9,7 @@ from __future__ import division
 from __future__ import print_function
 
 import random
-import time
+import sys
 
 import autorun_infer
 import autorun_util
@@ -21,6 +21,7 @@ import numpy as np
 import scipy.io
 
 import tensorflow as tf
+from rsvp_quick_inference import set_batch_size as set_batch_infer_size
 
 # EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 # EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
@@ -34,10 +35,8 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
 learning_rate = 0.006
 choose_cnn_type = 1
-batch_size = 128
 max_step = 5000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
-
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
 max_rand_search = roi_property.MAX_RAND_SEARCH
@@ -46,7 +45,7 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_float('learning_rate', learning_rate, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', max_step, 'Number of steps to run trainer.')
-flags.DEFINE_integer('batch_size', batch_size, 'Batch size. Must divide evenly into the dataset sizes.')
+flags.DEFINE_integer('batch_size', roi_property.BATCH_SIZE, 'Batch size. Must divide evenly into the dataset sizes.')
 flags.DEFINE_string('train_dir', roi_property.WORK_DIR + 'data/rsvp_train/', 'Directory to put the training data.')
 flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
@@ -95,7 +94,7 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
     """
     # Create the feed_dict for the placeholders filled with the next
     # `batch size ` examples.
-    images_feed, labels_feed = data_set.all_batch()
+    images_feed, labels_feed = data_set.next_batch_no_shuffle(FLAGS.batch_size)
     feed_dict = {
         images_pl: images_feed,
         keep_prob: drop_rate
@@ -121,17 +120,20 @@ def do_eval(sess,
     num_examples = steps_per_epoch * FLAGS.batch_size
 
     true_label = np.array([]).reshape(0,)   # the label information is only 1 dimension
-    true_feat = np.array([]).reshape(0, 128)   # the feature information is 2 dimensions
+    true_feat = np.array([]).reshape((0, 64, 64, 1))   # the feature information is 4 dimensions
 
     for step in xrange(steps_per_epoch):
-        images_feed, labels_feed = data_set.all_batch(FLAGS.batch_size)
+        images_feed, labels_feed = data_set.next_batch_no_shuffle(FLAGS.batch_size)
 
-        cnn_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
+        cnn_tensor = sess.graph.get_tensor_by_name('conv1/conv1:0')
         forward_feats = sess.run(cnn_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
         forward_labels = labels_feed          # define the labels output
 
         true_label = np.concatenate((true_label, forward_labels), axis=0)
         true_feat = np.concatenate((true_feat, forward_feats), axis=0)
+        string_ = str(step) + ' / ' + str(num_examples)
+        sys.stdout.write("\r%s" % string_)
+        sys.stdout.flush()
 
     # now you can save the feature, matlab save in mat file
     scipy.io.savemat(roi_property.SAVE_DIR+'feature_output/'+name+'.mat',
@@ -161,6 +163,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_all_data(eeg_data_mat)
     # Tell TensorFlow that the model will be built into the default Graph.
+
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
@@ -187,7 +190,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         init = tf.initialize_all_variables()
         sess.run(init)
 
-        checkpoint = tf.train.get_checkpoint_state("saved_networks")
+        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
         if checkpoint and checkpoint.model_checkpoint_path:
             saver.restore(sess, checkpoint.model_checkpoint_path)
             print("Successfully loaded:", checkpoint.model_checkpoint_path)
@@ -242,7 +245,7 @@ def def_hyper_param():
 
 def main(_):
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [4, 1]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
 #                         {'layer': 2, 'feat': [128, 16]},
@@ -271,10 +274,9 @@ def main(_):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
                 for subIdx in range(0, 1):
                     print("Subject: " + str(subIdx))
-                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
+                    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
-
-                    autorun_util.close_save_file(orig_stdout, f)
+                    # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

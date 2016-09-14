@@ -26,8 +26,8 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
 learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 50000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/100
+max_step = 2000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/20
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -43,7 +43,7 @@ flags.DEFINE_boolean('fake_data', False, 'If true, uses fake data '
                                          'for unit testing.')
 
 
-def placeholder_inputs(batch_size):
+def placeholder_inputs(batch_size, feat_size=1):
     """Generate placeholder variables to represent the input tensors.
     These placeholders are used as inputs by the rest of the model building
     code and will be fed from the downloaded data in the .run() loop, below.
@@ -59,7 +59,7 @@ def placeholder_inputs(batch_size):
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           1))
+                                                           feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
     keep_prob = tf.placeholder(tf.float32)
@@ -154,28 +154,36 @@ def do_eval(sess,
         csv_writer_auc.write('\n')
 
 
-def run_training(hyper_param, model):
+def run_training(hyper_param, model, name_idx, sub_idx):
     '''
     Train RSVP for a number of steps.
     Args:
         hyper_param: three elements, layer & feat & model
         model:
+        name_idx:
+        sub_idx:
 
     Returns:
 
     '''
     # initialize the summary to write
-    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer(model, hyper_param['feat'])
+    csv_writer_acc, csv_writer_auc = autorun_util.csv_writer\
+        (model, hyper_param['feat'], name_idx=name_idx, sub_idx=sub_idx)
     # Get the sets of images and labels for training, validation, and
     # test on RSVP.
-    data_sets = rsvp_input_data.read_data_sets(EEG_DATA_MAT,
+    eeg_data = autorun_util.str_name(name_idx, sub_idx)
+    eeg_data_dir = roi_property.FILE_DIR + \
+                   'rsvp_data/mat_sub/' + eeg_data
+    eeg_data_mat = eeg_data_dir + '.mat'
+    data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
-                                               reshape_t=False)
+                                               reshape_t=False,
+                                               validation_size=roi_property.MEDIUM_VALID_SIZE)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
         images_placeholder, labels_placeholder, keep_prob = placeholder_inputs(
-            FLAGS.batch_size)
+            FLAGS.batch_size, data_sets.feature_shape[3])
         # Build a Graph that computes predictions from the inference model.
         logits = autorun_infer.select_running_cnn(images_placeholder,
                                                   keep_prob,
@@ -198,8 +206,8 @@ def run_training(hyper_param, model):
         init = tf.initialize_all_variables()
         sess.run(init)
         # Instantiate a SummaryWriter to output summaries and the Graph.
-        # summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-        #                                         graph=sess.graph)
+        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
+                                                graph=sess.graph)
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
             start_time = time.time()
@@ -223,8 +231,8 @@ def run_training(hyper_param, model):
                 # Print status to stdout.
                 print('Step %d: loss = %.4f (%.3f sec)' % (step, loss_value, duration))
                 # Update the events file.
-                # summary_str = sess.run(summary_op, feed_dict=feed_dict)
-                # summary_writer.add_summary(summary_str, step)
+                summary_str = sess.run(summary_op, feed_dict=feed_dict)
+                summary_writer.add_summary(summary_str, step)
             # Save a checkpoint and evaluate the model periodically.
             if (step + 1) % check_step == 0 or (step + 1) == FLAGS.max_steps:
                 saver.save(sess, FLAGS.train_dir, global_step=step)
@@ -304,17 +312,23 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = def_hyper_param()
+    models = [1]
+    # hyper_param_list = def_hyper_param()
+    hyper_param_list = [{'layer': 2, 'feat': [4, 1]}]
 
-    for model in range(4, 11):
+    for model in models:
         for hyper_param in hyper_param_list:
-            print("Currently running: ")
+            print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            print("Model" + str(model))
-            orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-            run_training(hyper_param, model)
-            autorun_util.close_save_file(orig_stdout, f)
+            # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
+            for idx in range(5, 6):
+                print("Data: " + roi_property.DAT_TYPE_STR[idx])
+                for subIdx in range(0, 1):
+                    print("Subject: " + str(subIdx))
+                    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
+                    run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
+                    # autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()

@@ -11,7 +11,7 @@ import tensorflow as tf
 import warnings
 
 # WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
-WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
+WORK_DIR = '/home/caffe1/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
@@ -29,7 +29,7 @@ LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
 FEAT_LIST = [2**j for j in range(3, 7)]
 MAX_RAND_SEARCH = 10
 
-BATCH_SIZE = 128
+BATCH_SIZE = 1
 SMALL_TRAIN_SIZE = 1000
 SMALL_VALID_SIZE = 100
 SMALL_TEST_SIZE = 100
@@ -42,7 +42,7 @@ LARGE_TEST_SIZE = 10000
 HUGE_TRAIN_SIZE = 1000000
 HUGE_VALID_SIZE = 100000
 HUGE_TEST_SIZE = 100000
-BINARY_LABEL = 10
+BINARY_LABEL = 2
 MULTI_LABEL = 2
 
 EXP_TYPE_STR = ['RSVP']
