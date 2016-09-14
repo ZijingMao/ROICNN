@@ -21,29 +21,12 @@ from workproperty import roi_property
 import sklearn.metrics as metrics
 import numpy as np
 
-EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
-EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
-DAT_TYPE_STR = roi_property.DAT_TYPE_STR[0]
-SUB_STR = roi_property.SUB_STR[0]
-CHAN_STR = roi_property.CHAN_STR
-
-EEG_DATA = EXP_TYPE_STR + '_' + \
-           EXP_NAME_STR + '_' + \
-           SUB_STR + '_' + \
-           DAT_TYPE_STR + '_' + \
-           CHAN_STR
-EEG_DATA_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/mat/' + EEG_DATA
 EEG_TF_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/' + EEG_DATA
-EEG_DATA_MAT = EEG_DATA_DIR + '.mat'
-
-# Basic model parameters as external flags.
-# TODO try to change learning rate in the rsvp folder
-
-learning_rate = 0.01
-batch_size = 64
-max_step = roi_property.LARGE_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+               'rsvp_data/rand_search'
+learning_rate = 0.001
+choose_cnn_type = 1
+batch_size = roi_property.BATCH_SIZE
+max_step = 50000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST

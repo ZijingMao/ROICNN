@@ -126,15 +126,15 @@ def do_eval(sess,
     for step in xrange(steps_per_epoch):
         images_feed, labels_feed = data_set.all_batch(FLAGS.batch_size)
 
-        softmax_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
-        forward_feats = sess.run(softmax_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
+        cnn_tensor = sess.graph.get_tensor_by_name('local1/local1:0')
+        forward_feats = sess.run(cnn_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
         forward_labels = labels_feed          # define the labels output
 
         true_label = np.concatenate((true_label, forward_labels), axis=0)
         true_feat = np.concatenate((true_feat, forward_feats), axis=0)
 
     # now you can save the feature, matlab save in mat file
-    scipy.io.savemat('/home/caffe1/PycharmProjects/ROICNN/data/rsvp_data/feature_output/'+name+'.mat',
+    scipy.io.savemat(roi_property.SAVE_DIR+'feature_output/'+name+'.mat',
                      mdict={name+'_x': true_feat, name+'_y': true_label})
 
     print('Feature saved')
