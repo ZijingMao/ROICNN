@@ -117,12 +117,43 @@ class DataSet(object):
         return self._labels[batch_offsets_list]
 
 
+def read_all_data(train_data,
+                  dtype=tf.float32):
+    class DataSets(object):
+        pass
+    forward_data_sets = DataSets()
+
+    # Get the data.
+    f = h5py.File(train_data)
+    train_x = f['train_x'][:]
+    train_y = f['train_y'][:]
+    test_x = f['test_x'][:]
+    test_y = f['test_y'][:]
+
+    train_images = np.transpose(train_x, [0, 2, 3, 1])
+    train_labels = train_y[:, 0].astype(int)
+    test_images = np.transpose(test_x, [0, 2, 3, 1])
+    test_labels = test_y[:, 0].astype(int)
+
+    forward_data_sets.train = DataSet(train_images,
+                              train_labels,
+                              dtype=dtype,
+                              reshape_tensor=False)
+    forward_data_sets.test = DataSet(test_images,
+                             test_labels,
+                             dtype=dtype,
+                             reshape_tensor=False)
+    forward_data_sets.feature_shape = train_images.shape
+    return forward_data_sets
+
+
 def read_data_sets(train_data,
                    fake_data=False,
                    one_hot=False,
                    dtype=tf.float32,
                    scale_data=False,
-                   reshape_t=True):
+                   reshape_t=True,
+                   validation_size=roi_property.MEDIUM_VALID_SIZE):
     class DataSets(object):
         pass
     data_sets = DataSets()
@@ -244,12 +275,33 @@ def read_data_sets(train_data,
         min_image_value = np.min(train_images)
         print('Rescale to: [%s, %s]' % (min_image_value, max_image_value))
 
-    validation_size = 0   #roi_property.MEDIUM_VALID_SIZE
+    # validation_size = 0   #roi_property.MEDIUM_VALID_SIZE
 
-    if testData:
-        validation_images = train_images[:validation_size]
-        validation_labels = train_labels[:validation_size]
+    # if testData:
+    #     validation_images = train_images[:validation_size]
+    #     validation_labels = train_labels[:validation_size]
+    #
+    # train_images = train_images[validation_size:]
+    # train_labels = train_labels[validation_size:]
+    #
+    # data_sets.train = DataSet(train_images,
+    #                           train_labels,
+    #                           dtype=dtype,
+    #                           reshape_tensor=reshape_t)
+    # if testData:
+    # data_sets.validation = DataSet(validation_images,
+    #                            validation_labels,
+    #                            dtype=dtype,
+    #                            reshape_tensor=reshape_t)
+    # data_sets.test = DataSet(test_images,
+    #                      test_labels,
+    #                      dtype=dtype,
+    #                      reshape_tensor=reshape_t)
+    #
+    # return data_sets
 
+    validation_images = train_images[:validation_size]
+    validation_labels = train_labels[:validation_size]
     train_images = train_images[validation_size:]
     train_labels = train_labels[validation_size:]
 
@@ -257,15 +309,16 @@ def read_data_sets(train_data,
                               train_labels,
                               dtype=dtype,
                               reshape_tensor=reshape_t)
-
-    if testData:
-        data_sets.validation = DataSet(validation_images,
+    data_sets.validation = DataSet(validation_images,
                                    validation_labels,
                                    dtype=dtype,
                                    reshape_tensor=reshape_t)
-        data_sets.test = DataSet(test_images,
+    data_sets.test = DataSet(test_images,
                              test_labels,
                              dtype=dtype,
                              reshape_tensor=reshape_t)
+    data_sets.feature_shape = train_images.shape
 
     return data_sets
+
+

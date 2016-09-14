@@ -31,12 +31,11 @@ FLAGS = flags.FLAGS
 
 def select_running_cnn(images,
                        keep_prob,
-                       lr,
                        layer=2,
                        feat=[2,4],
                        cnn_id=1):
     if cnn_id == INFERENCE_ROICNN:
-        logits = inference_roicnn(images, keep_prob, lr, layer, feat)
+        logits = inference_roicnn(images, keep_prob, layer, feat)
     elif cnn_id == INFERENCE_CVCNN:
         logits = inference_cvcnn(images, keep_prob, layer, feat)
     elif cnn_id == INFERENCE_LOCAL_T_CNN:
@@ -71,7 +70,7 @@ def _print_tensor_size(given_tensor, inference_name=""):
     print(given_tensor.get_shape().as_list())
 
 
-def inference_roicnn(images, keep_prob, lr, deconv = False, layer=2, feat=[2, 4]):
+def inference_roicnn(images, keep_prob, deconv = False, layer=2, feat=[2, 4]):
 
     _print_tensor_size(images, 'inference_roicnn')
     assert isinstance(keep_prob, object)

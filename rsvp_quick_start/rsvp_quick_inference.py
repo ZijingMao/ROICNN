@@ -21,7 +21,7 @@ KERNEL_SIZE = roi_property.BIOSEMI_CONV
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-batch_size = 125
+batch_size = roi_property.BATCH_SIZE
 filterh = 4
 filterw = 4
 
@@ -228,7 +228,7 @@ def inference_pooling_t_filter(images, pool_layer_scope, kheight=2, kwidth=2):
     return pool_t
 
 
-def inference_pooling_n_filter(pool_s, pool_layer_scope, kheight=2, kwidth=2):
+def inference_pooling_n_filter(pool_s, pool_layer_scope='pool', kheight=2, kwidth=2):
     with tf.variable_scope(pool_layer_scope, reuse=True) as scope:
         pool_s2 = tf.nn.max_pool(pool_s, ksize=[1, kheight, kwidth, 1],
                                 strides=[1, kheight, kwidth, 1], padding='SAME')
@@ -749,7 +749,7 @@ def inference_1x1_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     return conv_output
 
 
-def inference_5x5_filter(images, conv_layer_scope, keep_prob, in_feat=1, out_feat=4):
+def inference_5x5_filter(images, conv_layer_scope, in_feat=1, out_feat=4):
     global filterh, filterw
     # conv_output
     with tf.variable_scope(conv_layer_scope) as scope:
