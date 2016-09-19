@@ -7,8 +7,6 @@ from __future__ import print_function
 import random
 import time
 
-import tensorflow as tf
-
 import autorun_infer
 import autorun_util
 import rsvp_input_data
@@ -16,6 +14,7 @@ import rsvp_quick_cnn_model
 from workproperty import roi_property
 import sklearn.metrics as metrics
 import numpy as np
+import tensorflow as tf
 
 EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 EXP_NAME_STR = roi_property.EXP_NAME_STR[0]

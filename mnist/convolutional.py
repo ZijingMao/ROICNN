@@ -9,10 +9,10 @@ import os
 import sys
 import urllib
 
-import tensorflow.python.platform
-import roi_property
+from workproperty import roi_property
 
 import numpy
+import tensorflow.python.platform
 import tensorflow as tf
 
 SOURCE_URL = 'http://yann.lecun.com/exdb/mnist/'
