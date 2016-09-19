@@ -25,7 +25,7 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
 learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 50000    # to guarantee 64 epochs # should be training sample_size
+max_step = 10000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
@@ -306,7 +306,7 @@ def def_hyper_param():
 def main(_):
     models = [1]
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 32]}]
 
     for model in models:
         for hyper_param in hyper_param_list:
