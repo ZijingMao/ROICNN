@@ -246,7 +246,7 @@ def def_hyper_param():
 
 def main(_):
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 32]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
 #                         {'layer': 2, 'feat': [128, 16]},

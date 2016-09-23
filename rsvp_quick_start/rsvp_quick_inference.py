@@ -24,8 +24,8 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 
 batch_size = roi_property.BATCH_SIZE
-filterh = 4
-filterw = 4
+filterh = 5
+filterw = 5
 
 def set_batch_size(_batch_size):
     global batch_size

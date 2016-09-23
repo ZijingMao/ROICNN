@@ -493,10 +493,10 @@ def test_cvcnn(images, keep_prob, layer=2, feat=[2, 4]):
 
     for l in range(0, layer):
         if l == 0:
-            conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', keep_prob, out_feat=feat[0])
+            conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', in_feat=feat[l - 1], out_feat=feat[0])
         else:
             conv_tensor = rsvp_quick_inference.inference_5x5_filter \
-                (pool_tensor, 'conv' + str(l), keep_prob, in_feat=feat[l - 1], out_feat=feat[l])
+                (pool_tensor, 'conv' + str(l), in_feat=feat[l - 1], out_feat=feat[l])
 
         pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor, 'pool' + str(l), kheight=poolh, kwidth=poolw)  # was 1 x 4
 
@@ -575,17 +575,6 @@ def find_max_activation_cvcnn(images, cur_image_num, layer=2, feat=[2, 4]):
 
 
     returnTensors = []
-    #returnTensors.extend(cur_activation)
-    #returnTensors.extend(selection)
-    #returnTensors.extend(update1)
-    #returnTensors.extend(update2)
-    #returnTensors.extend(update3)
-    #returnTensors.extend(max_acitvations_threshold)
-    #returnTensors.extend(pool_tensor])
-    #returnTensors.extend(max_ind)
-    #returnTensors.extend(max_image_ind)
-    #returnTensors.extend(max_activation)
-
     #returnTensors.extend(cur_image_ind)
     #returnTensors.extend(cur_activation)
     #returnTensors.extend(cur_ind)
