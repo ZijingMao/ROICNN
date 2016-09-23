@@ -22,6 +22,7 @@ import scipy.io
 
 import tensorflow as tf
 from rsvp_quick_inference import set_batch_size as set_batch_infer_size
+import h5py
 
 # EXP_TYPE_STR = roi_property.EXP_TYPE_STR[0]
 # EXP_NAME_STR = roi_property.EXP_NAME_STR[0]
@@ -120,13 +121,13 @@ def do_eval(sess,
     num_examples = steps_per_epoch * FLAGS.batch_size
 
     true_label = np.array([]).reshape(0,)   # the label information is only 1 dimension
-    # true_feat = np.array([]).reshape((0, 64, 64, 1))   # the feature information is 4 dimensions
-    true_feat = np.array([]).reshape((0, 128))
+    true_feat = np.array([]).reshape((0, 64, 64, 8))   # the feature information is 4 dimensions
+    # true_feat = np.array([]).reshape((0, 128))
 
     for step in xrange(steps_per_epoch):
         images_feed, labels_feed = data_set.next_batch_no_shuffle(FLAGS.batch_size)
-        # cnn_tensor = sess.graph.get_tensor_by_name('conv1/conv1:0')
-        cnn_tensor = sess.graph.get_tensor_by_name('local2/local2:0')
+        cnn_tensor = sess.graph.get_tensor_by_name('conv1/conv1:0')
+        # cnn_tensor = sess.graph.get_tensor_by_name('local2/local2:0')
         forward_feats = sess.run(cnn_tensor, {'Placeholder:0': images_feed, keep_prob: 1})
         forward_labels = labels_feed          # define the labels output
 
@@ -246,7 +247,7 @@ def def_hyper_param():
 
 def main(_):
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 8]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
 #                         {'layer': 2, 'feat': [128, 16]},

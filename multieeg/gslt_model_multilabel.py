@@ -22,10 +22,10 @@ import numpy as np
 
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
-learning_rate = 0.001
+learning_rate = 0.0006
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 15000    # to guarantee 64 epochs # should be training sample_size
+max_step = 20000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
@@ -197,6 +197,15 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Run the Op to initialize the variables.
         init = tf.initialize_all_variables()
         sess.run(init)
+
+        # load model
+        # checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
+        # if checkpoint and checkpoint.model_checkpoint_path:
+        #     saver.restore(sess, checkpoint.model_checkpoint_path)
+        #     print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        # else:
+        #     print("Could not find old network weights")
+
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
                                                 graph=sess.graph)
@@ -306,7 +315,7 @@ def def_hyper_param():
 def main(_):
     models = [1]
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 8]}]
 
     for model in models:
         for hyper_param in hyper_param_list:
