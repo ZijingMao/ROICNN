@@ -106,7 +106,9 @@ def fill_feed_dict(data_set, drop_rate, images_pl, labels_pl, keep_prob):
 def do_eval(sess,
             keep_prob,
             data_set,
-            name):
+            name,
+            start_point=0,
+            end_point=0):
     """Runs one evaluation against the full epoch of data.
     Args:
       sess: The session in which the model has been trained.
@@ -124,7 +126,12 @@ def do_eval(sess,
     true_feat = np.array([]).reshape((0, 64, 64, 8))   # the feature information is 4 dimensions
     # true_feat = np.array([]).reshape((0, 128))
 
-    for step in xrange(steps_per_epoch):
+    if start_point == end_point and start_point == 0:
+        end_point = steps_per_epoch
+    elif end_point > steps_per_epoch:
+        end_point = steps_per_epoch
+
+    for step in xrange(start_point, end_point):
         images_feed, labels_feed = data_set.next_batch_no_shuffle(FLAGS.batch_size)
         cnn_tensor = sess.graph.get_tensor_by_name('conv1/conv1:0')
         # cnn_tensor = sess.graph.get_tensor_by_name('local2/local2:0')
@@ -138,7 +145,7 @@ def do_eval(sess,
         sys.stdout.flush()
 
     # now you can save the feature, matlab save in mat file
-    scipy.io.savemat(roi_property.SAVE_DIR+'feature_output/'+name+'.mat',
+    scipy.io.savemat(roi_property.SAVE_DIR+'feature_output/'+name+str(start_point)+'.mat',
                      mdict={name+'_x': true_feat, name+'_y': true_label})
 
     print('Feature saved')
@@ -199,10 +206,14 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         else:
             print("Could not find old network weights")
 
-        do_eval(sess,
-                keep_prob,
-                data_sets.train,
-                'train')
+        total_size = data_sets.train.num_examples // FLAGS.batch_size
+        for idx in xrange(0, total_size, 1000):
+            do_eval(sess,
+                    keep_prob,
+                    data_sets.train,
+                    'train',
+                    start_point=idx,
+                    end_point=idx+1000)
         do_eval(sess,
                 keep_prob,
                 data_sets.test,
