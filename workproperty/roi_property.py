@@ -17,14 +17,15 @@ SAVE_DIR = WORK_DIR + 'result/'
 
 DIGIT_IMAGE_SIZE = 28
 
-EEG_SIGNAL_SIZE = 64
+# EEG_SIGNAL_SIZE = 64
+EEG_SIGNAL_SIZE = 30
 BIOSEMI_CONV = 5
 BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2
 CONV_CHAN_INFO = [256, 128, 64, 32, 16]
 POOL_CHAN_INFO = [128, 64, 32, 16]
 
-LAYER_LIST = range(1, int(math.log(EEG_SIGNAL_SIZE, 2))-2)
+LAYER_LIST = range(1, int(math.log(64, 2))-2)
 FEAT_LIST = [2**j for j in range(3, 7)]
 MAX_RAND_SEARCH = 10
 
@@ -45,9 +46,10 @@ BINARY_LABEL = 2
 MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['X2']
-DAT_TYPE_STR = ['CS_FREQNORM', 'CS_FREQ', 'CS_NORM', 'CS_FREQRAW', 'CS_RAW']
-SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 6)]
+# EXP_NAME_STR = ['X2']
+# DAT_TYPE_STR = ['CS_FREQNORM', 'CS_FREQ', 'CS_NORM', 'CS_FREQRAW', 'CS_RAW']
+DAT_TYPE_STR = ['CE_RAW', 'CE_NORM', 'CE_FREQ', 'CE_FREQRAW', 'CE_FREQNORM']
+SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 10)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 
 

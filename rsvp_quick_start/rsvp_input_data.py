@@ -138,8 +138,10 @@ def read_data_sets(train_data,
 
     # Extract it into numpy arrays.
     train_images = np.transpose(train_x, [0, 2, 3, 1])
+    # train_images = np.transpose(train_x, [0, 3, 2, 1])
     train_labels = train_y[:, 0].astype(int)
     test_images = np.transpose(test_x, [0, 2, 3, 1])
+    # test_images = np.transpose(test_x, [0, 3, 2, 1])
     test_labels = test_y[:, 0].astype(int)
 
     if one_hot:

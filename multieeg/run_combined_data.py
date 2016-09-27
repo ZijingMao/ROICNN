@@ -30,12 +30,12 @@ import tensorflow as tf
 # Basic model parameters as external flags.
 # TODO try to change learning rate in the rsvp folder
 EEG_TF_DIR = roi_property.FILE_DIR + \
-               'rsvp_data/rand_search'
+             'rsvp_data/rand_search'
 learning_rate = 0.006
 choose_cnn_type = 1
 batch_size = 128
-max_step = 5000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/50
+max_step = 5000  # to guarantee 64 epochs # should be training sample_size
+check_step = max_step / 50
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -66,7 +66,7 @@ def placeholder_inputs(batch_size, feat_size=1):
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -127,8 +127,8 @@ def do_eval(sess,
     steps_per_epoch = data_set.num_examples // FLAGS.batch_size
     num_examples = steps_per_epoch * FLAGS.batch_size
 
-    true_label = np.array([]).reshape(0,)   # the label information is only 1 dimension
-    fake_label = np.array([]).reshape(0, 2)   # the logit information is only 2 dimensions
+    true_label = np.array([]).reshape(0, )  # the label information is only 1 dimension
+    fake_label = np.array([]).reshape(0, 2)  # the logit information is only 2 dimensions
 
     for step in xrange(steps_per_epoch):
         feed_dict = fill_feed_dict(data_set,
@@ -138,7 +138,7 @@ def do_eval(sess,
                                    keep_prob)
         true_count += sess.run(eval_correct, feed_dict=feed_dict)
         forward_logits = sess.run(logits, feed_dict=feed_dict)  # define the logits output
-        forward_labels = feed_dict[labels_placeholder]          # define the labels output
+        forward_labels = feed_dict[labels_placeholder]  # define the labels output
         true_label = np.concatenate((true_label, forward_labels), axis=0)
         fake_label = np.concatenate((fake_label, forward_logits), axis=0)
 
@@ -181,12 +181,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_x2/' + eeg_data
+                   'rsvp_data/mat/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=1800)
+                                               validation_size=2000)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -286,7 +286,6 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
 
 def check_same_dict(x, y):
-
     if x['layer'] == y['layer']:
         if x['feat'] == y['feat']:
             return True
@@ -294,7 +293,6 @@ def check_same_dict(x, y):
 
 
 def def_hyper_param():
-
     hyper_param_list = []
     while len(hyper_param_list) < max_rand_search:
         replicated = False
@@ -305,8 +303,8 @@ def def_hyper_param():
             rnd_feat.append(random.choice(feat_list))
         # put them into dictionary
         hyper_param = {
-            'layer':    rnd_layer,
-            'feat':     rnd_feat
+            'layer': rnd_layer,
+            'feat': rnd_feat
         }
         for hyper_param_element in hyper_param_list:
             # check if the element is replicated, if not, add to list
@@ -320,16 +318,16 @@ def def_hyper_param():
 
 
 def main(_):
-    # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [64, 64]},
-                        {'layer': 3, 'feat': [64, 64, 64]},
-                        {'layer': 3, 'feat': [32, 16, 16]}]
+    hyper_param_list = def_hyper_param()
+    # hyper_param_list = [{'layer': 2, 'feat': [64, 64]},
+    #                     {'layer': 3, 'feat': [64, 64, 64]},
+    #                     {'layer': 3, 'feat': [32, 16, 16]}]
     # hyper_param_list = [{'layer': 3, 'feat': [8, 16, 64]}]
-# {'layer': 1, 'feat': [128]},
-#                         {'layer': 2, 'feat': [128, 8]},
-#                         {'layer': 2, 'feat': [128, 16]},
-#                         {'layer': 2, 'feat': [128, 32]},
-#
+    # {'layer': 1, 'feat': [128]},
+    #                         {'layer': 2, 'feat': [128, 8]},
+    #                         {'layer': 2, 'feat': [128, 16]},
+    #                         {'layer': 2, 'feat': [128, 32]}]
+    #
 
     # hyper_param_list = [{'layer': 3, 'feat': [4, 4, 512]},
     #                     {'layer': 3, 'feat': [8, 8, 512]},
@@ -339,23 +337,25 @@ def main(_):
     #                     {'layer': 4, 'feat': [4, 4, 4, 256]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 512]},
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
-    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+    #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 
-    models = [7]
+    models = [5, 7]
 
     for model in models:
         for hyper_param in hyper_param_list:
-            print("Currently running model: "+str(model))
+            print("Currently running model: " + str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(0, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(1, 2):
+            for idx in range(1, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(3, 4):
-                    print("Subject: " + str(subIdx+1))
-                    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
+                for subIdx in range(8, 9):
+                    print("Subject: " + str(subIdx + 1))
+                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx,
+                                                                 sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
-                    # autorun_util.close_save_file(orig_stdout, f)
+                    autorun_util.close_save_file(orig_stdout, f)
+
 
 if __name__ == '__main__':
     tf.app.run()
