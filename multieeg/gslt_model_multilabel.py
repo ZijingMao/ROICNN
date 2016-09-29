@@ -19,13 +19,14 @@ import rsvp_input_data
 import rsvp_quick_cnn_model
 from workproperty import roi_property
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
 learning_rate = 0.0006
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 5000    # to guarantee 64 epochs # should be training sample_size
+max_step = 50000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
 
 layer_list = roi_property.LAYER_LIST
@@ -144,6 +145,9 @@ def do_eval(sess,
     # auc = metrics.auc(fpr, tpr)
     print('  Num examples: %d  Num correct: %d  Precision @ 1: %0.04f' %
           (num_examples, true_count, precision))
+    print('  Confusion matrix: ')
+    y_pred = np.argmax(fake_label, 1)
+    np.savetxt('confusion.csv', confusion_matrix(true_label, y_pred), delimiter=",")
     # write the csv file if exists
     if csv_writer_acc is not None:
         csv_writer_acc.write('%0.06f' % precision)
@@ -199,12 +203,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         sess.run(init)
 
         # load model
-        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
-        if checkpoint and checkpoint.model_checkpoint_path:
-            saver.restore(sess, checkpoint.model_checkpoint_path)
-            print("Successfully loaded:", checkpoint.model_checkpoint_path)
-        else:
-            print("Could not find old network weights")
+        # checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
+        # if checkpoint and checkpoint.model_checkpoint_path:
+        #     saver.restore(sess, checkpoint.model_checkpoint_path)
+        #     print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        # else:
+        #     print("Could not find old network weights")
 
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
@@ -325,7 +329,7 @@ def main(_):
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
             for idx in range(5, 6):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(10, 11):
+                for subIdx in range(100, 101):
                     print("Subject: " + str(subIdx))
                     # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
