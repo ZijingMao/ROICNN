@@ -11,7 +11,7 @@ import tensorflow as tf
 import warnings
 
 # WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
-WORK_DIR = '/home/caffe1/PycharmProjects/ROICNN/'
+WORK_DIR = '/home/eeglab/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
@@ -42,11 +42,11 @@ LARGE_TEST_SIZE = 10000
 HUGE_TRAIN_SIZE = 1000000
 HUGE_VALID_SIZE = 100000
 HUGE_TEST_SIZE = 100000
-BINARY_LABEL = 100
+BINARY_LABEL = 2
 MULTI_LABEL = 2
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['DRIVE']
+EXP_NAME_STR = ['X2']
 DAT_TYPE_STR = ['NORMFREQ', 'FREQ', 'NORM', 'RAWFREQ', 'RAW', 'SUB']
 SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 200)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)

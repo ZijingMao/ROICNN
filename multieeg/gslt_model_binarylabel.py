@@ -26,8 +26,8 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
 learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 2000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/20
+max_step = 20000    # to guarantee 64 epochs # should be training sample_size
+check_step = max_step/100
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -173,7 +173,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_sub/' + eeg_data
+                   'rsvp_data/mat/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
@@ -205,6 +205,15 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Run the Op to initialize the variables.
         init = tf.initialize_all_variables()
         sess.run(init)
+
+        # load model
+        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        else:
+            print("Could not find old network weights")
+
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
                                                 graph=sess.graph)
@@ -314,7 +323,7 @@ def def_hyper_param():
 def main(_):
     models = [1]
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [4, 1]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 8]}]
 
     for model in models:
         for hyper_param in hyper_param_list:
@@ -322,9 +331,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(5, 6):
+            for idx in range(4, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(0, 1):
+                for subIdx in range(11, 12):
                     print("Subject: " + str(subIdx))
                     # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
