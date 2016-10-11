@@ -31,7 +31,7 @@ import tensorflow as tf
 # TODO try to change learning rate in the rsvp folder
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
-learning_rate = 0.006
+learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = 128
 max_step = 10000    # to guarantee 64 epochs # should be training sample_size
@@ -65,8 +65,8 @@ def placeholder_inputs(batch_size, feat_size=1):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            64,
+                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -179,12 +179,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_xJam/' + eeg_data
+                   'rsvp_data/mat_Jam6/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=500)
+                                               validation_size=150)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -318,8 +318,8 @@ def def_hyper_param():
 
 
 def main(_):
-    hyper_param_list = def_hyper_param()
-
+    # hyper_param_list = def_hyper_param()
+    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
 # {'layer': 1, 'feat': [128]},
 #                         {'layer': 2, 'feat': [128, 8]},
 #                         {'layer': 2, 'feat': [128, 16]},
@@ -336,16 +336,16 @@ def main(_):
     #                     {'layer': 5, 'feat': [8, 8, 8, 8, 512]},
     #                     {'layer': 5, 'feat': [4, 4, 4, 4, 128]}]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-    models = [7]   # GS , LSLT, GSLT, LSGT
+    models = [1]   # GS , LSLT, GSLT, LSGT
 
     for model in models:
         for hyper_param in hyper_param_list:
             print("Currently running model: "+str(model))
             print("FeatMap: ")
             print(hyper_param['feat'])
-            for idx in range(0, len(roi_property.DAT_TYPE_STR)):
+            for idx in range(0, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subidx in range(0,10):
+                for subidx in range(4, 10):
                     print("Subject:" + str(subidx+1).zfill(2))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subidx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subidx)

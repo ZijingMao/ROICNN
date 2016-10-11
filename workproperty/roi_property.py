@@ -30,7 +30,7 @@ FEAT_LIST = [2**j for j in range(2, 7)]
 # MAX_RAND_SEARCH = 32
 MAX_RAND_SEARCH = 10
 
-BATCH_SIZE = 32
+BATCH_SIZE = 128
 SMALL_TRAIN_SIZE = 1000
 SMALL_VALID_SIZE = 100
 SMALL_TEST_SIZE = 100
@@ -47,9 +47,9 @@ BINARY_LABEL = 2
 MULTI_LABEL = 4
 
 EXP_TYPE_STR = ['RSVP']
-EXP_NAME_STR = ['']
-DAT_TYPE_STR = ['CS_RAW', 'CS_FREQ', 'CS_NORM', 'CS_FREQNORM', 'CS_FREQRAW']
-SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 11)]
+EXP_NAME_STR = ['NCTU6']
+DAT_TYPE_STR = ['RAW', 'FREQ', 'NORM', 'FREQNORM', 'FREQRAW']
+SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 16)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 
 

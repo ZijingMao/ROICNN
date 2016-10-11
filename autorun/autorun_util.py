@@ -22,6 +22,7 @@ def str_name(name_idx, sub_idx=0):
     sub_str = roi_property.SUB_STR[sub_idx]
     chan_str = roi_property.CHAN_STR
     eeg_data = exp_type_str + '_' + \
+               exp_name_str + '_' + \
                sub_str + '_' + \
                dat_type_str + '_' + \
                chan_str
