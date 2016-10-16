@@ -23,7 +23,7 @@ from sklearn.metrics import confusion_matrix
 
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
-learning_rate = 0.0006
+learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
 max_step = 50000    # to guarantee 64 epochs # should be training sample_size
@@ -174,7 +174,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=896)
+                                               validation_size=1024)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -319,7 +319,7 @@ def def_hyper_param():
 def main(_):
     models = [1]
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [32, 8]}]
+    hyper_param_list = [{'layer': 3, 'feat': [32, 32, 32]}]
 
     for model in models:
         for hyper_param in hyper_param_list:
@@ -327,7 +327,7 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(5, 6):
+            for idx in range(4, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
                 for subIdx in range(100, 101):
                     print("Subject: " + str(subIdx))

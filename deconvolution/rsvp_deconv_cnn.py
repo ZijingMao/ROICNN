@@ -41,12 +41,9 @@ max_rand_search = roi_property.MAX_RAND_SEARCH
 learn_rate_decay_factor = 0.99997
 decay_steps = 100
 max_step = 5000   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
+max_feature_size = (1, 8, 8, 32)
 
 mode = autorun_deconv_lasso.TEST
-
-layer1_feat = 32
-layer2_feat = 64
-max_feature_size = (1, 16, 16, layer2_feat)
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
@@ -347,7 +344,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Build a Graph that computes predictions from the inference model.
         returnTensors = autorun_deconv_lasso.select_running_cnn(images_placeholder2,
                                                                 max_features_pl2,
-                                                                keep_prob2, 1,
+                                                                keep_prob2, hyper_param['layer'] - 1,
                                                                 filter_num2, image_num2,
                                                                 max_act_pl2, max_ind_pl2,
                                                                 mode=autorun_deconv_lasso.FIND_MAX_ACTIVATION_GET_SWITCHES,
@@ -376,8 +373,8 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
 
         #select the nth highest feature
-        for n in range(10):
-            for step in range(0, 10):
+        for n in range(100):
+            for step in range(0, 90):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
                                              max_features_pl2, None,
@@ -473,7 +470,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Build a Graph that computes predictions from the inference model.
         returnTensors = autorun_deconv_lasso.select_running_cnn(images_placeholder2,
                                                                 max_features_pl2,
-                                                                keep_prob2, 1,
+                                                                keep_prob2, hyper_param['layer'] - 1,
                                                                 filter_num2, image_num2,
                                                                 max_act_pl2, max_ind_pl2,
                                                                 mode=autorun_deconv_lasso.DECONV_LASSO,
@@ -497,7 +494,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
             max_acts = []
             max_indicies = []
             max_filters = []
-            for top_nth in range(0, 640):
+            for top_nth in range(0, 3200):
                 if i == 0:
                     _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_neg[top_nth]
                 else:
@@ -602,10 +599,9 @@ def def_hyper_param():
 
     return hyper_param_list
 
-
 def main(_):
     #hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 2, 'feat': [layer1_feat, layer2_feat]}]
+    hyper_param_list = [{'layer': 3, 'feat': [32, 32, 32]}]
 
     #for model in range(0, 1):
 
@@ -618,7 +614,7 @@ def main(_):
         print(hyper_param['feat'])
         print("Model" + str(model))
         orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-        run_training(hyper_param, model, name_idx=5, sub_idx=11)    # 'sub' and subject 12
+        run_training(hyper_param, model, name_idx=6, sub_idx=100)    # 'sub' and subject 12
         autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
