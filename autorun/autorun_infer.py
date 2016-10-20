@@ -163,7 +163,8 @@ def inference_cvcnn(images, keep_prob, layer=2, feat=[2, 4]):
         return
 
     # local st
-    conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', out_feat=feat[0])
+    image_shape = images.get_shape().as_list()
+    conv_tensor = rsvp_quick_inference.inference_5x5_filter(images, 'conv0', in_feat=image_shape[3], out_feat=feat[0])
     pool_tensor = rsvp_quick_inference.inference_pooling_n_filter(conv_tensor)
     for l in range(1, layer):
         conv_tensor = rsvp_quick_inference.inference_5x5_filter\

@@ -66,7 +66,7 @@ def placeholder_inputs(batch_size, feat_size=1):
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -186,7 +186,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=896)
+                                               validation_size=1000)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -346,10 +346,10 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(5, 6):
+            for idx in range(0, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(0, 1):
-                    print("Subject: " + str(subIdx))
+                for subIdx in range(4, 5):
+                    print("Subject: " + str(subIdx+1))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
                     autorun_util.close_save_file(orig_stdout, f)
