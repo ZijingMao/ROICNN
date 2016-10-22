@@ -66,8 +66,8 @@ def placeholder_inputs(batch_size, feat_size=1):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           roi_property.EEG_SIGNAL_SIZE,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -283,9 +283,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(4, 5):
+            for idx in range(3, 4):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(100, 101):
+                for subIdx in range(167, 168):
                     print("Subject: " + str(subIdx))
                     # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)

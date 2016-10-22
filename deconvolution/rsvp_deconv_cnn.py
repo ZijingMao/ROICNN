@@ -41,7 +41,7 @@ max_rand_search = roi_property.MAX_RAND_SEARCH
 learn_rate_decay_factor = 0.99997
 decay_steps = 100
 max_step = 5000   #roi_property.MEDIUM_TRAIN_SIZE    # to guarantee 64 epochs # should be training sample_size
-max_feature_size = (1, 8, 8, 32)
+max_feature_size = (1, 4, 8, 32)
 
 mode = autorun_deconv_lasso.TEST
 
@@ -90,8 +90,8 @@ def placeholder_inputs(batch_size, feat_size=1):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           roi_property.EEG_SIGNAL_SIZE,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -115,8 +115,8 @@ def placeholder_inputs2(batch_size):
     # image and label tensors, except the first dimension is now batch_size
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           rsvp_quick_cnn_model.IMAGE_SIZE,
+                                                           roi_property.EEG_SIGNAL_SIZE,
+                                                           64,
                                                            1), name='images_placeholder')
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size), name='labels_placeholder')
 
@@ -373,8 +373,8 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
 
         #select the nth highest feature
-        for n in range(100):
-            for step in range(0, 90):
+        for n in range(1000):
+            for step in range(0, 167):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
                                              max_features_pl2, None,
@@ -487,14 +487,14 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
         # top 9 positive/negative label reconstructions
 
-        for i in range(0,2):
+        for i in range(0, 2):
             input_reconstructions = []
             input_images = []
             batch_nums = []
             max_acts = []
             max_indicies = []
             max_filters = []
-            for top_nth in range(0, 3200):
+            for top_nth in range(0, 32000):
                 if i == 0:
                     _, max_act_val, batch_num, max_ind_val, filter_num_val, _ = sorted_activations_neg[top_nth]
                 else:
@@ -614,7 +614,7 @@ def main(_):
         print(hyper_param['feat'])
         print("Model" + str(model))
         orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-        run_training(hyper_param, model, name_idx=6, sub_idx=100)    # 'sub' and subject 12
+        run_training(hyper_param, model, name_idx=6, sub_idx=167)    # 'sub' and subject 12
         autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':

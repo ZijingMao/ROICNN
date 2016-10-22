@@ -203,12 +203,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         sess.run(init)
 
         # load model
-        # checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
-        # if checkpoint and checkpoint.model_checkpoint_path:
-        #     saver.restore(sess, checkpoint.model_checkpoint_path)
-        #     print("Successfully loaded:", checkpoint.model_checkpoint_path)
-        # else:
-        #     print("Could not find old network weights")
+        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
+        if checkpoint and checkpoint.model_checkpoint_path:
+            saver.restore(sess, checkpoint.model_checkpoint_path)
+            print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        else:
+            print("Could not find old network weights")
 
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
@@ -327,9 +327,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(4, 5):
+            for idx in range(3, 4):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(100, 101):
+                for subIdx in range(167, 168):
                     print("Subject: " + str(subIdx))
                     # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
