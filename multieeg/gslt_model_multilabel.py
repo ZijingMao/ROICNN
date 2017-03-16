@@ -23,11 +23,14 @@ from sklearn.metrics import confusion_matrix
 
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
+# learning_rate = 0.0003
 learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = roi_property.BATCH_SIZE
-max_step = 50000    # to guarantee 64 epochs # should be training sample_size
-check_step = max_step/50
+# max_step = 50000    # to guarantee 64 epochs # should be training sample_size
+max_step = 2000
+# check_step = max_step/50
+check_step = 20
 
 layer_list = roi_property.LAYER_LIST
 feat_list = roi_property.FEAT_LIST
@@ -174,7 +177,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=1024)
+                                               validation_size=150)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -199,16 +202,16 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Create a session for running Ops on the Graph.
         sess = tf.Session()
         # Run the Op to initialize the variables.
-        init = tf.initialize_all_variables()
+        init = tf.global_variables_initializer()
         sess.run(init)
 
         # load model
-        checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
-        if checkpoint and checkpoint.model_checkpoint_path:
-            saver.restore(sess, checkpoint.model_checkpoint_path)
-            print("Successfully loaded:", checkpoint.model_checkpoint_path)
-        else:
-            print("Could not find old network weights")
+        # checkpoint = tf.train.get_checkpoint_state(FLAGS.train_dir)
+        # if checkpoint and checkpoint.model_checkpoint_path:
+        #     saver.restore(sess, checkpoint.model_checkpoint_path)
+        #     print("Successfully loaded:", checkpoint.model_checkpoint_path)
+        # else:
+        #     print("Could not find old network weights")
 
         # Instantiate a SummaryWriter to output summaries and the Graph.
         summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
@@ -319,7 +322,8 @@ def def_hyper_param():
 def main(_):
     models = [1]
     # hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 3, 'feat': [32, 32, 32]}]
+    # hyper_param_list = [{'layer': 3, 'feat': [128, 32, 32]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
 
     for model in models:
         for hyper_param in hyper_param_list:
@@ -329,11 +333,12 @@ def main(_):
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
             for idx in range(3, 4):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(167, 168):
-                    print("Subject: " + str(subIdx))
-                    # orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
+                # for subIdx in range(107, 108):
+                for subIdx in range(1, 2):
+                    print("Subject: " + str(subIdx+1))
+                    orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
-                    # autorun_util.close_save_file(orig_stdout, f)
+                    autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
     tf.app.run()
