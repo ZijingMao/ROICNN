@@ -31,7 +31,7 @@ import tensorflow as tf
 # TODO try to change learning rate in the rsvp folder
 EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
-learning_rate = 0.006
+learning_rate = 0.001
 choose_cnn_type = 1
 batch_size = 128
 max_step = 5000    # to guarantee 64 epochs # should be training sample_size
@@ -66,7 +66,7 @@ def placeholder_inputs(batch_size, feat_size=1):
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           64,
+                                                           128,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -181,12 +181,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_sub/' + eeg_data
+                   'rsvp_data/mat/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=2000)
+                                               validation_size=3000)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -205,16 +205,18 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
-        summary_op = tf.merge_all_summaries()
+        # summary_op = tf.merge_all_summaries()
+        summary_op = tf.summary.merge_all()
         # Create a saver for writing training checkpoints.
         saver = tf.train.Saver()
         # Create a session for running Ops on the Graph.
         sess = tf.Session()
         # Run the Op to initialize the variables.
-        init = tf.initialize_all_variables()
+        # init = tf.initialize_all_variables() is deprecated and will be removed after 2017-03-02
+        init = tf.global_variables_initializer()
         sess.run(init)
         # Instantiate a SummaryWriter to output summaries and the Graph.
-        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
+        summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
                                                 graph=sess.graph)
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
@@ -346,9 +348,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(0, 5):
+            for idx in range(3, 4):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(4, 5):
+                for subIdx in range(4, 10):
                     print("Subject: " + str(subIdx+1))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)
