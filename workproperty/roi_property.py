@@ -10,15 +10,15 @@ import tensorflow as tf
 
 import warnings
 
-WORK_DIR = '/home/zijing/Github/ROICNN_Zijing/'
+WORK_DIR = '/home/zijing/jingxia/ROICNN/'
 # WORK_DIR = '/home/eeglab/PycharmProjects/ROICNN/'
 CSV_DIR = WORK_DIR + 'data/chanlocs_csv/'
 FILE_DIR = WORK_DIR + 'data/'
 SAVE_DIR = WORK_DIR + 'result/'
 
-DIGIT_IMAGE_SIZE = 28
+DIGIT_IMAGE_SIZE = 64
 
-EEG_SIGNAL_SIZE = 64
+EEG_SIGNAL_SIZE = 28
 BIOSEMI_CONV = 5
 BIOSEMI_POOL_ALL = 4
 BIOSEMI_POOL = 2
@@ -32,6 +32,8 @@ MAX_RAND_SEARCH = 10
 
 BATCH_SIZE = 128
 # BATCH_SIZE = 64
+# BATCH_SIZE =1 FOR DECONVOLUTION
+# BATCH_SIZE = 1
 SMALL_TRAIN_SIZE = 1000
 SMALL_VALID_SIZE = 100
 SMALL_TEST_SIZE = 100
@@ -45,17 +47,17 @@ HUGE_TRAIN_SIZE = 1000000
 HUGE_VALID_SIZE = 100000
 HUGE_TEST_SIZE = 100000
 # BINARY_LABEL = 108
-BINARY_LABEL = 2
-MULTI_LABEL = 2
+BINARY_LABEL = 157
+MULTI_LABEL = 157
 
 # EXP_TYPE_STR = ['DRIVE']
-EXP_TYPE_STR = ['RSVP']
+EXP_TYPE_STR = ['FOUR']
 # EXP_NAME_STR = ['XB']
-EXP_NAME_STR = ['X1']
-# DAT_TYPE_STR = ['NORMFREQ', 'FREQ', 'NORM', 'RAWFREQ', 'RAW', 'SUB', 'AVG']
-DAT_TYPE_STR = ['FREQNORM', 'FREQ', 'NORM', 'CS_RAW', 'FREQRAW', 'SUB', 'AVG']
+EXP_NAME_STR = ['COM']
+DAT_TYPE_STR = ['NORMFREQ', 'FREQ', 'NORM', 'RAWFREQ', 'RAW', 'SUB', 'AVG']
+# DAT_TYPE_STR = ['FREQNORM', 'FREQ', 'NORM', 'CS_RAW', 'FREQRAW', 'SUB', 'AVG', 'CS_SPD']
 # SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 1000)]
-SUB_STR = ['S'+str(sub).zfill(2) for sub in range(1, 11)]
+SUB_STR = ['S'+str(sub).zfill(2) for sub in range(157,158)]
 CHAN_STR = 'CH'+str(EEG_SIGNAL_SIZE)
 
 

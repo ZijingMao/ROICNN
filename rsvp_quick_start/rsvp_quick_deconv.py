@@ -226,7 +226,7 @@ def deconv_unpooling_n_filter(unpool_s, switches, unpool_layer_scope, kheight=2,
 
         unpool_s_resize = tf.image.resize_nearest_neighbor(unpool_s, [switches_shape[1], switches_shape[2]], align_corners=False)
 
-        unpool_s2 = tf.mul(unpool_s_resize, switches)
+        unpool_s2 = tf.multiply(unpool_s_resize, switches)
 
         _print_tensor_size(unpool_s2)
 

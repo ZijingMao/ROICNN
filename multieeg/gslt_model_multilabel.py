@@ -172,12 +172,12 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     # test on RSVP.
     eeg_data = autorun_util.str_name(name_idx, sub_idx)
     eeg_data_dir = roi_property.FILE_DIR + \
-                   'rsvp_data/mat_sub/' + eeg_data
+                   'rsvp_data/mat/' + eeg_data
     eeg_data_mat = eeg_data_dir + '.mat'
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=150)
+                                               validation_size=40000)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -196,7 +196,8 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
-        summary_op = tf.merge_all_summaries()
+        # summary_op = tf.merge_all_summaries()
+        summary_op = tf.summary.merge_all()
         # Create a saver for writing training checkpoints.
         saver = tf.train.Saver()
         # Create a session for running Ops on the Graph.
@@ -214,8 +215,10 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         #     print("Could not find old network weights")
 
         # Instantiate a SummaryWriter to output summaries and the Graph.
-        summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
-                                                graph=sess.graph)
+        # summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
+        #                                        graph=sess.graph)
+        summary_writer = tf.summary.FileWriter(FLAGS.train_dir,
+                                               graph=sess.graph)
         # And then after everything is built, start the training loop.
         for step in xrange(FLAGS.max_steps):
             start_time = time.time()
@@ -320,6 +323,8 @@ def def_hyper_param():
 
 
 def main(_):
+    # models = [1]
+    # test the DNN-CNN model
     models = [1]
     # hyper_param_list = def_hyper_param()
     # hyper_param_list = [{'layer': 3, 'feat': [128, 32, 32]}]
@@ -331,10 +336,10 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(3, 4):
+            for idx in range(4, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
                 # for subIdx in range(107, 108):
-                for subIdx in range(1, 2):
+                for subIdx in range(0, 1):
                     print("Subject: " + str(subIdx+1))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)

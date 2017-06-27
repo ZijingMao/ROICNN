@@ -33,7 +33,7 @@ EEG_TF_DIR = roi_property.FILE_DIR + \
                'rsvp_data/rand_search'
 learning_rate = 0.001
 choose_cnn_type = 1
-batch_size = 128
+batch_size = 64
 max_step = 5000    # to guarantee 64 epochs # should be training sample_size
 check_step = max_step/50
 
@@ -66,7 +66,7 @@ def placeholder_inputs(batch_size, feat_size=1):
     # rather than the full size of the train or test data sets.
     images_placeholder = tf.placeholder(tf.float32, shape=(batch_size,
                                                            rsvp_quick_cnn_model.IMAGE_SIZE,
-                                                           128,
+                                                           64,
                                                            feat_size))
     labels_placeholder = tf.placeholder(tf.int32, shape=(batch_size))
 
@@ -186,7 +186,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
     data_sets = rsvp_input_data.read_data_sets(eeg_data_mat,
                                                FLAGS.fake_data,
                                                reshape_t=False,
-                                               validation_size=3000)
+                                               validation_size=500)
     # Tell TensorFlow that the model will be built into the default Graph.
     with tf.Graph().as_default():
         # Generate placeholders for the images and labels.
@@ -348,9 +348,9 @@ def main(_):
             print("FeatMap: ")
             print(hyper_param['feat'])
             # for idx in range(3, len(roi_property.DAT_TYPE_STR)):
-            for idx in range(3, 4):
+            for idx in range(4, 5):
                 print("Data: " + roi_property.DAT_TYPE_STR[idx])
-                for subIdx in range(4, 10):
+                for subIdx in range(0, 1):
                     print("Subject: " + str(subIdx+1))
                     orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'], name_idx=idx, sub_idx=subIdx)
                     run_training(hyper_param, model, name_idx=idx, sub_idx=subIdx)

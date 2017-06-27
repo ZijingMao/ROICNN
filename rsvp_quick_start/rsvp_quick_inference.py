@@ -459,19 +459,31 @@ def inference_fully_connected_1layer(conv_output, keep_prob):
         local4 = tf.nn.relu_layer(dropout1, weights, biases, name=scope.name)
         _print_tensor_size(local4)
 
-    # dropout1
-    #with tf.name_scope('dropout1'):
-    #    dropout2 = tf.nn.dropout(local4, keep_prob)
-        # _print_tensor_size(dropout1) # does not exist tensor shape
+    # dropout2
+    with tf.name_scope('dropout2'):
+       dropout2 = tf.nn.dropout(local4, keep_prob)
+       # _print_tensor_size(dropout1) # does not exist tensor shape
 
-    # local2
-    #with tf.variable_scope('local3') as scope:
-    #    weights = _variable_with_weight_decay('weights', shape=[25, 16],
-    #                                          stddev=0.04, wd=0.004)
-    #    biases = _variable_on_cpu('biases', [16], tf.constant_initializer(0.1))
-    #    local5 = tf.nn.relu_layer(dropout2, weights, biases, name=scope.name)
-    #    _print_tensor_size(local5)
+    # local3
+    with tf.variable_scope('local3') as scope:
+        weights = _variable_with_weight_decay('weights', shape=[128, 128],
+                                              stddev=0.04, wd=0.004)
+        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
+        local5 = tf.nn.relu_layer(dropout2, weights, biases, name=scope.name)
+        _print_tensor_size(local5)
 
+     # dropout3
+    with tf.name_scope('dropout3'):
+       dropout3 = tf.nn.dropout(local5, keep_prob)
+       # _print_tensor_size(dropout1) # does not exist tensor shape
+
+    # local4
+    with tf.variable_scope('local4') as scope:
+        weights = _variable_with_weight_decay('weights', shape=[128, 128],
+                                              stddev=0.04, wd=0.004)
+        biases = _variable_on_cpu('biases', [128], tf.constant_initializer(0.1))
+        local6 = tf.nn.relu_layer(dropout2, weights, biases, name=scope.name)
+        _print_tensor_size(local6)
 
     # softmax, i.e. softmax(WX + b)
     with tf.variable_scope('softmax_linear') as scope:

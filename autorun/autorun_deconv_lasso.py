@@ -556,7 +556,7 @@ def find_max_activation_cvcnn(images, cur_image_num, layer=2, feat=[2, 4]):
             max_acitvations_threshold_tmp3 = tf.expand_dims(max_acitvations_threshold_tmp2, 0)
 
             max_threshold.append(tf.tile(max_acitvations_threshold_tmp3, [1,pool_tensor_shape[l][1], pool_tensor_shape[l][2], 1]))
-            pool_tensor2 = tf.select(max_threshold[l] >= pool_tensor, pool_tensor, -10e+20 * tf.ones_like(pool_tensor))
+            pool_tensor2 = tf.where(max_threshold[l] >= pool_tensor, pool_tensor, -10e+20 * tf.ones_like(pool_tensor))
             cur_activation.append(tf.reduce_max(pool_tensor2, [0, 1, 2]))
             pool_tensor2 = tf.transpose(pool_tensor2, [3, 1, 2, 0])
             pool_tensor3 = tf.reshape(pool_tensor2, [pool_tensor_shape[l][3], pool_tensor_shape[l][1] * pool_tensor_shape[l][2]])
@@ -566,11 +566,11 @@ def find_max_activation_cvcnn(images, cur_image_num, layer=2, feat=[2, 4]):
             selection.append(tf.logical_and(cur_activation[l] > max_activation[l],
                                        max_acitvations_threshold[l] > cur_activation[l]))
 
-            updated_max_ind = tf.select(selection[l], cur_ind[l], max_ind[l])
+            updated_max_ind = tf.where(selection[l], cur_ind[l], max_ind[l])
             update1.append(tf.assign(max_ind[l], updated_max_ind))
-            updated_max_image_ind = tf.select(selection[l], cur_image_ind[l], max_image_ind[l])
+            updated_max_image_ind = tf.where(selection[l], cur_image_ind[l], max_image_ind[l])
             update2.append(tf.assign(max_image_ind[l], updated_max_image_ind))
-            updated_max_activations = tf.select(selection[l], cur_activation[l], max_activation[l])
+            updated_max_activations = tf.where(selection[l], cur_activation[l], max_activation[l])
             update3.append(tf.assign(max_activation[l], updated_max_activations))
 
 

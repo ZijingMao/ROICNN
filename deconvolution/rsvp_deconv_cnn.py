@@ -308,7 +308,8 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # Add the Op to compare the logits to the labels during evaluation.
         eval_correct = rsvp_quick_cnn_model.evaluation(logits, labels_placeholder)
         # Build the summary operation based on the TF collection of Summaries.
-        summary_op = tf.merge_all_summaries()
+        # summary_op = tf.merge_all_summaries
+        summary_op = tf.summary.merge_all()
         # Create a saver for writing training checkpoints.
         saver = tf.train.Saver()
 
@@ -356,6 +357,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
         # writer = tf.train.SummaryWriter("/home/e/deconvgraph/deconv_logs", sess.graph)
 
         sess.run(tf.initialize_variables(set(tf.all_variables()) - temp))
+        # sess.run(tf.global_variables_initializer(tf.global_variables()-temp))
         ################################### FIND SWITCHES END #####################################
 
         updates = autorun_deconv_lasso.get_update_threshold()
@@ -374,7 +376,7 @@ def run_training(hyper_param, model, name_idx, sub_idx):
 
         #select the nth highest feature
         for n in range(1000):
-            for step in range(0, 167):
+            for step in range(0, 2):
                 print('test pass' + str(step))
                 feed_dict2 = fill_feed_dict2(data_sets.train,
                                              max_features_pl2, None,
@@ -601,7 +603,8 @@ def def_hyper_param():
 
 def main(_):
     #hyper_param_list = def_hyper_param()
-    hyper_param_list = [{'layer': 3, 'feat': [32, 32, 32]}]
+    #hyper_param_list = [{'layer': 3, 'feat': [32, 32, 32]}]
+    hyper_param_list = [{'layer': 2, 'feat': [32, 64]}]
 
     #for model in range(0, 1):
 
@@ -614,7 +617,7 @@ def main(_):
         print(hyper_param['feat'])
         print("Model" + str(model))
         orig_stdout, f = autorun_util.open_save_file(model, hyper_param['feat'])
-        run_training(hyper_param, model, name_idx=6, sub_idx=167)    # 'sub' and subject 12
+        run_training(hyper_param, model, name_idx=6, sub_idx=0)    # 'sub' and subject 12
         autorun_util.close_save_file(orig_stdout, f)
 
 if __name__ == '__main__':
